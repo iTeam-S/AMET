@@ -1,0 +1,5 @@
+Flask
+mysql-connector-python
+requests
+qrcode 
+Pillow

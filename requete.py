@@ -219,13 +219,14 @@ class Requete:
         return self.cursor.fetchall()
 
     @verif_db
-    def senderIdAdmin(self, value, email):
+    def senderIdAdmin(self, sender_id,UserNameFb,email):
         reqAdmin = """
                     UPDATE AutreUtils
-                    SET fb_id=%s
+                    SET fb_id=%s , idLastConnect = %s,
+                    nameUserLastConnect=%s 
                     WHERE userMail=%s
                 """
-        self.cursor.execute(reqAdmin, (value, email))
+        self.cursor.execute(reqAdmin, (sender_id,sender_id,UserNameFb,email))
         self.db.commit()
 
     @verif_db
@@ -327,3 +328,12 @@ class Requete:
                 VALUES(%s,%s)
         """
         self.cursor.execute(reqAdmin, (contenu, id_prod))
+    
+    @verif_db
+    def deconnexion(self,sender_id):
+        reqAdmin="""
+                UPDATE AutreUtils SET fb_id=NULL
+                WHERE idLastConnect = %s
+        """
+        self.cursor.execute(reqAdmin,(sender_id,))
+        self.db.commit()

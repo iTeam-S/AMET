@@ -8,7 +8,7 @@ class Messenger:
 
     def get_user_name(self, sender_id):
         res = requests.get(
-            f"https://graph.facebook.com/{sender_id}?fields=first_name,last_name&access_token={self.token}"
+            f"https://graph.facebook.com/{sender_id}?fields=name&access_token={self.token}"
         )
         return res
 
@@ -466,6 +466,59 @@ class Messenger:
                 params=params
             )
 
+
+        elif types == "operateurs":
+            text = "lequel de ces opérateurs que vous envoyez l'avance"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "TELMA",
+                    "payload": "__TELMA",
+                    "image_url":
+                    "https://www.saferinternetday.org/documents/167278/442136/TELMA+Madagascar+"
+                    +"logo.png/4a9e7003-9157-0832-b083-e4ce7bc3d36e?t=1611823007304"
+                },
+                {
+                    "content_type": "text",
+                    "title": "ORANGE",
+                    "payload": "__ORANGE",
+                    "image_url":
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo."
+                    +"svg/1200px-Orange_logo.svg.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "AIRTEL",
+                    "payload": "__AIRTEL",
+                    "image_url":
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBFXg32wKdcsDg3ws8m8t4Cj"
+                    +"Orr_iXYz3gDJQm59Jf6yKdgo5gkt1ytQvGpbKovRvTqJA&usqp=CAU"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+
         elif types == "proposeModifierAdmin":
 
             text = "Que souhaitez-vous modifier Admin?"
@@ -531,7 +584,8 @@ class Messenger:
 
 #------------------------Faire une autre modification----------------------------------------#
         elif types == "AutreModification":
-            text = "Voulez-vous faire une autre modification?"
+            text = "Voulez-vous faire une autre modification ou déjà fini ce \
+            que vous avez fait alors se deconnecter ou rester connecter"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -543,11 +597,68 @@ class Messenger:
                 },
                 {
                     "content_type": "text",
-                    "title": "Non",
+                    "title": "NON",
                     "payload": "__TSIA",
                     "image_url":
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
-                    + "xC5orrYOWknbYKYEAncXflfvSNqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
+                    + "xC5orrYOWknbYKYEAncXflfvSNoperateursqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
+                },
+                {
+                    "content_type": "text",
+                    "title": "RESTER CONNECTER",
+                    "payload": "__CONNECTER",
+                    "image_url":
+                    "https://cdn-icons-png.flaticon.com/512/4192/4192403.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "SE DECONNECTER",
+                    "payload": "__SE_DECONNECTER",
+                    "image_url":
+                    "https://img2.freepng.fr/20180218/lre/kisspng-abmeldung-button-icon-shut"
+                    +"-cliparts-5a89cae3634e92.2358717915189798114068.jpg"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "deconnexion":
+            text = "Vous vous deconnectez alors ou restez connecté"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "RESTER CONNECTER",
+                    "payload": "__CONNECTER",
+                    "image_url":
+                    "https://cdn-icons-png.flaticon.com/512/4192/4192403.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "SE DECONNECTER",
+                    "payload": "__SE_DECONNECTER",
+                    "image_url":
+                    "https://img2.freepng.fr/20180218/lre/kisspng-abmeldung-button-icon-shut"
+                    +"-cliparts-5a89cae3634e92.2358717915189798114068.jpg"
                 }
             ]
 

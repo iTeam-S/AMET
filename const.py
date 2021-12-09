@@ -139,3 +139,11 @@ successDelete = "Supprimé avec SUCCES"
 
 ErrorInputImageUser = "Evoyez plutôt du text pour continuer 😊😊😊"
 
+resterConnecter = "Merci pour ce que vous avez fait Admin! \
+Vous choisissez de rester connecter alors pour la prochaine \
+connexion, Vous, il suffit de faire un petit coucou 👋👋👋😊😊😊"
+
+deconnexion = "Merci pour ce que vous avez fait Admin! \
+Vous choisissez de se deconnecter alors pour la prochaine \
+connexion, Vous, il suffit de se connecter 👋👋👋😊😊😊"
+

@@ -236,7 +236,9 @@ class Admin:
 
         elif statut == "MODIFIER_GALLERY":
             try:
-                dataUrl = commande
+                dataUrl =  commande
+                print(dataUrl)
+                print(len(dataUrl))
                 if len(dataUrl) < json.loads(
                         req.get_tempAdmin(sender_id)).get("nombreRestant") + 1:
                     listeUrlPhotoGallery = []
@@ -244,9 +246,9 @@ class Admin:
                         listeUrlPhotoGallery.append(
                             dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]
                         )
-                        download_file(
-                            dataUrl[i]["payload"]["url"],
-                            f'/opt/AMET/photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}')
+                        # download_file(
+                        #     dataUrl[i]["payload"]["url"],
+                        #     f'/opt/AMET/photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}')
                     data = json.loads(req.get_tempAdmin(sender_id))
                     data["gallery"] = listeUrlPhotoGallery
                     req.set_tempAdmin(sender_id, json.dumps(data))
@@ -255,10 +257,10 @@ class Admin:
                         req.get_tempAdmin(sender_id)).get("gallery")
                     print(values)
 
-                    for j in range(len(values)):
-                        req.update_gallerry(
-                            values[j], json.loads(
-                                req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
+                    # for j in range(len(values)):
+                    #     req.update_gallerry(
+                    #         values[j], json.loads(
+                    #             req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
                     bot.send_message(sender_id, const.modifSuccess)
                     req.set_action_admin(sender_id, None)
                     bot.send_quick_reply(sender_id, "AutreModification")
@@ -389,6 +391,7 @@ class Admin:
 
         #--------------------------AJOUTER NOVEAUX GALLERRY POUR UN PRODUIT----------------------#
         elif commande == "__AJOUTER":
+            req.set_action_admin(sender_id, "MODIFIER_GALLERY")
             nombreGallerry = req.nombreGallerry(json.loads(
                 req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
             nombreRestant = 10 - int(nombreGallerry)
@@ -400,7 +403,6 @@ class Admin:
             data["nombreRestant"] = nombreRestant
             req.set_tempAdmin(sender_id, json.dumps(data))
             print(json.loads(req.get_tempAdmin(sender_id)))
-            req.set_action_admin(sender_id, "MODIFIER_GALLERY")
             return True
 
         #--------------------QuickReply Pour la modificaion d'un produit--------------------#
@@ -494,14 +496,29 @@ class Admin:
             return True
 
     #---------------Tous les reponses NON---------------------------------------------------#
-        elif commande == "__NON" or commande == "__no" or commande == "__NON_GALLERRY":
+        elif commande == "__NON" or commande == "__no" \
+         or commande == "__NON_GALLERRY" or commande == "__TSIA":
             bot.send_message(sender_id, "🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️")
             req.set_action_admin(sender_id, None)
-            # Asina deconnexion ato aveo
+            bot.send_quick_reply(sender_id,"deconnexion")
             return True
 
-    def executionAdmin(self, sender_id, commande):
+    #-------------------CONNEXION ET DECONNEXION---------------------------------------------#   
+        elif commande == "__CONNECTER":
+            req.set_action_admin(sender_id,None)
+            req.set_tempAdmin(sender_id,None)
+            bot.send_message(sender_id,const.resterConnecter)
+            return True
 
+        elif commande == "__SE_DECONNECTER":
+            req.set_action_admin(sender_id,None)
+            req.set_tempAdmin(sender_id,None)
+            req.deconnexion(sender_id)
+            bot.send_message(sender_id,const.deconnexion)
+            return True
+
+
+    def executionAdmin(self, sender_id, commande):
         # Mettre en vue d'abord notre cher(e) Admin
         bot.send_action(sender_id, 'mark_seen')
 

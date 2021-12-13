@@ -1,3 +1,5 @@
+#-----------------------SIMPLE VARIABLE----------------------------------------------------------------#
+
 pageInfo = "Les informations concernants notre page arrivent bientôt ici"
 
 invalideFormatDate = "Votre date est invalide\n\nVeuillez saisir à nouveau \
@@ -146,4 +148,18 @@ connexion, Vous, il suffit de faire un petit coucou 👋👋👋😊😊😊"
 deconnexion = "Merci pour ce que vous avez fait Admin! \
 Vous choisissez de se deconnecter alors pour la prochaine \
 connexion, Vous, il suffit de se connecter 👋👋👋😊😊😊"
+
+ErrorInputRef = "Votre réference est invalide\nVeuillez verifier et \
+Saisir à nouveau"
+
+attenteConfirmRef = "Veuillez patienter dans quelques minutes pour la \
+verification de votre reference"
+
+
+# -----------------------------FONCTIONS------------------------------------------------------#
+def verifReference(nom,terrain,operateur,reference):
+    return f"""
+            Bonjour Admin, {nom} vient de vous envoyer une avance pour une reservation de Terrain \
+            {terrain.upper()} pour votre numero {operateur} de reference {reference}\n\nPouvez-vous le vérifier s'il vous plait??
+    """
 

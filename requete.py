@@ -189,6 +189,16 @@ class Requete:
         self.cursor.execute(req, (user_id,))
         return self.cursor.fetchone()[0]
 
+    @verif_db
+    def getIdAdmin(self):
+        req = """
+                SELECT DISTINCT(idLastConnect)
+                FROM AutreUtils 
+                WHERE idLastConnect IS NOT NULL 
+                AND idLastConnect = fb_id
+        """
+        self.cursor.execute(req)
+        return self.cursor.fetchall()
 
 #------------------*----------REQUETE ADMIN-------------*---------------#
 
@@ -337,3 +347,4 @@ class Requete:
         """
         self.cursor.execute(reqAdmin,(sender_id,))
         self.db.commit()
+

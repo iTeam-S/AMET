@@ -380,6 +380,49 @@ class Messenger:
                 params=params
             )
 
+        elif types == "confirmRef":
+            text = "Veuillez-vous confirmer la reference alors?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "OUI",
+                    "payload": "__OUI__REF",
+                    "image_url":
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2W5PPm3Um"
+                    "+8AYdoL4xKh0LKaM9B2sxgIy1Ug&usqp=CAU"
+                },
+                {
+                    "content_type": "text",
+                    "title": "Non",
+                    "payload": "__NON__REF",
+                    "image_url":
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
+                    + "xC5orrYOWknbYKYEAncXflfvSNqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
         elif types == "confirmSuppProduct":
             text = "Vous voulez vraiment supprimer ce produit?"
             quick_rep = [

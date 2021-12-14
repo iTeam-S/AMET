@@ -1,5 +1,6 @@
-#-----------------------SIMPLE VARIABLE----------------------------------------------------------------#
+from datetime import date, datetime
 
+#-----------------------SIMPLE VARIABLE----------------------------------------------------------------#
 pageInfo = "Les informations concernants notre page arrivent bientôt ici"
 
 invalideFormatDate = "Votre date est invalide\n\nVeuillez saisir à nouveau \
@@ -69,6 +70,8 @@ Voici donc notre numero:\nTELMA:0340000000(Nom:Paul jean BA)\n \
 ORANGE:032000000(Nom:rakoto bleu)\n\nEt après saisir ici votre reference de transaction(celle-ci \
 est comme l'image ci-dessous montre!!\nAlors si vous avez payé l'avance auprès du \
 CACHE POINT MOBILE MONEY, n'oublie pas de la recuperer chez eux\n\n \
+⚠⚠Si vous n'avez pas encore envoyé cet avance danns trente minutes(30mn).\
+Votre commande est annulé alors vous obligez de le faire⚠⚠\n\n \
 Alors, on vous attend pour l'envoi de l'avance et la reférence ici"
 
 problems = "Et si vous avez de probleme pour l'envoi de cet avance, vous pouvez appelez \
@@ -155,11 +158,33 @@ Saisir à nouveau"
 attenteConfirmRef = "Veuillez patienter dans quelques minutes pour la \
 verification de votre reference"
 
+inputDataQrCode = "Entrer alors le data de QrCode:"
+ErrorVerifCmd = "Une erreur s'est produite,Veuillez saisir à nouveau!!"
+
+confirmCmd = "Entrer alors le Data unique à confirmé"
+TrueCmd = "Votre commande est bien confirmé\n\nAlors 👇👇👇👇"
+ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
+le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
+
 
 # -----------------------------FONCTIONS------------------------------------------------------#
 def verifReference(nom,terrain,operateur,reference):
     return f"""
             Bonjour Admin, {nom} vient de vous envoyer une avance pour une reservation de Terrain \
-            {terrain.upper()} pour votre numero {operateur} de reference {reference}\n\nPouvez-vous le vérifier s'il vous plait??
+            {terrain.upper()} pour votre numero {operateur} de reference {reference} \
+            \n\nPouvez-vous le vérifier s'il vous plait?? \
+            \n\nEt voici donc son unique Data de commande:
     """
 
+def infoCommande(listInfo,UserNameFb):
+        date_cmd = listInfo[1].strftime('%d-%m-%Y %Hh%M').split(" ")
+        return f"""
+                Ce commande existe et fait par {UserNameFb} le {date_cmd[0]} à {date_cmd[1]}.\
+                \n\nIl est un commande du Terrain {listInfo[5].upper()} \
+                \npour la date {listInfo[2].strftime('%d-%m-%Y')} du {listInfo[3]} à {listInfo[4]}
+        """
+def salutationSimpleUser(UserName):
+        return f"""
+                Bonjour 👋👋{UserName}👋👋,\n\nNous sommes une petite entreprise qui\
+                \nfait une location des terrains scientitiques ici Antananarivo
+        """

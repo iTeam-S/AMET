@@ -4,6 +4,7 @@ from utils import download_file
 import requete
 import const
 import json
+import qrcode
 
 
 bot = messenger.Messenger(ACCESS_TOKEN)
@@ -117,7 +118,13 @@ class Admin:
         bot.send_quick_reply(sender_id, "tachesAdmin")
         return True
 
+    
     def traitementPstPayloadAdmin(self, sender_id, commande):
+        """
+            Methode qui traite les poste paloyad 
+            des Tempaltes des produits
+        """
+
         payload = commande.split(" ")
         if payload[0] == "__MODIFIER":
             req.set_tempAdmin(
@@ -145,9 +152,14 @@ class Admin:
             bot.send_quick_reply(sender_id, "confirmSupprGallerry")
             return True
 
+    
     def traitementActionAdmin(self, sender_id, commande, statut):
+        """
+            Methode qui traite les faits que l'admin doit faire
+            par rapport à son action actuel 
+        """
 
-        #-----------------------------------MOFIFIER---------------------------------------------------------------#
+        #-----------------------------------MODIFICATION---------------------------------------------#
         if statut == "MODIFIER_NOM":
             data = json.loads(req.get_tempAdmin(sender_id))
             data["nom"] = commande
@@ -366,7 +378,58 @@ class Admin:
                 req.set_action_admin(sender_id, "ATTENTE_GALLERY")
                 return True
 
+        #--------------------------------VERIFIER COMMANDE-------------------------------#
+        elif statut == "VERIF_COMMANDE":
+            try:
+                dataQrCode = commande.split("_")
+                informations = list(req.infoCommande(dataQrCode[0],dataQrCode[1])[0])
+                bot.send_message(
+                    sender_id,
+                    const.infoCommande(
+                        informations,
+                        bot.get_user_name(informations[0]).json().get('name').upper()   
+                    )
+                )
+                req.set_action_admin(sender_id,None)
+                return True
+
+            except BaseException:
+                bot.send_message(sender_id,const.ErrorVerifCmd)
+                req.set_action_admin(sender_id,"VERIF_COMMANDE")
+                return True
+        
+        #---------------------------CONFIRMER COMMANDE-------------------------------------#
+        elif statut == "CONFIRM_CMD":
+            try:
+                recipientIdQrcode = req.getRecipientId(commande)
+                req.setStatut(commande)
+                bot.send_message(recipientIdQrcode,const.TrueCmd)
+                bot.send_message(recipientIdQrcode, const.givingTicket)
+                dataQrCode = list(req.getElementQrcode(commande)[0])
+                print(dataQrCode)
+                img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
+                img.save(f"/opt/AMET/photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
+                bot.send_file_url(
+                    recipientIdQrcode,
+                    f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
+                    "image")
+                bot.send_message(sender_id,const.ThinkingAdmin)
+                req.set_action_admin(sender_id,None)
+                req.set_temp(recipientIdQrcode, None)
+                req.set_action(recipientIdQrcode, None)
+                return True
+
+            except BaseException:
+                bot.send_message(sender_id,const.ErrorVerifCmd)
+                req.set_action_admin(sender_id,"CONFIRM_CMD")
+                return True
+
+
     def traitementCmdAdmin(self, sender_id, commande):
+        """
+            Methode qui traite les payload des
+            QuickReply de l'activité de l'admin
+        """
 
         #-----------QuickReply pour l'activité principal des Admin-----------------------#
         cmd = commande.split(" ")
@@ -386,8 +449,15 @@ class Admin:
             return True
 
         elif commande == "__VERIFCOMMANDE":
-            bot.send_message(sender_id, "verifier")
+            req.set_action_admin(sender_id,"VERIF_COMMANDE")
+            bot.send_message(sender_id,const.inputDataQrCode)
             return True
+        
+        elif commande == "__CONFIRMCMD":
+            bot.send_message(sender_id,const.confirmCmd)
+            req.set_action_admin(sender_id,"CONFIRM_CMD")
+            return True
+
 
         #--------------------------AJOUTER NOVEAUX GALLERRY POUR UN PRODUIT----------------------#
         elif commande == "__AJOUTER":
@@ -454,7 +524,6 @@ class Admin:
 
             bot.send_message(sender_id, const.successAddProduct)
             req.set_action_admin(sender_id, None)
-            # Asina deconnexion ato aveo
             return True
 
         #-------------QuickReply pour TOUS LES SUPPRESSIONS--------------------------------#
@@ -500,6 +569,7 @@ class Admin:
          or commande == "__NON_GALLERRY" or commande == "__TSIA":
             bot.send_message(sender_id, "🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️")
             req.set_action_admin(sender_id, None)
+            req.set_action_admin(sender_id,None)    
             bot.send_quick_reply(sender_id,"deconnexion")
             return True
 
@@ -519,7 +589,22 @@ class Admin:
 
 
     def executionAdmin(self, sender_id, commande):
-        # Mettre en vue d'abord notre cher(e) Admin
+        """
+            Methode principal qui traite tous les faits
+            qui se passent et en action 
+            À chaque fois qu'on poste qelques choses sur Messenger;
+            cette methode le gere et le guide à l'endroit où
+            le POST va
+
+            Alors le POST ceci suit l'action suivant:
+            le Bot le mettre en vue tout d'abord et apres
+            on va verifier l'action actuelle de sender_id
+            afin de connaitre ce que le sender_id veut faire
+            et à propos de son action et le type de post qu'il fait
+            le bot execute l'un de ces methodes la-dessous
+            (Ex: post QuickReply,PostPayload,textesimple,attachments,...)
+        """
+        # 
         bot.send_action(sender_id, 'mark_seen')
 
         statut = req.get_action_admin(sender_id)
@@ -533,7 +618,10 @@ class Admin:
         if self.traitementPstPayloadAdmin(sender_id, commande):
             return
 
-        # Prochaine salutation de nouvelle connexion au cas où
-        # il ne deconnecte pas
+        
         if self.salutationAdmin(sender_id):
+            """
+                Prochaine salutation de nouvelle connexion au cas où
+                il ne deconnecte pas
+            """
             return

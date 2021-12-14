@@ -28,6 +28,8 @@ class Requete:
             return fonction(*arg, **kwarg)
         return trt_verif
 
+
+    #----------------------REQUETES POUR LES UTILISATEURS SIMPLES---------------------------#
     @verif_db
     def get_produits(self):
         req = """
@@ -89,7 +91,6 @@ class Requete:
         '''
         req = 'SELECT action FROM utilisateur WHERE fb_id = %s'
         self.cursor.execute(req, (user_id,))
-        # retourne le resultat
         return self.cursor.fetchone()[0]
 
     @verif_db
@@ -108,7 +109,10 @@ class Requete:
             est-ce existe ou pas? la date entrée par
             l'utilisateur.
         """
-        req = 'SELECT  dateAlaTerrain FROM commande WHERE dateAlaTerrain=%s AND id_prod=%s'
+        req = '''
+                SELECT  dateAlaTerrain FROM commande 
+                WHERE dateAlaTerrain=%s AND id_prod=%s
+            '''
         self.cursor.execute(req, (daty, id_prod))
         return self.cursor.fetchall()
 
@@ -118,7 +122,6 @@ class Requete:
                 SELECT heureDebutCmd,heureFinCmd
                 FROM commande
                 WHERE dateAlaTerrain=%s AND id_prod=%s AND statut="CONFIRMÉ"
-
             """
         self.cursor.execute(req, (daty, id_prod))
         return self.cursor.fetchall()
@@ -157,7 +160,6 @@ class Requete:
         req = """
                 UPDATE commande SET statut = 'CONFIRMÉ'
                 WHERE  dataQrCode= %s
-
             """
         self.cursor.execute(req, (UniqueTime,))
         self.db.commit()
@@ -190,22 +192,50 @@ class Requete:
         return self.cursor.fetchone()[0]
 
     @verif_db
-    def getIdAdmin(self):
+    def infoCommande(self,id_cmd,UniqueTime):
         req = """
+                SELECT fb_id,date_cmd,dateAlaTerrain,
+                heureDebutCmd,heureFinCmd,nom_prod
+                FROM utilisateur
+                INNER JOIN commande 
+                ON utilisateur.id = commande.id
+                INNER JOIN produits 
+                ON commande.id_prod = produits.id_prod
+                WHERE id_cmd = %s
+                AND dataQrCode = %s
+                AND statut = 'CONFIRMÉ'
+        """
+        self.cursor.execute(req,(id_cmd,UniqueTime))
+        return self.cursor.fetchall()
+
+#----------------------------REQUETES POUR L'ADMIN----------------------------#
+
+    @verif_db
+    def getIdAdmin(self):
+        reqAdmin = """
                 SELECT DISTINCT(idLastConnect)
                 FROM AutreUtils 
                 WHERE idLastConnect IS NOT NULL 
                 AND idLastConnect = fb_id
         """
-        self.cursor.execute(req)
+        self.cursor.execute(reqAdmin)
         return self.cursor.fetchall()
 
-#------------------*----------REQUETE ADMIN-------------*---------------#
+    def getRecipientId(self,uniqueTime):
+        reqAdmin = """
+                SELECT fb_id 
+                FROM utilisateur
+                INNER JOIN commande
+                ON utilisateur.id = commande.id
+                WHERE dataQrCode = %s
+        """
+        self.cursor.execute(reqAdmin,(uniqueTime,))
+        return self.cursor.fetchone()[0]
 
     @verif_db
     def get_action_admin(self, sender_id_admin):
-        req = 'SELECT actions FROM AutreUtils WHERE fb_id = %s'
-        self.cursor.execute(req, (sender_id_admin,))
+        reqAdmin = 'SELECT actions FROM AutreUtils WHERE fb_id = %s'
+        self.cursor.execute(reqAdmin, (sender_id_admin,))
         return self.cursor.fetchone()[0]
 
     @verif_db
@@ -213,8 +243,8 @@ class Requete:
         '''
             Definir l'action de l'utilisateur
         '''
-        req = 'UPDATE AutreUtils SET actions = %s WHERE fb_id = %s'
-        self.cursor.execute(req, (action, sender_id_admin))
+        reqAdmin = 'UPDATE AutreUtils SET actions = %s WHERE fb_id = %s'
+        self.cursor.execute(reqAdmin, (action, sender_id_admin))
         self.db.commit()
 
     @verif_db
@@ -244,22 +274,25 @@ class Requete:
         '''
             Inserer des données temporaire dans la table
         '''
-        req = 'UPDATE AutreUtils SET temps = %s WHERE fb_id = %s'
-        self.cursor.execute(req, (data, user_id))
+        reqAdmin = 'UPDATE AutreUtils SET temps = %s WHERE fb_id = %s'
+        self.cursor.execute(reqAdmin, (data, user_id))
         self.db.commit()
 
     @verif_db
     def get_tempAdmin(self, user_id):
         '''
-            Recuperation des données temporaire d'un utilisateur
+            Recuperation des données temporaire de l'admin
         '''
-        req = 'SELECT temps FROM AutreUtils WHERE fb_id = %s'
-        self.cursor.execute(req, (user_id,))
+        reqAdmin = 'SELECT temps FROM AutreUtils WHERE fb_id = %s'
+        self.cursor.execute(reqAdmin, (user_id,))
         return self.cursor.fetchone()[0]
 
     @verif_db
     def get_product(self):
-        reqAdmin = "SELECT id_prod, nom_prod, details, prix, photo_couverture FROM produits"
+        reqAdmin = """
+                    SELECT id_prod, nom_prod, details, 
+                    prix, photo_couverture FROM produits
+                """
         self.cursor.execute(reqAdmin)
         return self.cursor.fetchall()
 
@@ -274,7 +307,7 @@ class Requete:
         reqAdmin = """
                 SELECT COUNT(contenu) FROM galeries
                 WHERE id_prod = %s
-        """
+            """
         self.cursor.execute(reqAdmin, (id_prod,))
         return self.cursor.fetchone()[0]
 
@@ -294,7 +327,8 @@ class Requete:
     @verif_db
     def create_product(self, name, details, prix, couverture):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ) VALUES (%s, %s, %s, %s,1)
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ) 
+                    VALUES (%s, %s, %s, %s,1)
                 """
         self.cursor.execute(reqAdmin, (name, details, prix, couverture))
         self.db.commit()
@@ -311,9 +345,9 @@ class Requete:
     @verif_db
     def update_gallerry(self, contenu, id_prod):
         reqAdmin = """
-            INSERT INTO galeries(contenu,id_prod)
-            VALUES(%s,%s)
-        """
+                    INSERT INTO galeries(contenu,id_prod)
+                    VALUES(%s,%s)
+                """
         self.cursor.execute(reqAdmin, (contenu, id_prod))
         self.db.commit()
 

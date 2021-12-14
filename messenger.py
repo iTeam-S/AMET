@@ -7,6 +7,11 @@ class Messenger:
         self.url = "https://graph.facebook.com/v8.0/me"
 
     def get_user_name(self, sender_id):
+        """
+            Cette fonction sert à getter l'UserName
+            sur FACEBOOK d'un utilisateur à partir de
+            son id
+        """
         res = requests.get(
             f"https://graph.facebook.com/{sender_id}?fields=name&access_token={self.token}"
         )
@@ -203,8 +208,10 @@ class Messenger:
             )
 
         elif types == "annulatioErreurHeureFin":
-            text = "Vous pouvez aussi annuler tous les entrées heures pour les mettre à nouveau \
-            ou à essayer à nouveau votre heure fin\n\n A votre choix alors?"
+            text = """
+                Vous pouvez aussi annuler tous les entrées heures pour les mettre à nouveau\
+                \nOu à essayer à nouveau votre heure fin\n\n A votre choix alors?
+            """
             quick_rep = [
                 {
                     "content_type": "text",
@@ -312,6 +319,13 @@ class Messenger:
                     "payload": "__VERIFCOMMANDE",
                     "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light" +
                     "-effects-for-picsart-glow-yellow-transparent.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "Confirmer commande",
+                    "payload": "__CONFIRMCMD",
+                    "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light" +
+                    "-effects-for-picsart-glow-yellow-transparent.png"
                 }
             ]
 
@@ -352,49 +366,6 @@ class Messenger:
                     "content_type": "text",
                     "title": "Non",
                     "payload": "__NON",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
-                    + "xC5orrYOWknbYKYEAncXflfvSNqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
-                }
-            ]
-
-            data_json = {
-                'messaging_type': "RESPONSE",
-                'recipient': {
-                    "id": dest_id
-                },
-
-                'message': {
-                    'text': text,
-                    'quick_replies': quick_rep
-                }
-            }
-
-            header = {'content-type': 'application/json; charset=utf-8'}
-            params = {"access_token": self.token}
-
-            return requests.post(
-                self.url + '/messages',
-                json=data_json,
-                headers=header,
-                params=params
-            )
-
-        elif types == "confirmRef":
-            text = "Veuillez-vous confirmer la reference alors?"
-            quick_rep = [
-                {
-                    "content_type": "text",
-                    "title": "OUI",
-                    "payload": "__OUI__REF",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2W5PPm3Um"
-                    "+8AYdoL4xKh0LKaM9B2sxgIy1Ug&usqp=CAU"
-                },
-                {
-                    "content_type": "text",
-                    "title": "Non",
-                    "payload": "__NON__REF",
                     "image_url":
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
                     + "xC5orrYOWknbYKYEAncXflfvSNqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
@@ -625,7 +596,6 @@ class Messenger:
                 params=params
             )
 
-#------------------------Faire une autre modification----------------------------------------#
         elif types == "AutreModification":
             text = "Voulez-vous faire une autre modification ou déjà fini ce \
             que vous avez fait alors se deconnecter ou rester connecter"

@@ -4,7 +4,6 @@ from datetime import date, datetime
 import time
 import requete
 import admin
-import qrcode
 import json
 import const
 import re
@@ -104,6 +103,10 @@ class Traitement:
             bot.send_message(sender_id, "produits")
 
     def gallery(self, id_prod):
+        """
+            Fonction qui fetch tous les Galleries 
+            photo d'un produits demandé
+        """
         all_gallery = req.get_gallerry(id_prod)
         listeGallery = []
         j = 0
@@ -125,9 +128,40 @@ class Traitement:
         return listeGallery
 
     def details(self, id_prod):
+        """
+            Fonction qui fecth le photo de Details 
+            d'un produits demandé
+        """
         photoDetails = req.get_detail(id_prod)
         urlDetails = URL_SERVER + photoDetails[0][0]
         return urlDetails
+
+
+    def refTrue(self,sender_id,nomOperateur,commande):
+        """
+            Fonction qui gère l'action et l'évenement
+            qui se passent après la saisir de reference
+            par un utilisateur
+        """
+        bot.send_message(sender_id,const.attenteConfirmRef)
+        ListIdAdmin = req.getIdAdmin()
+        for i in range(len(ListIdAdmin)):
+            print(ListIdAdmin[i][0])
+            bot.send_message(
+                ListIdAdmin[i][0],
+                const.verifReference(
+                    bot.get_user_name(sender_id).json().get('name').upper(),
+                    json.loads(req.get_temp(sender_id)).get("listeElementPayload")[2],
+                    nomOperateur,
+                    commande
+                )
+            )
+            bot.send_message(
+                ListIdAdmin[i][0],
+                json.loads(req.get_temp(sender_id)).get("uniqueTime")
+            )
+            req.set_action_admin(ListIdAdmin[i][0],None)
+        return True
 
 #--------------------------------------------FIN OPTIONS----------------------------------------------------------------#
 
@@ -146,6 +180,8 @@ class Traitement:
                     sender_id = message['sender']['id']
                     print(sender_id)
                     sender_id_admin = req.verifSenderId(sender_id)
+                    print("admin")
+                    print(sender_id_admin)
 
                     if message['message'].get('quick_reply'):
                         if sender_id_admin:
@@ -167,24 +203,27 @@ class Traitement:
                                 message['message'].get('text')
                             )
 
-                    if message['message'].get('attachments'):
-                        action_admin = req.get_action_admin(
-                            list(sender_id_admin)[0])
-                        print(action_admin)
-                        data = message['message'].get('attachments')
-                        if sender_id_admin and (
-                                action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY"):
-                            print(data)
-                            admin.executionAdmin(
-                                sender_id,
-                                data
-                            )
+                    elif message['message'].get('attachments'):
 
-                        elif sender_id_admin:
-                            admin.executionAdmin(
-                                sender_id,
-                                data[0]['payload']["url"]
-                            )
+                        if sender_id_admin:
+                            action_admin = req.get_action_admin(
+                                list(sender_id_admin)[0])
+                            print("etooooo")
+                            print(action_admin)
+                            print("eto tsika zao")
+                            data = message['message'].get('attachments')
+                            if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY":
+                                print(data)
+                                admin.executionAdmin(
+                                    sender_id,
+                                    data
+                                )
+
+                            else:
+                                admin.executionAdmin(
+                                    sender_id,
+                                    data[0]['payload']["url"]
+                                )
 
                         else:
                             bot.send_message(
@@ -206,23 +245,28 @@ class Traitement:
 
     #-------------------------------FIN ANALYSES DES MESSAGES POSTÉS PAR LES UTILISATEURS--------------------------------#
 
+
     #--------------------------------------LES TRAITEMENTS---------------------------------------------------------------#
 
     def salutation(self, sender_id):
-        # Saluer et presenter qui nous sommes avant tous l'utulisateurs
-        userInfo = bot.get_user_name(sender_id)
-        first_name = userInfo.json().get("first_name").upper()
-        last_name = userInfo.json().get("last_name").upper()
+        """
+            Saluer et presenter qui nous sommes 
+            avant tout à l'utulisateurs
+        """
         bot.send_message(
             sender_id,
-            f"Bonjour 👋👋{last_name} {first_name}👋👋,\n\n Nous sommes une petite entreprise qui" +
-            "fait une location des terrains scientitiques ici Antananarivo")
+            const.salutationSimpleUser(
+                bot.get_user_name(sender_id).json().get('name').upper()
+            )
+        )
         bot.send_quick_reply(sender_id, "proposerAction")
         return True
 
     def traitement_action(self, sender_id, commande, action):
-        # Ici on va donner ce que les utilisateurs font par rapport à son
-        # action actuelle
+        """
+            Methode qui traite les faits que l'utilisateur
+            doit faire par rapport à son action actuel
+        """
         print(action)
 
         if action == "USERNAME_ADMIN":
@@ -247,7 +291,10 @@ class Traitement:
             email = json.loads(req.get_temp(sender_id)).get("email")
             verifLogin = req.loginAdmin(email, password)
             if verifLogin:
-                req.senderIdAdmin(sender_id, email)
+                req.senderIdAdmin(
+                    sender_id,
+                    bot.get_user_name(sender_id).json().get('name').upper(),
+                    email)
                 req.set_action(sender_id, None)
                 bot.send_message(sender_id, const.salutationAdmin)
                 bot.send_quick_reply(sender_id, "tachesAdmin")
@@ -259,17 +306,19 @@ class Traitement:
                 req.set_action(sender_id, "USERNAME_ADMIN")
                 return True
 
-        # Si cet action est DATE; ils vont saisir sa date
         elif action == "DATE":
             daty = commande
             verifTypeDate = daty.split("-")
             dateNow = str(date.today().strftime("%d-%m-%Y")).split("-")
 
-            # Conditions qui verifient les types de la date entrée par
-            # l'utilisateur
+            
             if (not verifTypeDate[0].isdigit() or (int(verifTypeDate[0]) not in range(0, 32))) \
                     or (not verifTypeDate[1].isdigit() or (int(verifTypeDate[1]) not in range(1, 13))) \
                     or (not verifTypeDate[2].isdigit() or (int(verifTypeDate[2]) not in range(2021, 2023))):
+                """
+                    Conditions qui verifient les types 
+                    de la date entrée par l'utilisateur
+                """
                 bot.send_message(sender_id, const.invalideFormatDate)
                 req.set_action(sender_id, "DATE")
                 return True
@@ -280,7 +329,6 @@ class Traitement:
                 req.set_action(sender_id, "DATE")
                 return True
 
-            # Si la date est alors en bonne type, on va le traiter
             else:
                 dateAlaTerrain = datetime.strptime(daty, "%d-%m-%Y")
                 dateAlaTerrainFormater = dateAlaTerrain.strftime("%Y-%m-%d")
@@ -295,13 +343,18 @@ class Traitement:
 
                 print(indexProduit + "\n" + daty)
 
-                # Verifier la date entrée par l'utilisateur si c'est déjà
-                # existe dans la base ou non?
+                """
+                    Verifier la date entrée par l'utilisateur 
+                    si c'est déjà existe dans la base ou non?
+                """
                 exist = req.date_dispo(daty, indexProduit)
 
-                # s'elle existe alors, on va fetcher tous les heures déjà
-                # réservés pour cette date
+                
                 if exist:
+                    """
+                        s'elle existe alors, on va fetcher tous 
+                        les heures déjà réservés pour cette date
+                    """
                     print(daty)
                     heureDejaReserve = req.heureReserve(daty, indexProduit)
 
@@ -345,40 +398,48 @@ class Traitement:
                     req.set_action(sender_id, None)
                     return True
 
-                # S'elle n'est pas existe, donc l'utilisateur et libre de
-                # saisir son desire heure après
+                
                 else:
+                    """
+                        S'elle n'est pas existe, donc l'utilisateur
+                        et libre de saisir son desire heure après
+                    """
                     bot.send_message(sender_id, const.noExistingDate)
                     bot.send_quick_reply(sender_id, "proposerCmd")
                     req.set_action(sender_id, None)
                     return True
 
-        # Si cet action est HEURE_DEBUT, ils vont saisir son heure de debut
         elif action == "HEURE_DEBUT":
             heure_debut = commande
             verifHeureDeDebut = heure_debut.split("h")
 
-            # Avant tout, faut verifier l'heure entré par les utilisateurs
+            """
+                Avant tout, faut verifier 
+                l'heure entré par les utilisateurs
+            """
             if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < 6 or int(verifHeureDeDebut[0]) > 20) \
                     or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
 
             else:
-                # Ici on verifie si c'est cohérent avec les marge
+                """
+                    Ici on verifie si c'est 
+                    cohérent avec les marge
+                """
                 if (int(verifHeureDeDebut[1]) == 0) or (
                         int(verifHeureDeDebut[1]) == 30):
 
-                    # Ici si c'est l'heure que sa date a déjà existé dans la base
-                    # Ici le traiter, le verifier pour les cas de vol de
-                    # l'heure et etc
+                    """
+                        Ici, si c'est l'heure que sa date a déjà du commande
+                        on va le traiter, le verifier pour les cas de vol de
+                        l'heure et etc
+                    """
 
                     indexProduit = json.loads(
                         req.get_temp(sender_id)).get("listeElementPayload")[1]
                     daty = json.loads(req.get_temp(sender_id)).get("daty")
                     print(indexProduit + "\n" + daty)
-                    # Verifier la date entrée par l'utilisateur si c'est déjà
-                    # existe dans la base ou non?
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
@@ -465,9 +526,12 @@ class Traitement:
                         req.set_action(sender_id, "HEURE_FIN")
                         return True
 
-                    # Ici c'est l'heure où sa date n'est pas existée dans la
-                    # base
+                    
                     else:
+                        """
+                            Ici c'est l'heure où sa date n'a
+                            pas encore du commande
+                        """
                         print("tsy ao zah zan , tsy miexist le date lec")
                         data = json.loads(req.get_temp(sender_id))
                         data["heureDebut"] = heure_debut
@@ -481,7 +545,6 @@ class Traitement:
                     bot.send_message(sender_id, const.ErrorTranceBegining)
                     return True
 
-        # Si cet action est HEURE_FIN, ils vont saisir son heure de fin
         elif action == "HEURE_FIN":
             heure_fin = commande
             verifHeureDeFin = heure_fin.split("h")
@@ -498,36 +561,40 @@ class Traitement:
             print(verifIntervalleDebut)
             print(verifIntervalleFin)
 
-            # Avant tout, faut verifier l'heure entré par les utilisateurs
             if(not verifHeureDeFin[0].isdigit() or int(verifHeureDeFin[0]) < 6 or int(verifHeureDeFin[0]) > 19) \
                     or (not verifHeureDeFin[1].isdigit() or int(verifHeureDeFin[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
 
             else:
-                # Eto dia tsy maintsy ajaina foana ilay hoe tsy maintsy 00 na 30 ian ny minutes ao
-                # aorinan'ilay ora fa ra tsy zany dia tsy ekena fa manimba
-                # zavatra
+                """
+                    Eto dia tsy maintsy ajaina foana ilay hoe tsy maintsy 
+                    00 na 30 ihany ny minutes ao aorinan'ilay ora fa ra tsy 
+                    izany dia tsy ekena fa manimba zavatra
+                """
                 if int(
                         verifHeureDeFin[1]) == 0 or int(
                         verifHeureDeFin[1]) == 30:
 
-                    # Ra toa ka efa misy an anat base le daty, zan we efa mis nanw
-                    # reservation t@nio daty io
+                    """
+                        Ra toa ka efa nis nanw
+                        reservation t@nio daty io dia...
+                    """
 
                     indexProduit = json.loads(
                         req.get_temp(sender_id)).get("listeElementPayload")[1]
                     daty = json.loads(req.get_temp(sender_id)).get("daty")
                     print(indexProduit + "\n" + daty)
-                    # Verifier la date entrée par l'utilisateur si c'est déjà
-                    # existe dans la base ou non?
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
                         d = 0
                         while d < len(verifIntervalleDebut):
-                            # De bouclena aloha mba anwvana verification sao dia ka tafalatsaka
-                            # @na ora efa misy ilay ora napidirinlay user
+                            """
+                                De bouclena aloha mba anwvana verification sao 
+                                dia ka tafalatsaka amin'ny ora efa misy ilay ora napidirinlay
+                                utilisateur ka miteraka vol-na ora ka manimba zavatra
+                            """
 
                             if int(
                                     verifIntervalleDebut[d]) < int(
@@ -538,19 +605,28 @@ class Traitement:
 
                                 return True
 
-                            # verification ra mtov @heure debut ray n heure fin
-                            # nampidiriny
                             elif int(verifHeureDeFin[0]) == int(verifIntervalleDebut[d]):
-
-                                # verifena manaraka ary we kely ve na mtov
-                                # ninute anle heure fin napidirina koa
+                                
+                                """
+                                    verification ra mtov @heure debut
+                                    ray efa misy ny heure fin nampidiriny  
+                                """
+                                
                                 if int(
                                         verifHeureDeFin[1]) <= int(
                                         listeHeureDebut[d].split("h")[1]):
-
-                                    # Dia ra Eny zay rehetra zay a ka kely na mitovy @heure debut le heure fin de Erreur
-                                    # satria ts manaja marge
+                                    """
+                                        verifena manaraka ary we kely ve na mitovy
+                                        ny minute anle heure fin napidirina sy ilay
+                                        heure debut efa misy
+                                    """
+                                    
                                     if verifHeureDeFin[0] <= verifHeureDeDebut[0]:
+                                        """
+                                            Dia ra Eny zay rehetra zay a ka kely
+                                            na mitovy @heure debut le heure fin de 
+                                            Erreur satria ts manaja marge
+                                        """
                                         bot.send_message(
                                             sender_id, const.ErrorMarging)
                                         bot.send_quick_reply(
@@ -558,9 +634,11 @@ class Traitement:
                                         req.set_action(sender_id, None)
                                         return True
 
-                                    # fa ra tsy zay dia marina zan ka mety ny
-                                    # heureFin-ay
                                     else:
+                                        """
+                                            fa ra tsy zay dia marina zan 
+                                            ka mety ny heureFin-ay
+                                        """
                                         data = json.loads(
                                             req.get_temp(sender_id))
                                         data["heureFin"] = heure_fin
@@ -596,12 +674,16 @@ class Traitement:
                                 pass
                             d = d + 1
 
-                        # raha toa ka tsy tafalatsaka tao mits fa ora hafa mihitsy dia
-                        # atw ndray lo comparaison entre anaz sy le heureDebut
-                        # elana @erreur marge
                         if verifHeureDeFin[0] <= verifHeureDeDebut[0]:
-                            # ra toa ka mitov na kel noho n heure debut n heure
-                            # fin dia tsy mety
+                            """
+                                raha toa ka tsy tafalatsaka tao mits fa ora hafa mihitsy
+                                dia atw ndray lo comparaison entre azy sy le heureDebut
+                                mba hilahana @erreur marge
+
+                                Dia raha toa ka mitovy na kely noho ny
+                                heure debut ny heure fin dia tsy mety
+                            """
+                            
                             bot.send_message(sender_id, const.ErrorMarging)
                             bot.send_quick_reply(
                                 sender_id, "annulatioErreurHeureFin")
@@ -609,9 +691,12 @@ class Traitement:
                             return True
 
                         else:
-                            # fa ra tsia kousa dia verifene ndray lo sao sanatria ka tafalatsaka t@na intervalle temps
-                            # efa nisy nanw reservation ka lasa erreur be matsiravina mitsy satria hifanindry io ora sy
-                            # fotoana io
+                            """
+                                fa raha tsia kosa dia verifena indray aloha sao
+                                sanatria ka tafalatsaka tamin'ny intervalle de temps
+                                efa nisy nanao reservation ka lasa erreur be matsiravina
+                                mitsy satria hifanindry io ora sy fotoana io
+                            """
                             listeHeureDebutEtFin = verifIntervalleDebut + verifIntervalleFin
                             print(listeHeureDebutEtFin)
                             for e in range(
@@ -629,9 +714,11 @@ class Traitement:
                                     else:
                                         pass
 
-                            # Ra toa mo ka tsy tao mitsy le izy a, de isaorana izany ny tompo fa
-                            # mety soamantsara ny heure Fin napidiriny ka afaka
-                            # manohy ny lalany izy
+                            """
+                                Raha toa mo ka tsy tao mihitsy le izy a,
+                                de isaorana izany ny Tompo fa mety soamantsara 
+                                ny heure Fin-ny napidiriny ka afaka manohy ny lalany izy
+                            """
                             data = json.loads(req.get_temp(sender_id))
                             data["heureFin"] = heure_fin
                             req.set_temp(sender_id, json.dumps(data))
@@ -659,10 +746,13 @@ class Traitement:
                             req.set_action(sender_id, None)
                             return True
 
-                    # Ra toa ka tsisy tany anaty base mitsy le date zan we daty vaovao be zany le izy
-                    # dia il suffit manao comparaison anlay heureDebut s Fin
-                    # fotsiny zany mba ialana @erreur marge
+                    
                     else:
+                        """
+                            Raha toa ka daty tsy mbola nisy nanao reservation mitsy mo
+                            ilay izy dia il suffit manao comparaison anlay heureDebut sy
+                            Heure Fin fotsiny zany mba ialana @erreur marge
+                        """
                         if verifHeureDeFin[0] <= verifHeureDeDebut[0]:
                             bot.send_message(sender_id, const.ErrorMarging)
                             bot.send_quick_reply(
@@ -686,7 +776,7 @@ class Traitement:
                                 datyAAA +
                                 " du Terrain " +
                                 json.loads(
-                                    req.get_temp(sender_id)).get("listeElementPayload")[3] +
+                                    req.get_temp(sender_id)).get("listeElementPayload")[2] +
                                 " de " +
                                 json.loads(
                                     req.get_temp(sender_id)).get("heureDebut") +
@@ -698,53 +788,62 @@ class Traitement:
                             req.set_action(sender_id, None)
                             return True
 
-                # Ka refa tsy anaja anilay 00 sy 30 zany izy @lay minutes de
-                # ometsiaka ny belle eurreur
+                
                 else:
+                    """
+                        Ka refa tsy anaja anilay 00 sy 30 zany izy 
+                        amin'ilay minutes de ometsiaka ny belle eurreur
+                    """
                     bot.send_message(sender_id, const.ErrorTranceEnd)
                     bot.send_quick_reply(sender_id, "annulatioErreurHeureFin")
                     req.set_action(sender_id, None)
                     return True
 
-        # Si l'action est ATTENTE_REFERENCE de asena mapiditra anilay reference mobile money izy
-        # mba iverifier-na we efa nandoa avance iany ve sa tsia mba iconfirmena
-        # marina ny nny commande-n
         elif action == "ATTENTE_REFERENCE":
-            # condition regex de la reference
+            operateur = json.loads(req.get_temp(sender_id)).get("operateur")
 
-            # envoi de message à l'admin pour verification ka ra mverifier n admin we
-            # nisy ilay reference vola dia zay vo omena billet izy
+            if operateur == "TELMA":
+                if commande.isdigit():
+                    self.refTrue(
+                        sender_id,
+                        "TELMA",
+                        commande
+                    )
+                    return True
 
-            # Ireto manaraka ireto zany aveo dia any anaty traitement hafa mitsy fa tsy ato
-            # envoide de qrcode(id + time.time())
-            # confirmé tout d'abord le commande
-            UniqueTime = json.loads(req.get_temp(sender_id)).get("uniqueTime")
-            req.setStatut(UniqueTime)
-            bot.send_message(sender_id, const.givingTicket)
-            dataQrCode = list(req.getElementQrcode(UniqueTime)[0])
-            print(dataQrCode)
-            img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
-            img.save(f"/opt/AMET/photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
-            bot.send_file_url(
-                sender_id,
-                f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
-                "image")
-            req.set_action(sender_id, None)
-            return True
+                else:
+                    bot.send_message(
+                        sender_id,
+                        const.ErrorInputRef
+                    )
+                    return True
+            
+            elif operateur == "ORANGE":
+                regex = r'\b[A-Z0-9]+\.[0-9|A-Z0-9]+\.[A-Z0-9]{2,}\b'
+                
+                if(re.fullmatch(regex, commande)):
+                    self.refTrue(
+                        sender_id,
+                        "ORANGE",
+                        commande
+                    )
+                    return True
 
-            # Refa vita ny fanomezana QRCODE dia mila asina derniere action fa so anw merci le
-            # utilisateur de lasa misy erreur ndray aveo
-            # update statut
-            # req.set_action(sender_id,None)
-            # De ra miverina iz @manaraka de awn ndray n BDD
-            #-----verif sur place pour l'Admin---------#
-            # req de verif where id verif[0] and id+time.time()
+                else:
+                    bot.send_message(
+                        sender_id,
+                        const.ErrorInputRef
+                    )
+                    return True
+                
+                
+                
 
     def traitement_cmd(self, sender_id, commande):
         """
             Methode qui permet d'envoyer les options
             aux utilisateurs afin qu'ils puissent continuer
-            ses actions
+            ses actions(QuickReply)
 
         """
         cmd = commande.split(" ")
@@ -820,9 +919,38 @@ class Traitement:
             bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
             bot.send_message(sender_id, const.problems)
             # alerte de 30mn d'envoie de M'Vola ou orange money
+            bot.send_quick_reply(sender_id,"operateurs")
+            req.set_action(sender_id,None)
+            
+            return True
+
+        elif commande == "__TELMA":
+            data = json.loads(req.get_temp(sender_id))
+            data["operateur"] = "TELMA"
+            req.set_temp(sender_id, json.dumps(data))
+            print(json.loads(req.get_temp(sender_id)))
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
+        
+        elif commande == "__ORANGE":
+            data = json.loads(req.get_temp(sender_id))
+            data["operateur"] = "ORANGE"
+            req.set_temp(sender_id, json.dumps(data))
+            print(json.loads(req.get_temp(sender_id)))
+            bot.send_message(sender_id, const.inputReference)
+            req.set_action(sender_id, "ATTENTE_REFERENCE")
+            return True
+        
+        elif commande == "__AIRTEL":
+            data = json.loads(req.get_temp(sender_id))
+            data["operateur"] = "AIRTEL"
+            req.set_temp(sender_id, json.dumps(data))
+            print(json.loads(req.get_temp(sender_id)))
+            bot.send_message(sender_id, const.inputReference)
+            req.set_action(sender_id, "ATTENTE_REFERENCE")
+            return True
+
 
         elif commande == "__NON":
             bot.send_message(sender_id, const.thanking)
@@ -852,9 +980,13 @@ class Traitement:
             return True
 
     def traitement_pstPayload(self, sender_id, pst_payload):
+
+        """
+            Methode qui traite les poste paloyad 
+            des Tempaltes des produits
+        """
         listeElementPayload = pst_payload.split(" ")
 
-        # PREMIER TEMPLATE GENERIC AVEC TROIS PALYLOAD
         if listeElementPayload[0] == "__GALERY":
             bot.send_template(sender_id,
                               self.gallery(int(listeElementPayload[1])))
@@ -881,12 +1013,9 @@ class Traitement:
             req.set_action(sender_id, "DATE")
             return True
 
-        # DEUXIEME TEMPLATE GENERIC AVEC TROIS PALYLOAD
         elif listeElementPayload[0] == "__voirimage":
             bot.send_file_url(sender_id, listeElementPayload[1], "image")
             return True
-
-    #-------------------------------------LE COEUR DES TRAITEMENTS---------------------------------------------#
 
     def __execution(self, user_id, commande):
         """
@@ -894,28 +1023,20 @@ class Traitement:
             Ary eto dia refa marina ny iray @reo traitement reo dia
             tapaka ny fonction
         """
-        # Verification du sender dans la base
-        # Insertion si non présent
         req.verif_utilisateur(user_id)
 
-        # Mettre en vue les messages reçus
         bot.send_action(user_id, 'mark_seen')
 
-        # recuperer l'action de l'utilisateur.
         statut = req.get_action(user_id)
 
-        # traitement par action courrant
         if self.traitement_action(user_id, commande, statut):
             return
 
-        # #traiter les commandes obtenus
         if self.traitement_cmd(user_id, commande):
             return
 
-        # traiter les reponses quick_reply
         if self.traitement_pstPayload(user_id, commande):
             return
 
-        # salutation
         if self.salutation(user_id):
             return

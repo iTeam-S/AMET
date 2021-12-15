@@ -71,7 +71,7 @@ ORANGE:032000000(Nom:rakoto bleu)\n\nEt après saisir ici votre reference de tra
 est comme l'image ci-dessous montre!!\nAlors si vous avez payé l'avance auprès du \
 CACHE POINT MOBILE MONEY, n'oublie pas de la recuperer chez eux\n\n \
 ⚠⚠Si vous n'avez pas encore envoyé cet avance danns trente minutes(30mn).\
-Votre commande est annulé alors vous obligez de le faire⚠⚠\n\n \
+Votre commande est annulé alors vous obligez de le refaire⚠⚠\n\n \
 Alors, on vous attend pour l'envoi de l'avance et la reférence ici"
 
 problems = "Et si vous avez de probleme pour l'envoi de cet avance, vous pouvez appelez \
@@ -166,7 +166,6 @@ TrueCmd = "Votre commande est bien confirmé\n\nAlors 👇👇👇👇"
 ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
 le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
 
-
 # -----------------------------FONCTIONS------------------------------------------------------#
 def verifReference(nom,terrain,operateur,reference):
     return f"""
@@ -187,4 +186,11 @@ def salutationSimpleUser(UserName):
         return f"""
                 Bonjour 👋👋{UserName}👋👋,\n\nNous sommes une petite entreprise qui\
                 \nfait une location des terrains scientitiques ici Antananarivo
+        """
+
+def TrueConfirm(UniqueTime):
+        return f"""
+                Ce commande qui a de Data Unique {UniqueTime} est déjà confirmé \
+                \npar un autre Admin!! Merci 😊😊😊
+        
         """

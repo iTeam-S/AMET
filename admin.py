@@ -401,23 +401,34 @@ class Admin:
         #---------------------------CONFIRMER COMMANDE-------------------------------------#
         elif statut == "CONFIRM_CMD":
             try:
-                recipientIdQrcode = req.getRecipientId(commande)
-                req.setStatut(commande)
-                bot.send_message(recipientIdQrcode,const.TrueCmd)
-                bot.send_message(recipientIdQrcode, const.givingTicket)
-                dataQrCode = list(req.getElementQrcode(commande)[0])
-                print(dataQrCode)
-                img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
-                img.save(f"/opt/AMET/photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
-                bot.send_file_url(
-                    recipientIdQrcode,
-                    f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
-                    "image")
-                bot.send_message(sender_id,const.ThinkingAdmin)
-                req.set_action_admin(sender_id,None)
-                req.set_temp(recipientIdQrcode, None)
-                req.set_action(recipientIdQrcode, None)
-                return True
+                statut = req.getStatutCmd(commande)
+                
+                if statut == "CONFIRMÉ":
+                    bot.send_message(
+                        sender_id,
+                        const.TrueConfirm(commande)
+                    )
+                    req.set_action_admin(sender_id,None)
+                    return True
+
+                else:
+                    recipientIdQrcode = req.getRecipientId(commande)
+                    req.setStatut(commande)
+                    bot.send_message(recipientIdQrcode,const.TrueCmd)
+                    bot.send_message(recipientIdQrcode, const.givingTicket)
+                    dataQrCode = list(req.getElementQrcode(commande)[0])
+                    print(dataQrCode)
+                    img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
+                    img.save(f"/opt/AMET/photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
+                    bot.send_file_url(
+                        recipientIdQrcode,
+                        f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
+                        "image")
+                    bot.send_message(sender_id,const.ThinkingAdmin)
+                    req.set_action_admin(sender_id,None)
+                    req.set_temp(recipientIdQrcode, None)
+                    req.set_action(recipientIdQrcode, None)
+                    return True
 
             except BaseException:
                 bot.send_message(sender_id,const.ErrorVerifCmd)

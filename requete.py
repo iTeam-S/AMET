@@ -208,6 +208,15 @@ class Requete:
         self.cursor.execute(req,(id_cmd,UniqueTime))
         return self.cursor.fetchall()
 
+    @verif_db
+    def getStatutCmd(self,uniqueTime):
+        req = """
+                SELECT statut FROM commande
+                WHERE dataQrcode = %s
+        """
+        self.cursor.execute(req,(uniqueTime,))
+        return self.cursor.fetchone()[0]
+
 #----------------------------REQUETES POUR L'ADMIN----------------------------#
 
     @verif_db

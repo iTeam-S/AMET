@@ -58,7 +58,7 @@ class Admin:
             '''
 
             '''
-            prendre le debut de resultat a prendre dans la liste
+            prendre le debut de resultat à prendre dans la liste
             si page 1 donc, le debut est à 0, d'ou on commence par
             l'indice 0 du liste, si page 1 donc à 10.
             '''
@@ -288,6 +288,7 @@ class Admin:
 
         #--------------------------------CREER NOUVEAU PRODUIT----------------------------------------------------#
         elif statut == "ATTENTE_NOM":
+            print(statut)
             nom = commande
             req.set_tempAdmin(sender_id, json.dumps({"nom": nom}))
             print(json.loads(req.get_tempAdmin(sender_id)))
@@ -618,7 +619,7 @@ class Admin:
         # 
         bot.send_action(sender_id, 'mark_seen')
 
-        statut = req.get_action_admin(sender_id)
+        statut = req.get_action_admin(sender_id)[0]
 
         if self.traitementActionAdmin(sender_id, commande, statut):
             return True

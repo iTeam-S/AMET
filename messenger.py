@@ -120,6 +120,86 @@ class Messenger:
                 params=params
             )
 
+        elif types == "AproposTerrain":
+
+            text = "Rechercher du Terrain ou Lister?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "RECHERCHER",
+                    "payload": "__RECHERCHER",
+                    "image_url": "https://image.pngaaa.com/560/25560-middle.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "LISTER",
+                    "payload": "__LISTER",
+                    "image_url": "https://www.pngmart.com/files/8/List-PNG-Free-Download.png"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "emptySearch":
+
+            text = "Vous pouvez essayer à nouveau ou abandonner"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "ESSAYER À NOUVEAU",
+                    "payload": "__NOUVEAU",
+                    "image_url": "https://cdn.icon-icons.com/icons2/2483/PNG/512/retry_icon_149879.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "ABANDONNER",
+                    "payload": "__ABANDONNER",
+                    "image_url": "https://cdn-icons-png.flaticon.com/512/5662/5662303.png"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
         elif types == "continuation":
 
             text = "Maintenant,Vous pouvez continuer en louant du terrain ou nous remercier?"
@@ -253,26 +333,25 @@ class Messenger:
             )
 
         elif types == "proposerCmd":
-            text = "Alors, Vous voulez quoi maintenant?\n\nCmd: commande"
+            text = "Faites votre reservation alors"
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "Cmd de cette date 😍😍",
+                    "title": "DE CETTE DATE",
                     "payload": "__CMDDATEACTU",
                     "image_url": "http://assets.stickpng.com/images/58afdad6829958a978a4a693.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "Cmd à autre date 🥰🥰",
+                    "title": "À UNE AUTRE DATE",
                     "payload": "__CMDAUTREDATE",
                     "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Solid_green.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "Juste curieux 😇😇🙂🙃",
-                    "payload": "__CURIEUX",
-                    "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light-" +
-                    "effects-for-picsart-glow-yellow-transparent.png"
+                    "title": "A UN AUTRE PRODUIT",
+                    "payload": "__PRODUIT",
+                    "image_url": "https://cdn-icons-png.flaticon.com/512/126/126083.png"
                 }
             ]
 
@@ -745,7 +824,7 @@ class Messenger:
                 },
                 {
                     "content_type": "text",
-                    "title": "AUTRE",
+                    "title": "AUTRE PRODUIT",
                     "payload": "__AUTRE",
                     "image_url":
                     "https://cdn-icons-png.flaticon.com/512/126/126083.png"

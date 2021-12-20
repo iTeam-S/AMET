@@ -1,6 +1,22 @@
 from datetime import date, datetime
 
 #-----------------------SIMPLE VARIABLE----------------------------------------------------------------#
+salutationUser = "Bonjour 👋👋👋👋,\n\nNous sommes une petite entreprise qui\
+                \nfait une location des terrains scientitiques ici Antananarivo"
+
+search = "Entrer le nom du terrain que vous recherchez\n\n \
+Exemple: Pour chercher Terrain Andohalo, Entrer tout simplement Andohalo"
+
+reSearch = "Une erreur s'est produite, Veuillez vous enter votre \
+recherche encore"
+
+emptySearch = "Aucun résultat pour ce nom du Terrain"
+
+essayer = "Entrez à nouveau alors le nom du terrain que vous \
+voulez recherchez"
+abandon = "Vous vous abandomnez 🥲🥲🥲🥲🥲\n\n Alors je vous ramène \
+au menu principale!!!"
+
 pageInfo = "Les informations concernants notre page arrivent bientôt ici"
 
 invalideFormatDate = "Votre date est invalide\n\nVeuillez saisir à nouveau \
@@ -58,10 +74,6 @@ minute des heures que vous entrez.\n\n Pour terminer, regardez bien les interval
 pour votre bonne choix et surtout le format de l'heure qu'on vous suposse à entrer\n\nMerci 😊😊😊"
 
 cmdOfAnotherDate = "Entrer alors la date en respctant toujours le bon format😊😊😊"
-
-curiosity = "Merci beaucoup pour votre curiosité et la visite de notre page😊😊😊\n\n \
-Vous pouvez encore  faire un commade maintenant même ou à une autre jour si vous voulez en envoyant \
-encore de message 😉😉😉\n\nSinon A Bientôt ✋✋✋✋✋"
 
 informations = "Votre commande a été bien enregistrer\n\nPour que nous pouvons \
 confirmer vraiment votre commande, on vous demande de payer une pétite avance du montant \

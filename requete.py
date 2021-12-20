@@ -1,3 +1,4 @@
+import re
 import mysql.connector
 from conf import DATABASE
 
@@ -39,6 +40,17 @@ class Requete:
               """
         self.cursor.execute(req)
         return self.cursor.fetchall()
+    
+    @verif_db
+    def get_productSearch(self,name):
+        req = """
+                SELECT id_prod, nom_prod, prix,photo_couverture
+                FROM produits
+                WHERE nom_prod LIKE UPPER(%s) 
+                OR nom_prod LIKE LOWER(%s)
+        """
+        self.cursor.execute(req,(name,name))
+        return self.cursor.fetchone()
 
     @verif_db
     def get_gallerry(self, id_prod):
@@ -121,7 +133,8 @@ class Requete:
         req = """
                 SELECT heureDebutCmd,heureFinCmd
                 FROM commande
-                WHERE dateAlaTerrain=%s AND id_prod=%s AND statut="CONFIRMÉ"
+                WHERE dateAlaTerrain=%s AND id_prod=%s
+                ORDER BY heureDebutCmd ASC
             """
         self.cursor.execute(req, (daty, id_prod))
         return self.cursor.fetchall()
@@ -245,7 +258,9 @@ class Requete:
     def get_action_admin(self, sender_id_admin):
         reqAdmin = 'SELECT actions FROM AutreUtils WHERE fb_id = %s'
         self.cursor.execute(reqAdmin, (sender_id_admin,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()
+        self.db.commit() #Pour eviter la cache 
+        return data
 
     @verif_db
     def set_action_admin(self, sender_id_admin, action):

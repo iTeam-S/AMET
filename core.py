@@ -31,7 +31,7 @@ class Traitement:
 
         while i < len(photos):
             produits.append({
-                "title": str(photos[i][0]) + " - " + photos[i][1],
+                "title": str(photos[i][0]) + " - Terrain" + photos[i][1],
                 "image_url": URL_SERVER + photos[i][3],
                 "subtitle": "Prix : " + str(photos[i][2]) + " Ar /heures",
                 "buttons": [
@@ -88,7 +88,7 @@ class Traitement:
                         {
                             "content_type": "text",
                             "title": "page_suivante",
-                            "payload": f"__LOUER_TERRAIN {page+1}",
+                            "payload": f"__LISTER {page+1}",
                             "image_url":
                                 "https://icon-icons.com/downloadimage.php"
                                 + "?id=81300&root=1149/PNG/512/&file=" +
@@ -180,8 +180,7 @@ class Traitement:
                     sender_id = message['sender']['id']
                     print(sender_id)
                     sender_id_admin = req.verifSenderId(sender_id)
-                    print("admin")
-                    print(sender_id_admin)
+                    # print(sender_id_admin)
 
                     if message['message'].get('quick_reply'):
                         if sender_id_admin:
@@ -207,11 +206,9 @@ class Traitement:
 
                         if sender_id_admin:
                             action_admin = req.get_action_admin(
-                                list(sender_id_admin)[0])
-                            print("etooooo")
-                            print(action_admin)
-                            print("eto tsika zao")
+                                list(sender_id_admin)[0])[0]
                             data = message['message'].get('attachments')
+                            
                             if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY":
                                 print(data)
                                 admin.executionAdmin(
@@ -253,14 +250,22 @@ class Traitement:
             Saluer et presenter qui nous sommes 
             avant tout à l'utulisateurs
         """
-        bot.send_message(
-            sender_id,
-            const.salutationSimpleUser(
-                bot.get_user_name(sender_id).json().get('name').upper()
+        try:
+            bot.send_message(
+                sender_id,
+                const.salutationSimpleUser(
+                    bot.get_user_name(sender_id).json().get('name').upper()
+                )
             )
-        )
-        bot.send_quick_reply(sender_id, "proposerAction")
-        return True
+            bot.send_quick_reply(sender_id, "proposerAction")  
+            return True
+
+        except BaseException:
+            bot.send_message(
+                sender_id,
+                const.salutationUser
+            )
+            return True
 
     def traitement_action(self, sender_id, commande, action):
         """
@@ -290,15 +295,31 @@ class Traitement:
             password = commande
             email = json.loads(req.get_temp(sender_id)).get("email")
             verifLogin = req.loginAdmin(email, password)
+
             if verifLogin:
-                req.senderIdAdmin(
-                    sender_id,
-                    bot.get_user_name(sender_id).json().get('name').upper(),
-                    email)
-                req.set_action(sender_id, None)
-                bot.send_message(sender_id, const.salutationAdmin)
-                bot.send_quick_reply(sender_id, "tachesAdmin")
-                return True
+                verifDeconnection = req.verifDeconnection(email, password)
+                print(verifDeconnection)
+
+                if verifDeconnection:
+                    bot.send_message(
+                        sender_id,
+                        const.connexion 
+                    )
+                    req.set_action(sender_id,None)
+                    bot.send_quick_reply(sender_id,"reconnexion")
+                    return True
+        
+                else:
+                    req.senderIdAdmin(
+                        sender_id,
+                        bot.get_user_name(sender_id).json().get('name').upper(),
+                        email
+                    )
+                    req.set_action(sender_id, None)
+                    req.set_temp(sender_id,None)
+                    bot.send_message(sender_id, const.salutationAdmin)
+                    bot.send_quick_reply(sender_id, "tachesAdmin")
+                    return True
 
             else:
                 bot.send_message(sender_id, const.ErrorLoginAdmin)
@@ -689,7 +710,45 @@ class Traitement:
                                 sender_id, "annulatioErreurHeureFin")
                             req.set_action(sender_id, None)
                             return True
+                        
+                        elif int(verifHeureDeFin[0]) == int(verifHeureDeDebut[0]) + 1:
 
+                            if verifHeureDeDebut[1]>verifHeureDeFin[1]:
+                                bot.send_message(sender_id, const.ErrorMarging)
+                                bot.send_quick_reply(
+                                    sender_id, "annulatioErreurHeureFin")
+                                req.set_action(sender_id, None)
+                                return True
+                                
+                            else:
+                                data = json.loads(req.get_temp(sender_id))
+                                data["heureFin"] = heure_fin
+                                req.set_temp(sender_id, json.dumps(data))
+                                datyA = json.loads(
+                                    req.get_temp(sender_id)).get("daty")
+                                datyAA = datetime.strptime(daty, "%Y-%m-%d")
+                                datyAAA = datyAA.strftime("%d-%m-%Y")
+
+                                bot.send_message(
+                                    sender_id,
+                                    "Votre commande est bien reçu pour la date" +
+                                    " " +
+                                    datyAAA +
+                                    " du Terrain " +
+                                    json.loads(
+                                        req.get_temp(sender_id)).get("listeElementPayload")[2] +
+                                    " de " +
+                                    json.loads(
+                                        req.get_temp(sender_id)).get("heureDebut") +
+                                    " à " +
+                                    json.loads(
+                                        req.get_temp(sender_id)).get("heureFin") +
+                                    " !!!!")
+                                bot.send_quick_reply(sender_id, "confirmCmd")
+                                req.set_action(sender_id, None)
+                                return True
+
+                                
                         else:
                             """
                                 fa raha tsia kosa dia verifena indray aloha sao
@@ -734,7 +793,7 @@ class Traitement:
                                 datyAAA +
                                 " du Terrain " +
                                 json.loads(
-                                    req.get_temp(sender_id)).get("listeElementPayload")[3] +
+                                    req.get_temp(sender_id)).get("listeElementPayload")[2] +
                                 " de " +
                                 json.loads(
                                     req.get_temp(sender_id)).get("heureDebut") +
@@ -759,6 +818,43 @@ class Traitement:
                                 sender_id, "annulatioErreurHeureFin")
                             req.set_action(sender_id, None)
                             return True
+                        
+                        elif int(verifHeureDeFin[0]) == int(verifHeureDeDebut[0]) + 1:
+                            
+                            if verifHeureDeDebut[1]>verifHeureDeFin[1]:
+                                bot.send_message(sender_id, const.ErrorMarging)
+                                bot.send_quick_reply(
+                                    sender_id, "annulatioErreurHeureFin")
+                                req.set_action(sender_id, None)
+                                return True
+
+                            else:
+                                data = json.loads(req.get_temp(sender_id))
+                                data["heureFin"] = heure_fin
+                                req.set_temp(sender_id, json.dumps(data))
+                                datyA = json.loads(
+                                    req.get_temp(sender_id)).get("daty")
+                                datyAA = datetime.strptime(daty, "%Y-%m-%d")
+                                datyAAA = datyAA.strftime("%d-%m-%Y")
+
+                                bot.send_message(
+                                    sender_id,
+                                    "Votre commande est bien reçu pour la date" +
+                                    " " +
+                                    datyAAA +
+                                    " du Terrain " +
+                                    json.loads(
+                                        req.get_temp(sender_id)).get("listeElementPayload")[2] +
+                                    " de " +
+                                    json.loads(
+                                        req.get_temp(sender_id)).get("heureDebut") +
+                                    " à " +
+                                    json.loads(
+                                        req.get_temp(sender_id)).get("heureFin") +
+                                    " !!!!")
+                                bot.send_quick_reply(sender_id, "confirmCmd")
+                                req.set_action(sender_id, None)
+                                return True
 
                         else:
                             data = json.loads(req.get_temp(sender_id))
@@ -835,10 +931,60 @@ class Traitement:
                         const.ErrorInputRef
                     )
                     return True
-                
-                
-                
+        
+        elif action == "ATTENTE_SEARCH":
+            
+            try:
+                result = req.get_productSearch(commande)
 
+                if result:
+                    data = [
+                                {
+                                    "title": str(result[0]) + " - Terrain " + result[1],
+                                    "image_url": URL_SERVER + result[3],
+                                    "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
+                                    "buttons": [
+                                        {
+                                            "type": "postback",
+                                            "title": "Voir Gallery",
+                                            "payload": "__GALERY" + " " + str(result[0])
+                                        },
+                                        {
+                                            "type": "postback",
+                                            "title": "Details",
+                                            "payload": "__DETAILS" + " " + str(result[0])
+                                        },
+                                        {
+                                            "type": "postback",
+                                            "title": "Disponibilité",
+                                            "payload": "__DISPONIBILITÉ" + " " + str(result[0]) + " " + result[1]
+                                        }
+                                    ]
+                                }
+                            ]
+
+                    bot.send_template(sender_id,data)
+                    req.set_action(sender_id,None)
+                    print(result)
+                    return True
+
+                else:
+                    bot.send_message(
+                        sender_id,
+                        const.emptySearch
+                    )
+                    bot.send_quick_reply(sender_id,"emptySearch")
+                    req.set_action(sender_id,None)
+                    return True
+                
+            except BaseException:
+                bot.send_message(
+                    sender_id,
+                    const.reSearch
+                )
+                req.set_action(sender_id,"ATTENTE_SEARCH")
+                return True
+            
     def traitement_cmd(self, sender_id, commande):
         """
             Methode qui permet d'envoyer les options
@@ -848,7 +994,17 @@ class Traitement:
         """
         cmd = commande.split(" ")
 
-        if cmd[0] == "__LOUER_TERRAIN":
+        if commande == "__LOUER_TERRAIN":
+            bot.send_quick_reply(sender_id,"AproposTerrain")
+            return True
+
+        elif commande == "__INFORMATION":
+            bot.send_message(sender_id, const.pageInfo)
+            bot.send_quick_reply(sender_id, "continuation")
+            req.set_action(sender_id, None)
+            return True
+
+        elif cmd[0] == "__LISTER":
             bot.send_message(sender_id, const.produitDispo)
             self.liste_prooduits(
                 sender_id,
@@ -857,11 +1013,13 @@ class Traitement:
             )
             req.set_action(sender_id, None)
             return True
-
-        elif commande == "__INFORMATION":
-            bot.send_message(sender_id, const.pageInfo)
-            bot.send_quick_reply(sender_id, "continuation")
-            req.set_action(sender_id, None)
+        
+        elif commande == "__RECHERCHER":
+            bot.send_message(
+                sender_id,
+                const.search
+            )
+            req.set_action(sender_id,"ATTENTE_SEARCH")
             return True
 
         elif commande == "__CONTINUER":
@@ -883,9 +1041,8 @@ class Traitement:
             req.set_action(sender_id, "DATE")
             return True
 
-        elif commande == "__CURIEUX":
-            bot.send_message(sender_id, const.curiosity)
-            req.set_action(sender_id, None)
+        elif commande == "__PRODUIT":
+            bot.send_quick_reply(sender_id,"AproposTerrain")
             return True
 
         elif commande == "__OUI":
@@ -918,10 +1075,8 @@ class Traitement:
             bot.send_message(sender_id, "Pour le ORANGE")
             bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
             bot.send_message(sender_id, const.problems)
-            # alerte de 30mn d'envoie de M'Vola ou orange money
             bot.send_quick_reply(sender_id,"operateurs")
             req.set_action(sender_id,None)
-            
             return True
 
         elif commande == "__TELMA":
@@ -979,6 +1134,29 @@ class Traitement:
             print("part")
             return True
 
+        elif commande == "__NOUVEAU":
+            req.set_action(sender_id,"ATTENTE_SEARCH")
+            bot.send_message(
+                sender_id,
+                const.essayer
+                )
+            return True
+
+        elif commande == "__AUTRECOMPTE":
+            print("autre compte")
+            bot.send_message(sender_id, const.inputUserNameOtherUser)
+            req.set_action(sender_id, "USERNAME_ADMIN")
+            return True
+
+        elif commande == "__ABANDONNER":
+            bot.send_message(
+                sender_id,
+                const.abandon
+            )
+            bot.send_quick_reply(sender_id,"proposerAction")
+            return True
+
+
     def traitement_pstPayload(self, sender_id, pst_payload):
 
         """
@@ -1017,6 +1195,16 @@ class Traitement:
             bot.send_file_url(sender_id, listeElementPayload[1], "image")
             return True
 
+        elif listeElementPayload[0] == "__MENU":
+            """
+                Payload de PERSISTENT_MENU
+            """
+            req.set_action(sender_id,None)
+            req.set_temp(sender_id,None)
+            bot.send_quick_reply(sender_id,"proposerAction")
+            return True
+
+
     def __execution(self, user_id, commande):
         """
             Fonction privée qui traite les differentes commandes réçu
@@ -1029,13 +1217,13 @@ class Traitement:
 
         statut = req.get_action(user_id)
 
+        if self.traitement_pstPayload(user_id, commande):
+            return
+
         if self.traitement_action(user_id, commande, statut):
             return
 
         if self.traitement_cmd(user_id, commande):
-            return
-
-        if self.traitement_pstPayload(user_id, commande):
             return
 
         if self.salutation(user_id):

@@ -200,6 +200,48 @@ class Messenger:
                 params=params
             )
 
+
+        elif types == "reconnexion":
+
+            text = "Essayer de connecter à un autre compte ou abandonner"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "AUTRE COMPTE",
+                    "payload": "__AUTRECOMPTE",
+                    "image_url": "https://cdn.icon-icons.com/icons2/2483/PNG/512/retry_icon_149879.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "ABANDONNER",
+                    "payload": "__ABANDONNER",
+                    "image_url": "https://cdn-icons-png.flaticon.com/512/5662/5662303.png"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+
         elif types == "continuation":
 
             text = "Maintenant,Vous pouvez continuer en louant du terrain ou nous remercier?"
@@ -694,63 +736,6 @@ class Messenger:
                     "image_url":
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
                     + "xC5orrYOWknbYKYEAncXflfvSNoperateursqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
-                },
-                {
-                    "content_type": "text",
-                    "title": "RESTER CONNECTER",
-                    "payload": "__CONNECTER",
-                    "image_url":
-                    "https://cdn-icons-png.flaticon.com/512/4192/4192403.png"
-                },
-                {
-                    "content_type": "text",
-                    "title": "SE DECONNECTER",
-                    "payload": "__SE_DECONNECTER",
-                    "image_url":
-                    "https://img2.freepng.fr/20180218/lre/kisspng-abmeldung-button-icon-shut"
-                    +"-cliparts-5a89cae3634e92.2358717915189798114068.jpg"
-                }
-            ]
-
-            data_json = {
-                'messaging_type': "RESPONSE",
-                'recipient': {
-                    "id": dest_id
-                },
-
-                'message': {
-                    'text': text,
-                    'quick_replies': quick_rep
-                }
-            }
-
-            header = {'content-type': 'application/json; charset=utf-8'}
-            params = {"access_token": self.token}
-
-            return requests.post(
-                self.url + '/messages',
-                json=data_json,
-                headers=header,
-                params=params
-            )
-
-        elif types == "deconnexion":
-            text = "Vous vous deconnectez alors ou restez connecté"
-            quick_rep = [
-                {
-                    "content_type": "text",
-                    "title": "RESTER CONNECTER",
-                    "payload": "__CONNECTER",
-                    "image_url":
-                    "https://cdn-icons-png.flaticon.com/512/4192/4192403.png"
-                },
-                {
-                    "content_type": "text",
-                    "title": "SE DECONNECTER",
-                    "payload": "__SE_DECONNECTER",
-                    "image_url":
-                    "https://img2.freepng.fr/20180218/lre/kisspng-abmeldung-button-icon-shut"
-                    +"-cliparts-5a89cae3634e92.2358717915189798114068.jpg"
                 }
             ]
 

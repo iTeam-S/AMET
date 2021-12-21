@@ -20,14 +20,14 @@ class Admin:
         """
             Afficher tout les produit existant dans la BDD
         """
-        data = req.get_product()
+        data = req.get_produits()
         produits = []
         i = 0
         while i < len(data):
             produits.append({
-                "title": str(data[i][0]) + " - " + data[i][1],
-                "image_url": URL_SERVER + data[i][4],
-                "subtitle": "Prix : " + str(data[i][3]) + " Ar /heures",
+                "title": str(data[i][0]) + " - Terrain " + data[i][1],
+                "image_url": URL_SERVER + data[i][3],
+                "subtitle": "Prix : " + str(data[i][2]) + " Ar /heures",
                 "buttons": [
                     {
                         "type": "postback",
@@ -76,7 +76,7 @@ class Admin:
                         {
                             "content_type": "text",
                             "title": "page_suivante",
-                            "payload": f"__READ {page+1}",
+                            "payload": f"__LISTER {page+1}",
                             "image_url":
                                 "https://icon-icons.com/downloadimage.php"
                                 + "?id=81300&root=1149/PNG/512/&file=" +
@@ -152,7 +152,25 @@ class Admin:
             bot.send_quick_reply(sender_id, "confirmSupprGallerry")
             return True
 
-    
+        elif payload[0] == "__DECONNEXION":
+            """
+                Payload de PERSISTENT_MENU
+            """
+            req.set_action_admin(sender_id,None)
+            req.set_tempAdmin(sender_id,None)
+            req.deconnexion(sender_id)
+            bot.send_message(sender_id,const.deconnexion)
+            return True
+
+        elif payload[0] == "__MENU":
+            """
+                Payload de PERSISTENT_MENU
+            """
+            req.set_action_admin(sender_id,None)
+            req.set_tempAdmin(sender_id,None)
+            bot.send_quick_reply(sender_id,"tachesAdmin")
+            return True
+
     def traitementActionAdmin(self, sender_id, commande, statut):
         """
             Methode qui traite les faits que l'admin doit faire
@@ -180,7 +198,7 @@ class Admin:
             try:
                 ImageDetails = commande.split('?')[0].split('/')[-1]
                 print(ImageDetails)
-                download_file(commande, f'/opt/AMET/photo/{ImageDetails}')
+                download_file(commande, f'photo/{ImageDetails}')
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["details"] = ImageDetails
                 req.set_tempAdmin(sender_id, json.dumps(data))
@@ -225,7 +243,7 @@ class Admin:
                 couverturephotoList = commande.split(
                     '?')[0].split('/')[-1].split("_")[-2:]
                 couverturephoto = "".join(couverturephotoList)
-                download_file(commande, f'/opt/AMET/photo/{couverturephoto}')
+                download_file(commande, f'photo/{couverturephoto}')
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["couverture"] = couverturephoto
                 req.set_tempAdmin(sender_id, json.dumps(data))
@@ -258,9 +276,9 @@ class Admin:
                         listeUrlPhotoGallery.append(
                             dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]
                         )
-                        # download_file(
-                        #     dataUrl[i]["payload"]["url"],
-                        #     f'/opt/AMET/photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}')
+                        download_file(
+                            dataUrl[i]["payload"]["url"],
+                            f'photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}')
                     data = json.loads(req.get_tempAdmin(sender_id))
                     data["gallery"] = listeUrlPhotoGallery
                     req.set_tempAdmin(sender_id, json.dumps(data))
@@ -269,10 +287,10 @@ class Admin:
                         req.get_tempAdmin(sender_id)).get("gallery")
                     print(values)
 
-                    # for j in range(len(values)):
-                    #     req.update_gallerry(
-                    #         values[j], json.loads(
-                    #             req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
+                    for j in range(len(values)):
+                        req.update_gallerry(
+                            values[j], json.loads(
+                                req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
                     bot.send_message(sender_id, const.modifSuccess)
                     req.set_action_admin(sender_id, None)
                     bot.send_quick_reply(sender_id, "AutreModification")
@@ -299,7 +317,7 @@ class Admin:
         elif statut == "ATTENTE_DETAILS":
             try:
                 ImageNameDetails = commande.split('?')[0].split('/')[-1]
-                download_file(commande, f'/opt/AMET/photo/{ImageNameDetails}')
+                download_file(commande, f'photo/{ImageNameDetails}')
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["details"] = ImageNameDetails
                 req.set_tempAdmin(sender_id, json.dumps(data))
@@ -334,7 +352,7 @@ class Admin:
                     '?')[0].split('/')[-1].split("_")[-2:]
                 ImageNameCouverture = "".join(ImageNameCouvertureList)
                 download_file(
-                    commande, f'/opt/AMET/photo/{ImageNameCouverture}')
+                    commande, f'photo/{ImageNameCouverture}')
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["pdc"] = ImageNameCouverture
                 req.set_tempAdmin(sender_id, json.dumps(data))
@@ -361,7 +379,7 @@ class Admin:
 
                         download_file(
                             dataUrl[i]["payload"]["url"],
-                            f'/opt/AMET/photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}')
+                            f'photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}')
 
                     data = json.loads(req.get_tempAdmin(sender_id))
                     data["gallery"] = listeUrlPhotoGallery
@@ -420,7 +438,7 @@ class Admin:
                     dataQrCode = list(req.getElementQrcode(commande)[0])
                     print(dataQrCode)
                     img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
-                    img.save(f"/opt/AMET/photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
+                    img.save(f"photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
                     bot.send_file_url(
                         recipientIdQrcode,
                         f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
@@ -434,6 +452,53 @@ class Admin:
             except BaseException:
                 bot.send_message(sender_id,const.ErrorVerifCmd)
                 req.set_action_admin(sender_id,"CONFIRM_CMD")
+                return True
+
+        
+        elif statut == "ATTENTE_SEARCH":
+            try:
+                result = req.get_productSearch(commande)
+
+                if result:
+                    data = [
+                               {
+                                    "title": str(result[0]) + " - Terrain " + result[1],
+                                    "image_url": URL_SERVER + result[3],
+                                    "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
+                                    "buttons": [
+                                        {
+                                            "type": "postback",
+                                            "title": "MODIFIER",
+                                            "payload": "__MODIFIER" + " " + str(result[0])
+                                        },
+                                        {
+                                            "type": "postback",
+                                            "title": "SUPPRIMER",
+                                            "payload": "__SUPPRIMER" + " " + str(result[0])
+                                        },
+                                    ]
+                                } 
+                            ]
+                    bot.send_message(sender_id,const.messageSearch)
+                    bot.send_template(sender_id,data)
+                    req.set_action_admin(sender_id,None)
+                    return True
+
+                else:
+                    bot.send_message(
+                        sender_id,
+                        const.emptySearch
+                    )
+                    bot.send_quick_reply(sender_id,"emptySearch")
+                    req.set_action(sender_id,None)
+                    return True
+                
+            except BaseException:
+                bot.send_message(
+                    sender_id,
+                    const.reSearch
+                )
+                req.set_action(sender_id,"ATTENTE_SEARCH")
                 return True
 
 
@@ -451,13 +516,8 @@ class Admin:
             req.set_action_admin(sender_id, "ATTENTE_NOM")
             return True
 
-        elif cmd[0] == "__READ":
-            bot.send_message(sender_id, const.listData)
-            self.productModify(
-                sender_id,
-                self.getProductModifier(),
-                page=int(cmd[-1]) if cmd[-1].isdigit() else 1
-            )
+        elif commande == "__READ":
+            bot.send_quick_reply(sender_id,"AproposTerrain")
             return True
 
         elif commande == "__VERIFCOMMANDE":
@@ -555,7 +615,6 @@ class Admin:
             req.deleteCommandeUsingIdProductDelete(id_prod)
             req.delete_product(id_prod)
             bot.send_message(sender_id, const.successDelete)
-            # Asina deconnexion ato aveo
             return True
 
         #--------------Demande encore de la MODIFICATION----------------------------------#
@@ -582,23 +641,41 @@ class Admin:
             bot.send_message(sender_id, "🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️")
             req.set_action_admin(sender_id, None)
             req.set_action_admin(sender_id,None)    
-            bot.send_quick_reply(sender_id,"deconnexion")
+            return True            
+
+    #---------------Quick_reply MANAGE product ---------------------------------------------#
+        elif commande == "__RECHERCHER":
+            bot.send_message(
+                sender_id,
+                const.search
+            )
+            req.set_action_admin(sender_id,"ATTENTE_SEARCH")
+            return True
+        
+        elif cmd[0] == "__LISTER":
+            bot.send_message(sender_id, const.listData)
+            self.productModify(
+                sender_id,
+                self.getProductModifier(),
+                page=int(cmd[-1]) if cmd[-1].isdigit() else 1
+            )
             return True
 
-    #-------------------CONNEXION ET DECONNEXION---------------------------------------------#   
-        elif commande == "__CONNECTER":
-            req.set_action_admin(sender_id,None)
-            req.set_tempAdmin(sender_id,None)
-            bot.send_message(sender_id,const.resterConnecter)
+        elif commande == "__NOUVEAU":
+            req.set_action_admin(sender_id,"ATTENTE_SEARCH")
+            bot.send_message(
+                sender_id,
+                const.essayer
+                )
             return True
 
-        elif commande == "__SE_DECONNECTER":
-            req.set_action_admin(sender_id,None)
-            req.set_tempAdmin(sender_id,None)
-            req.deconnexion(sender_id)
-            bot.send_message(sender_id,const.deconnexion)
+        elif commande == "__ABANDONNER":
+            bot.send_message(
+                sender_id,
+                const.abandon
+            )
+            bot.send_quick_reply(sender_id,"tachesAdmin")
             return True
-
 
     def executionAdmin(self, sender_id, commande):
         """
@@ -621,16 +698,16 @@ class Admin:
 
         statut = req.get_action_admin(sender_id)[0]
 
+        if self.traitementPstPayloadAdmin(sender_id, commande):
+            return
+
         if self.traitementActionAdmin(sender_id, commande, statut):
             return True
 
         if self.traitementCmdAdmin(sender_id, commande):
             return
 
-        if self.traitementPstPayloadAdmin(sender_id, commande):
-            return
 
-        
         if self.salutationAdmin(sender_id):
             """
                 Prochaine salutation de nouvelle connexion au cas où

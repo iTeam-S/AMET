@@ -94,7 +94,9 @@ class Requete:
                 AND types="ADMIN"
             """
         self.cursor.execute(req, (value,))
-        return self.cursor.fetchone()
+        data = self.cursor.fetchone()
+        self.db.commit() #pour eviter la cache 
+        return data
 
     @verif_db
     def get_action(self, user_id):
@@ -281,6 +283,17 @@ class Requete:
                 """
         self.cursor.execute(reqAdmin, (userName, password))
         return self.cursor.fetchall()
+    
+    @verif_db
+    def verifDeconnection(self,userName,password):
+        reqAdmin="""
+                SELECT fb_id FROM AutreUtils
+                WHERE userMail=%s
+                AND mdp=SHA2(%s,256)
+                AND types = "ADMIN"        
+        """
+        self.cursor.execute(reqAdmin, (userName, password))
+        return self.cursor.fetchone()[0]
 
     @verif_db
     def senderIdAdmin(self, sender_id,UserNameFb,email):
@@ -310,15 +323,6 @@ class Requete:
         reqAdmin = 'SELECT temps FROM AutreUtils WHERE fb_id = %s'
         self.cursor.execute(reqAdmin, (user_id,))
         return self.cursor.fetchone()[0]
-
-    @verif_db
-    def get_product(self):
-        reqAdmin = """
-                    SELECT id_prod, nom_prod, details, 
-                    prix, photo_couverture FROM produits
-                """
-        self.cursor.execute(reqAdmin)
-        return self.cursor.fetchall()
 
     @verif_db
     def deleteGallerry(self, idGal):

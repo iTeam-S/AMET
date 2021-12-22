@@ -183,6 +183,10 @@ ce compte"
 
 messageSearch = "Voici donc le fruit de votre recherche 😊😊😊"
 
+deconnectionCore = "La deconnexion ne fait pas pour cet interface \
+\n\nDonc pour vous et votre commande mettre en plus de securité je vous \
+demande de le faire tout à nouveau\n\n Merci 😊😊😊 "
+
 # -----------------------------FONCTIONS------------------------------------------------------#
 def verifReference(nom,terrain,operateur,reference):
     return f"""
@@ -201,8 +205,11 @@ def infoCommande(listInfo,UserNameFb):
         """
 def salutationSimpleUser(UserName):
         return f"""
-                Bonjour 👋👋{UserName}👋👋,\n\nNous sommes une petite entreprise qui\
-                \nfait une location des terrains scientitiques ici Antananarivo
+                Bonjour 👋👋{UserName}👋👋,\n\nJe m'appelle AMETIA \
+                \n Je suis un des employés de notre entreprise qui a \
+                \npour mission de vous service pour votre commande auprès de nous \
+                \n\nEnfaite!! Nous sommes une petite entreprise qui\
+                \nfait une location des terrains de foot scientitiques ici Antananarivo
         """
 
 def TrueConfirm(UniqueTime):

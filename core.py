@@ -208,7 +208,7 @@ class Traitement:
                             action_admin = req.get_action_admin(
                                 list(sender_id_admin)[0])[0]
                             data = message['message'].get('attachments')
-                            
+
                             if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY":
                                 print(data)
                                 admin.executionAdmin(
@@ -251,13 +251,14 @@ class Traitement:
             avant tout à l'utulisateurs
         """
         try:
+            bot.send_file_url(sender_id,f"{URL_SERVER}bot.jpg","image")
             bot.send_message(
                 sender_id,
                 const.salutationSimpleUser(
                     bot.get_user_name(sender_id).json().get('name').upper()
                 )
             )
-            bot.send_quick_reply(sender_id, "proposerAction")  
+            bot.send_quick_reply(sender_id, "proposerAction")
             return True
 
         except BaseException:
@@ -913,7 +914,7 @@ class Traitement:
                         const.ErrorInputRef
                     )
                     return True
-            
+
             elif operateur == "ORANGE":
                 regex = r'\b[A-Z0-9]+\.[0-9|A-Z0-9]+\.[A-Z0-9]{2,}\b'
                 
@@ -932,8 +933,9 @@ class Traitement:
                     )
                     return True
         
+
+
         elif action == "ATTENTE_SEARCH":
-            
             try:
                 result = req.get_productSearch(commande)
 
@@ -962,7 +964,7 @@ class Traitement:
                                     ]
                                 }
                             ]
-
+                    bot.send_message(sender_id,const.messageSearch)
                     bot.send_template(sender_id,data)
                     req.set_action(sender_id,None)
                     print(result)
@@ -1203,7 +1205,16 @@ class Traitement:
             req.set_temp(sender_id,None)
             bot.send_quick_reply(sender_id,"proposerAction")
             return True
-
+        
+        elif listeElementPayload[0] == "__DECONNEXION":
+            req.set_action(sender_id,None)
+            req.set_temp(sender_id,None)
+            bot.send_message(
+                sender_id,
+                const.deconnectionCore
+            )
+            bot.send_quick_reply(sender_id,"proposerAction")
+            return True
 
     def __execution(self, user_id, commande):
         """
@@ -1215,15 +1226,14 @@ class Traitement:
 
         bot.send_action(user_id, 'mark_seen')
 
-        statut = req.get_action(user_id)
-
         if self.traitement_pstPayload(user_id, commande):
             return
 
-        if self.traitement_action(user_id, commande, statut):
+        if self.traitement_cmd(user_id, commande):
             return
 
-        if self.traitement_cmd(user_id, commande):
+        statut = req.get_action(user_id)
+        if self.traitement_action(user_id, commande, statut):
             return
 
         if self.salutation(user_id):

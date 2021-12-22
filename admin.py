@@ -124,7 +124,7 @@ class Admin:
             Methode qui traite les poste paloyad 
             des Tempaltes des produits
         """
-
+        
         payload = commande.split(" ")
         if payload[0] == "__MODIFIER":
             req.set_tempAdmin(
@@ -693,20 +693,39 @@ class Admin:
             le bot execute l'un de ces methodes la-dessous
             (Ex: post QuickReply,PostPayload,textesimple,attachments,...)
         """
-        # 
-        bot.send_action(sender_id, 'mark_seen')
 
-        statut = req.get_action_admin(sender_id)[0]
+        bot.send_action(sender_id, 'mark_seen')
 
         if self.traitementPstPayloadAdmin(sender_id, commande):
             return
+            
+        if self.traitementCmdAdmin(sender_id, commande):
+            return
+
+        """
+            Ici, si les deux methodes ci-dessus ne sont pas
+            verifiés donc il est possible que l'Admin 
+            possede d'une action qui definit la suite 
+            de sa discussion avec le bot
+
+            Alors on recupère cet action afin de determiner la 
+            de la discussion
+        """
+        statut = req.get_action_admin(sender_id)[0]
 
         if self.traitementActionAdmin(sender_id, commande, statut):
             return True
 
-        if self.traitementCmdAdmin(sender_id, commande):
-            return
 
+
+        """
+            Donc, s'il n'y a pas de ces methodes ci-dessus
+            sont vérifiés, l'admin est probablement a de
+            l'action NULL et envoye d'un simple message TEXT
+
+            Alors on le fait saluer et proposer l'activité
+            principal!! 
+        """
 
         if self.salutationAdmin(sender_id):
             """

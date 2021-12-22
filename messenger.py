@@ -942,3 +942,36 @@ class Messenger:
             headers=header,
             params=params
         )
+
+
+    # def send_button(self,destId):
+    #     self.send_action(destId, 'typing_on')
+    #     dataJSON = {
+    #         'recipient': {
+    #             "id": destId
+    #         },
+    #         'message': {
+    #             "attachment": {
+    #                 "type": "template",
+    #                 "payload": {
+    #                     "template_type": "button",
+    #                     "text":"Try the postback button!",
+    #                     "buttons":[
+    #                         {
+    #                             "type":"postback",
+    #                             "title":"Postback Button",
+    #                             "payload":"DEVELOPER_DEFINED_PAYLOAD"
+    #                         }
+    #                     ]
+    #                 },
+    #             },
+    #         }
+    #     }
+    #     header = {'content-type': 'application/json; charset=utf-8'}
+    #     params = {"access_token": self.token}
+    #     return requests.post(
+    #         self.url + '/messages',
+    #         json=dataJSON,
+    #         headers=header,
+    #         params=params
+    #     )

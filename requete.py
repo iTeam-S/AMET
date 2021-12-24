@@ -1,4 +1,3 @@
-import re
 import mysql.connector
 from conf import DATABASE
 
@@ -231,8 +230,42 @@ class Requete:
         """
         self.cursor.execute(req,(uniqueTime,))
         return self.cursor.fetchone()[0]
-
+    
+    
 #----------------------------REQUETES POUR L'ADMIN----------------------------#
+    @verif_db
+    def difference(self):
+        req = """
+                SELECT id_cmd, TIMEDIFF(NOW(),date_cmd)
+                FROM commande 
+                WHERE statut = "NON CONFIRMÉ"
+        """
+        self.cursor.execute(req)
+        return self.cursor.fetchall()
+    
+    @verif_db
+    def deleteCmdNonConfrm(self,id_cmd):
+        req = """
+                DELETE FROM commande 
+                WHERE id = %s
+        
+        """
+        req.self.execute(req,(id_cmd,))
+        self.db.commit()
+        
+    @verif_db
+    def getFbidProp(self,id_cmd):
+        req = """
+                SELECT fb_id 
+                FROM utilisateur
+                INNER JOIN commande 
+                ON utilisateur.id = commande.id
+                WHERE id_cmd = %s
+        """
+        self.cursor.execute(req,(id_cmd,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def getIdAdmin(self):

@@ -15,7 +15,12 @@ class Messenger:
         res = requests.get(
             f"https://graph.facebook.com/{sender_id}?fields=name&access_token={self.token}"
         )
-        return res
+
+        if res:
+            return res
+            
+        else:
+            return "QUELQU'UN"
 
     def send_message(self, dest_id, message):
         self.send_action(dest_id, 'typing_on')
@@ -424,29 +429,35 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "Create😍😍",
+                    "title": "CREER😍😍",
                     "payload": "__CREATE",
                     "image_url": "http://assets.stickpntachesAdming.com/images/58afdad6829958a978a4a693.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "Read 🥰🥰",
+                    "title": "LIRE 🥰🥰",
                     "payload": "__READ",
                     "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Solid_green.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "Verifier commande",
+                    "title": "VERIFIER COMMANDE",
                     "payload": "__VERIFCOMMANDE",
                     "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light" +
                     "-effects-for-picsart-glow-yellow-transparent.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "Confirmer commande",
+                    "title": "CONFIRMER COMMANDE",
                     "payload": "__CONFIRMCMD",
                     "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light" +
                     "-effects-for-picsart-glow-yellow-transparent.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "COMMANDE NON CONFIRMER",
+                    "payload": "__NOCONFIRM",
+                    "image_url": "https://cdn.pixabay.com/photo/2012/04/23/15/39/traffic-sign-38589_1280.png"
                 }
             ]
 
@@ -761,6 +772,46 @@ class Messenger:
                 params=params
             )
 
+        elif types == "nonConfirm":
+            text = "Vous voulez vraiment supprimer ce commande"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "🙁OUI",
+                    "payload": "__SUPPR",
+                },
+                {
+                    "content_type": "text",
+                    "title": "😊NON",
+                    "payload": "__NONSUPPR",
+                    "image_url":
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
+                    + "xC5orrYOWknbYKYEAncXflfvSNoperateursqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
         elif types == "ajouterAnouveau":
             text = "Cliquez ici 👇👇 pour ajoutez à nouveau"
             quick_rep = [
@@ -944,34 +995,28 @@ class Messenger:
         )
 
 
-    # def send_button(self,destId):
-    #     self.send_action(destId, 'typing_on')
-    #     dataJSON = {
-    #         'recipient': {
-    #             "id": destId
-    #         },
-    #         'message': {
-    #             "attachment": {
-    #                 "type": "template",
-    #                 "payload": {
-    #                     "template_type": "button",
-    #                     "text":"Try the postback button!",
-    #                     "buttons":[
-    #                         {
-    #                             "type":"postback",
-    #                             "title":"Postback Button",
-    #                             "payload":"DEVELOPER_DEFINED_PAYLOAD"
-    #                         }
-    #                     ]
-    #                 },
-    #             },
-    #         }
-    #     }
-    #     header = {'content-type': 'application/json; charset=utf-8'}
-    #     params = {"access_token": self.token}
-    #     return requests.post(
-    #         self.url + '/messages',
-    #         json=dataJSON,
-    #         headers=header,
-    #         params=params
-    #     )
+    def listeCmdNonConfirm(self,dest_id,elements):
+
+        text = "Voici donc les listes des commandes non confirés"
+
+        data_json = {
+            'messaging_type': "RESPONSE",
+            'recipient': {
+                "id": dest_id
+            },
+
+            'message': {
+                'text': text,
+                'quick_replies': elements
+            }
+        }
+
+        header = {'content-type': 'application/json; charset=utf-8'}
+        params = {"access_token": self.token}
+
+        return requests.post(
+            self.url + '/messages',
+            json=data_json,
+            headers=header,
+            params=params
+        )

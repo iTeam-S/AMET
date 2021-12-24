@@ -75,19 +75,8 @@ pour votre bonne choix et surtout le format de l'heure qu'on vous suposse à ent
 
 cmdOfAnotherDate = "Entrer alors la date en respctant toujours le bon format😊😊😊"
 
-informations = "Votre commande a été bien enregistrer\n\nPour que nous pouvons \
-confirmer vraiment votre commande, on vous demande de payer une pétite avance du montant \
-5000Ar et le reste de paymet aura lieu le jour où vous serez au terrain\n\n \
-Voici donc notre numero:\nTELMA:0340000000(Nom:Paul jean BA)\n \
-ORANGE:032000000(Nom:rakoto bleu)\n\nEt après saisir ici votre reference de transaction(celle-ci \
-est comme l'image ci-dessous montre!!\nAlors si vous avez payé l'avance auprès du \
-CACHE POINT MOBILE MONEY, n'oublie pas de la recuperer chez eux\n\n \
-⚠⚠Si vous n'avez pas encore envoyé cet avance danns trente minutes(30mn).\
-Votre commande est annulé alors vous obligez de le refaire⚠⚠\n\n \
-Alors, on vous attend pour l'envoi de l'avance et la reférence ici"
-
 problems = "Et si vous avez de probleme pour l'envoi de cet avance, vous pouvez appelez \
-les numéro 034000000 et 032000000\n\n ON vous attend donc pour la saisie de la reference"
+les numéro 034000000 et 032000000\n\n On vous attend donc pour la saisie de la reference"
 
 inputReference = "Saisir alors votre REFERENCE: "
 
@@ -122,6 +111,9 @@ gallerry = "Voici donc les galleries de ce produit\n\nVous pouvez \
 les supprimmer ou ajouter à nouveau!!"
 
 supprimmer = "Supprimé avec succées"
+cmdSuppr = "Votre commande auipres de nous a été supprimé pour que vous ne respecte pas \
+le tentative de 30mn de l'envoi de votre reference mobile money!! \
+\n\nAlors vous obligez de le refaire au debut si vous voulez encore\n\nMerci😊😊😊"
 
 erreurNbGallerryModifier = "Votre nombre des photos depasse le nombre à inserer \
 \n\nVeuillez-vous envoyer à nouveau en respectant le nombre à inserer"
@@ -218,3 +210,22 @@ def TrueConfirm(UniqueTime):
                 \npar un autre Admin!! Merci 😊😊😊
         
         """
+
+def informations(avance):
+
+        informations = f"""Votre commande a été bien enregistré\n\nPour que nous pouvons \
+                \nconfirmer vraiment votre commande,\nOn vous demande de payer une pétite avance du montant {avance}Ar \
+                \navec le frais de retrait et le reste de paymet aura lieu le jour où vous serez au terrain\n\n \
+                Voici donc nos numeros:\nTELMA:0340000000(Nom:Paul jean BA) \
+                \nORANGE:032000000(Nom:rakoto bleu)\nAIRTEL:033000000(Nom:rakoto bleu) \
+                \n\nEt après l'envoi suivez les instruction ci-dessous pour la saisie de votre reference de transaction\
+                \n\n※※※ La REFERENCE de transaction est celle les images juste en bas la montrent, ce qui est dans la cadre rouge\
+                \nelles sont tous différentes selon l'opérateur donc verifier bien la avant de saisir. \
+                \nAlors si vous avez payé l'avance auprès du CACHE POINT MOBILE MONEY,\
+                \n n'oublie pas de la recuperer chez eux※※※\
+                \n\n⚠⚠Si vous n'avez pas encore envoyé cet avance dans trente minutes(30mn).\n \
+                Votre commande sera annulé alors vous obligez de le refaire au debut⚠⚠\n\n \
+                Alors, on vous attend pour l'envoi de l'avance et la reférence ici 😊😊😊
+        """
+
+        return informations

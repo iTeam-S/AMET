@@ -111,6 +111,24 @@ class Admin:
 
         return listeGallery
 
+    def ListeNonCofirmCommande(self):
+        """
+            Fonction qui liste les commandes non 
+            confirmés sous forme QuickReply
+        """
+        liste = req.difference()
+        elements = []
+
+        for z in range(len(liste)):
+            elements.append(
+                {
+                    "content_type": "text",
+                    "title":f"N°{liste[z][0]} --> {liste[z][1]}",
+                    "payload": f"__IDM {liste[z][0]}",
+                }
+            )
+        return elements
+
     #--------------------------------------------FIN OPTIONS------------------------------------------------------------#
 
     def salutationAdmin(self, sender_id):
@@ -173,8 +191,8 @@ class Admin:
 
     def traitementActionAdmin(self, sender_id, commande, statut):
         """
-            Methode qui traite les faits que l'admin doit faire
-            par rapport à son action actuel 
+            Methode qui traite les faits que l'admin 
+            doit faire par rapport à son action actuel 
         """
 
         #-----------------------------------MODIFICATION---------------------------------------------#
@@ -529,8 +547,40 @@ class Admin:
             bot.send_message(sender_id,const.confirmCmd)
             req.set_action_admin(sender_id,"CONFIRM_CMD")
             return True
+        
+        elif commande == "__NOCONFIRM":
+            bot.listeCmdNonConfirm(
+                sender_id,
+                self.ListeNonCofirmCommande()
+            )
+            return True
 
-
+        #---------------QuickReply pour le traitement des commandes non confirmées--------------#
+        elif cmd [0] == "__IDM":
+            req.set_tempAdmin(
+                sender_id,
+                json.dumps({"id_cmd":cmd[1]})
+            )
+            bot.send_quick_reply(sender_id,"nonConfirm")
+            return True
+        
+        elif commande == "__SUPPR":
+            id_cmd = json.loads(req.get_tempAdmin(sender_id)).get("id_cmd")
+            fb_idProp = req.getFbidProp(id_cmd)
+            # req.deleteCmdNonConfrm(id_cmd)
+            req.set_action(fb_idProp,None)
+            req.set_temp(fb_idProp,None)
+            bot.send_message(
+                sender_id,
+                const.supprimmer
+            )
+            req.set_tempAdmin(sender_id,None)
+            bot.send_message(
+                fb_idProp,
+                const.cmdSuppr    
+            )
+            return True
+            
         #--------------------------AJOUTER NOVEAUX GALLERRY POUR UN PRODUIT----------------------#
         elif commande == "__AJOUTER":
             req.set_action_admin(sender_id, "MODIFIER_GALLERY")
@@ -637,7 +687,8 @@ class Admin:
 
     #---------------Tous les reponses NON---------------------------------------------------#
         elif commande == "__NON" or commande == "__no" \
-         or commande == "__NON_GALLERRY" or commande == "__TSIA":
+         or commande == "__NON_GALLERRY" or commande == "__TSIA" \
+         or commande == "__NONSUPPR":
             bot.send_message(sender_id, "🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️")
             req.set_action_admin(sender_id, None)
             req.set_action_admin(sender_id,None)    
@@ -715,8 +766,6 @@ class Admin:
 
         if self.traitementActionAdmin(sender_id, commande, statut):
             return True
-
-
 
         """
             Donc, s'il n'y a pas de ces methodes ci-dessus

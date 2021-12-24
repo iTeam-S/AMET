@@ -48,7 +48,7 @@ class Traitement:
                     {
                         "type": "postback",
                         "title": "Disponibilité",
-                        "payload": "__DISPONIBILITÉ" + " " + str(photos[i][0]) + " " + photos[i][1]
+                        "payload": f"__DISPONIBILITÉ {str(photos[i][0])} {photos[i][1]} {str(photos[i][2])}"
                     }
                 ]
             })
@@ -180,6 +180,7 @@ class Traitement:
                     sender_id = message['sender']['id']
                     print(sender_id)
                     sender_id_admin = req.verifSenderId(sender_id)
+                    # sender_id_part = req.verifSenderIdPart(sender_id)
                     # print(sender_id_admin)
 
                     if message['message'].get('quick_reply'):
@@ -932,7 +933,25 @@ class Traitement:
                         const.ErrorInputRef
                     )
                     return True
-        
+
+
+            elif operateur == "AIRTEL":
+                regex = r'\b[A-Z0-9]+\.[0-9|A-Z0-9]+\.[A-Z0-9]{2,}\b'
+                
+                if(re.fullmatch(regex, commande)):
+                    self.refTrue(
+                        sender_id,
+                        "AIRTEL",
+                        commande
+                    )
+                    return True
+
+                else:
+                    bot.send_message(
+                        sender_id,
+                        const.ErrorInputRef
+                    )
+                    return True
 
 
         elif action == "ATTENTE_SEARCH":
@@ -959,7 +978,7 @@ class Traitement:
                                         {
                                             "type": "postback",
                                             "title": "Disponibilité",
-                                            "payload": "__DISPONIBILITÉ" + " " + str(result[0]) + " " + result[1]
+                                            "payload": f"__DISPONIBILITÉ {str(result[0])} {result[1]} {str(result[2])}"
                                         }
                                     ]
                                 }
@@ -1071,15 +1090,70 @@ class Traitement:
                 dataAinserer.get("listeElementPayload")[1],
                 UniqueTime)
 
-            bot.send_message(sender_id, const.informations)
-            bot.send_message(sender_id, "Pour le TELMA")
-            bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-            bot.send_message(sender_id, "Pour le ORANGE")
-            bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
-            bot.send_message(sender_id, const.problems)
-            bot.send_quick_reply(sender_id,"operateurs")
-            req.set_action(sender_id,None)
-            return True
+            """
+                Get d'intervalle de temps du commande pour 
+                le but de payer deja 50% pour l'avance
+            """
+            heure = int(dataAinserer.get("heureFin").split("h")[0]) - int(dataAinserer.get("heureDebut").split("h")[0])
+            print(heure)
+
+            if int(dataAinserer.get("heureDebut").split("h")[1])<int(dataAinserer.get("heureFin").split("h")[1]):
+                intervalle = heure + 0.5
+                print(intervalle)
+                prix = int(dataAinserer.get("listeElementPayload")[3])
+                avance = int((intervalle * prix)/2)
+                bot.send_message(
+                    sender_id, 
+                    const.informations(avance)
+                )
+                bot.send_message(sender_id, "Exemple réference pour TELMA")
+                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
+                bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
+                bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_message(sender_id,"Exemple réference pour AIRTEL")
+                bot.send_file_url(sender_id,f"{URL_SERVER}airtel.jpg","image")
+                bot.send_message(sender_id, const.problems)
+                bot.send_quick_reply(sender_id,"operateurs")
+                req.set_action(sender_id,None)
+                return True
+                
+            elif int(dataAinserer.get("heureDebut").split("h")[1])>int(dataAinserer.get("heureFin").split("h")[1]):
+                intervalle = (heure - 1) + 0.5
+                print(intervalle)
+                prix = int(dataAinserer.get("listeElementPayload")[3])
+                avance = int((intervalle * prix)/2)
+                bot.send_message(
+                    sender_id, 
+                    const.informations(avance)
+                )
+                bot.send_message(sender_id, "Exemple réference pour TELMA")
+                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
+                bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
+                bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_message(sender_id,"Exemple réference pour AIRTEL")
+                bot.send_file_url(sender_id,f"{URL_SERVER}airtel.jpg","image")
+                bot.send_message(sender_id, const.problems)
+                bot.send_quick_reply(sender_id,"operateurs")
+                req.set_action(sender_id,None)
+                return True
+                
+            else:
+                prix = int(dataAinserer.get("listeElementPayload")[3])
+                avance = int((heure * prix)/2)
+                bot.send_message(
+                    sender_id, 
+                    const.informations(avance)
+                )
+                bot.send_message(sender_id, "Exemple réference pour TELMA")
+                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
+                bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
+                bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_message(sender_id,"Exemple réference pour AIRTEL")
+                bot.send_file_url(sender_id,f"{URL_SERVER}airtel.jpg","image")
+                bot.send_message(sender_id, const.problems)
+                bot.send_quick_reply(sender_id,"operateurs")
+                req.set_action(sender_id,None)
+                return True 
 
         elif commande == "__TELMA":
             data = json.loads(req.get_temp(sender_id))
@@ -1098,7 +1172,7 @@ class Traitement:
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
-        
+
         elif commande == "__AIRTEL":
             data = json.loads(req.get_temp(sender_id))
             data["operateur"] = "AIRTEL"

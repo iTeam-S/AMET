@@ -246,6 +246,81 @@ class Messenger:
                 params=params
             )
 
+        
+        elif types == "reconnexionPart":
+
+            text = "Essayer de connecter à un autre compte ou abandonner"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "AUTRE COMPTE",
+                    "payload": "__AUTRECOMPTEPART",
+                    "image_url": "https://cdn.icon-icons.com/icons2/2483/PNG/512/retry_icon_149879.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "ABANDONNER",
+                    "payload": "__ABANDONNER",
+                    "image_url": "https://cdn-icons-png.flaticon.com/512/5662/5662303.png"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        
+        elif types == "tachesPart":
+
+            text = "Vous voulez trouver votre terrains, cliquez 👇👇👇"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "📄VOIR MES TERRAINS",
+                    "payload": "__VOIR",
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
 
         elif types == "continuation":
 
@@ -424,6 +499,48 @@ class Messenger:
                 params=params
             )
 
+
+
+        elif types == "proposerCmdPart":
+            text = "Faites votre reservation alors"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "DE CETTE DATE",
+                    "payload": "__CMDDATEACTU",
+                    "image_url": "http://assets.stickpng.com/images/58afdad6829958a978a4a693.png"
+                },
+                {
+                    "content_type": "text",
+                    "title": "À UNE AUTRE DATE",
+                    "payload": "__CMDAUTREDATE",
+                    "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Solid_green.png"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+
         elif types == "tachesAdmin":
             text = "Que souhaitez-vous faire maintenant Admin?"
             quick_rep = [
@@ -488,19 +605,161 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "OUI",
-                    "payload": "__OUI",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2W5PPm3Um"
-                    "+8AYdoL4xKh0LKaM9B2sxgIy1Ug&usqp=CAU"
+                    "title": "✅OUI",
+                    "payload": "__OUI"
                 },
                 {
                     "content_type": "text",
-                    "title": "Non",
-                    "payload": "__NON",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
-                    + "xC5orrYOWknbYKYEAncXflfvSNqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
+                    "title": "❌NON",
+                    "payload": "__NON"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "trueCreatePart":
+            text = "Maintenant; Veuillez-vous confirmer vraiment la creation de ce partenaire"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "✅OUI",
+                    "payload": "__OUIPART"
+                },
+                {
+                    "content_type": "text",
+                    "title": "❌NON",
+                    "payload": "__NON"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "choixTypePart":
+            text = "Choisissez le partenaire de ce terrain"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "❌NULL",
+                    "payload": "__NULL"
+                },
+                {
+                    "content_type": "text",
+                    "title": "➕AJOUTER",
+                    "payload": "__AJOUTPART"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "ChoixModifPart":
+            text = "Vous voulez lz changer quoi?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "❌NULL",
+                    "payload": "__NULLMODIF"
+                },
+                {
+                    "content_type": "text",
+                    "title": "➕AJOUTER",
+                    "payload": "__AJOUTPARTMODIF"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "acreer":
+            text = "Qu'est ce que vous voulez créer?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "ℹ️PRODUITS",
+                    "payload": "__PRODUITS",
+                },
+                {
+                    "content_type": "text",
+                    "title": "🤝PARTENAIRE",
+                    "payload": "__PARTENAIRE",
                 }
             ]
 
@@ -574,19 +833,50 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "OUI",
-                    "payload": "__OUI",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2W5PPm"
-                    + "3Um8AYdoL4xKh0LKaM9B2sxgIy1Ug&usqp=CAU"
+                    "title": "✅OUI",
+                    "payload": "__OUIWITHOUTPART",
                 },
                 {
                     "content_type": "text",
-                    "title": "NON",
+                    "title": "❌NON",
                     "payload": "__NON",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeq7DzLMFPFYD9M3"
-                    + "xC5orrYOWknbYKYEAncXflfvSNqV6iLwm0aefugMB4MxeiMVupSkU&usqp=CAU"
+                }
+            ]
+
+            data_json = {
+                'messaging_type': "RESPONSE",
+                'recipient': {
+                    "id": dest_id
+                },
+
+                'message': {
+                    'text': text,
+                    'quick_replies': quick_rep
+                }
+            }
+
+            header = {'content-type': 'application/json; charset=utf-8'}
+            params = {"access_token": self.token}
+
+            return requests.post(
+                self.url + '/messages',
+                json=data_json,
+                headers=header,
+                params=params
+            )
+
+        elif types == "confirmCreateAdminWithPart":
+            text = "Voulez vous vraiment créer ce produit?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "✅OUI",
+                    "payload": "__OUIWITHPART",
+                },
+                {
+                    "content_type": "text",
+                    "title": "❌NON",
+                    "payload": "__NON",
                 }
             ]
 
@@ -671,37 +961,34 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "NOM😍😍",
+                    "title": "🔴NOM",
                     "payload": "__NOM",
-                    "image_url": "http://assets.stickpntachesAdming.com/images/58afdad6829958a978a4a693.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "DETAILS 🥰🥰",
+                    "title": "🖼️DETAILS",
                     "payload": "__DETAILS",
-                    "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Solid_green.png"
 
                 },
                 {
                     "content_type": "text",
-                    "title": "PRIX😇😇",
+                    "title": "💲PRIX",
                     "payload": "__PRIX",
-                    "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light"
-                    + "-effects-for-picsart-glow-yellow-transparent.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "COUVERTURE 🙃🙃",
+                    "title": "🖼️COUVERTURE",
                     "payload": "__COUVERTURE",
-                    "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light-"
-                    + "effects-for-picsart-glow-yellow-transparent.png"
                 },
                 {
                     "content_type": "text",
-                    "title": "GALLERY 🙃🙃",
+                    "title": "🤝PARTENAIRE",
+                    "payload": "__MODIFPART",
+                },
+                {
+                    "content_type": "text",
+                    "title": "📷GALLERY",
                     "payload": "__GALLERY",
-                    "image_url": "https://png.pngitem.com/pimgs/s/63-631808_png-light-"
-                    + "effects-for-picsart-glow-yellow-transparent.png"
                 }
 
             ]
@@ -1011,6 +1298,35 @@ class Messenger:
             }
         }
 
+        header = {'content-type': 'application/json; charset=utf-8'}
+        params = {"access_token": self.token}
+
+        return requests.post(
+            self.url + '/messages',
+            json=data_json,
+            headers=header,
+            params=params
+        )
+
+    def listePartenaire(self,dest_id,elements,**kwargs):
+
+        text = "Voici donc les listes des partenaires\n\nAlors choisissez"
+
+        data_json = {
+            'messaging_type': "RESPONSE",
+            'recipient': {
+                "id": dest_id
+            },
+
+            'message': {
+                'text': text,
+                'quick_replies': elements
+            }
+        }
+
+        if kwargs.get("next"):
+            data_json['message']['quick_replies'] = kwargs.get("next")
+            
         header = {'content-type': 'application/json; charset=utf-8'}
         params = {"access_token": self.token}
 

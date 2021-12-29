@@ -90,7 +90,6 @@ class Requete:
         req = """
                 SELECT fb_id FROM AutreUtils
                 WHERE fb_id=%s
-                AND types="ADMIN"
             """
         self.cursor.execute(req, (value,))
         data = self.cursor.fetchone()
@@ -278,6 +277,7 @@ class Requete:
         self.cursor.execute(reqAdmin)
         return self.cursor.fetchall()
 
+    @verif_db
     def getRecipientId(self,uniqueTime):
         reqAdmin = """
                 SELECT fb_id 
@@ -300,7 +300,7 @@ class Requete:
     @verif_db
     def set_action_admin(self, sender_id_admin, action):
         '''
-            Definir l'action de l'utilisateur
+            Definir l'action de l'Admin
         '''
         reqAdmin = 'UPDATE AutreUtils SET actions = %s WHERE fb_id = %s'
         self.cursor.execute(reqAdmin, (action, sender_id_admin))
@@ -312,7 +312,6 @@ class Requete:
                     SELECT 1 FROM AutreUtils
                     WHERE userMail=%s
                     AND mdp=SHA2(%s,256)
-                    AND types = "ADMIN"
                 """
         self.cursor.execute(reqAdmin, (userName, password))
         return self.cursor.fetchall()
@@ -322,8 +321,7 @@ class Requete:
         reqAdmin="""
                 SELECT fb_id FROM AutreUtils
                 WHERE userMail=%s
-                AND mdp=SHA2(%s,256)
-                AND types = "ADMIN"        
+                AND mdp=SHA2(%s,256)       
         """
         self.cursor.execute(reqAdmin, (userName, password))
         return self.cursor.fetchone()[0]
@@ -386,13 +384,21 @@ class Requete:
 
 
     @verif_db
+    def create_productWithPart(self, name, details, prix, couverture,id_part):
+        reqAdmin = """
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part) 
+                    VALUES (%s, %s, %s, %s,1,%s)
+                """
+        self.cursor.execute(reqAdmin, (name, details, prix, couverture,id_part))
+        self.db.commit()
+
+    @verif_db
     def create_product(self, name, details, prix, couverture):
         reqAdmin = """
                     INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ) 
-                    VALUES (%s, %s, %s, %s,1)
+                    VALUES (%s, %s, %s, %s,1,%s)
                 """
         self.cursor.execute(reqAdmin, (name, details, prix, couverture))
-        self.db.commit()
 
    
     @verif_db
@@ -443,3 +449,210 @@ class Requete:
         self.cursor.execute(reqAdmin,(sender_id,))
         self.db.commit()
 
+
+#----------------------------------REQUETES PARTENAIRES------------------------------------------#
+
+    @verif_db
+    def senderIdPart(self,sender_id,UserNameFb,email):
+        reqPart = """
+                    UPDATE partenaire
+                    SET fb_idPart=%s,
+                    UserNameFbPart=%s 
+                    WHERE userMail=%s
+                """
+        self.cursor.execute(reqPart, (sender_id,UserNameFb,email))
+        self.db.commit()
+
+    @verif_db
+    def verifSenderIdPart(self, value):
+        reqPart = """
+                SELECT fb_idPart FROM partenaire
+                WHERE fb_idPart=%s
+            """
+        self.cursor.execute(reqPart, (value,))
+        data = self.cursor.fetchone()
+        self.db.commit() #pour eviter la cache 
+        return data
+
+    @verif_db
+    def loginPart(self, userName, password):
+        reqPart = """
+                    SELECT 1 FROM partenaire
+                    WHERE userMail=%s
+                    AND mdpPart=SHA2(%s,256)
+                """
+        self.cursor.execute(reqPart, (userName, password))
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
+    @verif_db
+    def verifDeconnectionPart(self,userName,password):
+        reqPart="""
+                SELECT fb_idPart FROM partenaire
+                WHERE userMail=%s
+                AND mdpPart=SHA2(%s,256)       
+        """
+        self.cursor.execute(reqPart, (userName, password))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
+
+    @verif_db
+    def getMesTerrains(self,id_part):
+        reqPart = """
+                SELECT id_prod, nom_prod, prix,
+                photo_couverture FROM produits
+                WHERE id_part = %s
+              """
+        self.cursor.execute(reqPart,(id_part,))
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
+    @verif_db
+    def getIdPart(self,sender_id):
+        reqPart = """
+                    SELECT id_part 
+                    FROM partenaire
+                    WHERE fb_idPart = %s
+        """
+        self.cursor.execute(reqPart,(sender_id,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return True
+
+    @verif_db
+    def set_action_part(self, sender_id_part, action):
+        '''
+            Definir l'action du partenaire
+        '''
+        reqPart = 'UPDATE partenaire SET actions = %s WHERE fb_idPart = %s'
+        self.cursor.execute(reqPart, (action, sender_id_part))
+        self.db.commit()
+
+    @verif_db
+    def set_tempPart(self,sender_id,data):
+        '''
+            Inserer des données temporaire dans la table
+        '''
+        reqPart = 'UPDATE partenaire SET temp = %s WHERE fb_idPart = %s'
+        self.cursor.execute(reqPart, (data, sender_id))
+        self.db.commit()
+
+    @verif_db
+    def get_action_part(self, sender_id_part):
+        reqPart = 'SELECT actions FROM partenaire WHERE fb_idPart = %s'
+        self.cursor.execute(reqPart, (sender_id_part,))
+        data = self.cursor.fetchone()
+        self.db.commit() #Pour eviter la cache 
+        return data
+
+    @verif_db
+    def get_tempPart(self, user_id):
+        '''
+            Recuperation des données temporaire du partenaire
+        '''
+        reqPart = 'SELECT temp FROM partenaire WHERE fb_idPart = %s'
+        self.cursor.execute(reqPart, (user_id,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
+        
+    @verif_db
+    def getIdUserPart(self, sender_id):
+        reqPart = """
+                SELECT id_part,FullName 
+                FROM partenaire WHERE fb_idPart=%s
+        """
+        self.cursor.execute(reqPart, (sender_id,))
+        data = self.cursor.fetchone()
+        self.db.commit()
+        return data
+
+    @verif_db
+    def insertNouveauCommandePart(
+            self,
+            idUserPart,
+            dateAlaTerrain,
+            heureDeDebut,
+            heureDeFin,
+            id_prod,
+            dataQrCode):
+        reqPart = """
+               INSERT IGNORE INTO commande(id_part,date_cmd,dateAlaTerrain,heureDebutCmd,HeureFinCmd,id_prod,dataQrCode)
+               VALUES(%s,NOW(),%s,%s,%s,%s,%s)
+            """
+        self.cursor.execute(
+            reqPart,
+            (idUserPart,
+             dateAlaTerrain,
+             heureDeDebut,
+             heureDeFin,
+             id_prod,
+             dataQrCode))
+        self.db.commit()
+
+    @verif_db
+    def getRecipientIdPart(self,uniqueTime):
+        reqPart = """
+                SELECT fb_idPart
+                FROM partenaire
+                INNER JOIN commande
+                ON partenaire.id_part = commande.id_part
+                WHERE dataQrCode = %s
+        """
+        self.cursor.execute(reqPart,(uniqueTime,))
+        return self.cursor.fetchone()[0]
+
+    @verif_db
+    def infoCommandePart(self,id_cmd,UniqueTime):
+        reqPart = """
+                SELECT fb_idPart,FullName,date_cmd,dateAlaTerrain,
+                heureDebutCmd,heureFinCmd,nom_prod
+                FROM partenaire
+                INNER JOIN commande 
+                ON partenaire.id_part = commande.id_part
+                INNER JOIN produits 
+                ON commande.id_prod = produits.id_prod
+                WHERE id_cmd = %s
+                AND dataQrCode = %s
+                AND statut = 'CONFIRMÉ'
+        """
+        self.cursor.execute(reqPart,(id_cmd,UniqueTime))
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
+    @verif_db
+    def insertNouveauPart(self,UserMail,mdp,fullName):
+        reqPart = """
+                INSERT IGNORE INTO partenaire(UserMail,mdpPart,FullName)
+                VALUES(%s,SHA2(%s,256),%s)    
+        """
+        self.cursor.execute(reqPart,(UserMail,mdp,fullName))
+        self.db.commit()
+
+    @verif_db
+    def getPartenaire(self):
+        reqPart = """
+                    SELECT id_part,FullName 
+                    FROM partenaire 
+        """
+        self.cursor.execute(reqPart)
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
+    @verif_db
+    def getNamePart(self,id_prod):
+        reqPart = """
+                    SELECT FullName FROM partenaire
+                    INNER JOIN produits
+                    ON partenaire.id_part = produits.id_part
+                    WHERE id_prod = %s
+        """
+        self.cursor.execute(reqPart,(id_prod,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data

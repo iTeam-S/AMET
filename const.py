@@ -3,6 +3,7 @@ from datetime import date, datetime
 #-----------------------SIMPLE VARIABLE----------------------------------------------------------------#
 salutationUser = "Bonjour 👋👋👋👋,\n\nNous sommes une petite entreprise qui\
                 \nfait une location des terrains scientitiques ici Antananarivo"
+salutationPart = "Bonjour chèr(e) notre partenaire, Ravi de vous voir 😊😊😊"
 
 search = "Entrer le nom du terrain que vous recherchez\n\n \
 Exemple: Pour chercher Terrain Andohalo, Entrer tout simplement Andohalo"
@@ -179,6 +180,14 @@ deconnectionCore = "La deconnexion ne fait pas pour cet interface \
 \n\nDonc pour vous et votre commande mettre en plus de securité je vous \
 demande de le faire tout à nouveau\n\n Merci 😊😊😊 "
 
+attenteConfirmPart = "Veuillez patienter dans quelques minutes pour que \
+l'admin reçoit votre commande"
+
+inputPartFullName = "Saisir le nom complet de ce partenaire"
+inputUserMail = "Donnez lui de UserMail:"
+mdp = "Donner lui aussi de mot de passe:"
+ErrorInputUserMailPart = "Cet UserMail est invalide\n\nVeuillez saisir à nouveau"
+
 # -----------------------------FONCTIONS------------------------------------------------------#
 def verifReference(nom,terrain,operateur,reference):
     return f"""
@@ -195,6 +204,16 @@ def infoCommande(listInfo,UserNameFb):
                 \n\nIl est un commande du Terrain {listInfo[5].upper()} \
                 \npour la date {listInfo[2].strftime('%d-%m-%Y')} du {listInfo[3]} à {listInfo[4]}
         """
+
+def infocommandePart(listeInfo):
+        date_cmd = listeInfo[2].strftime('%d-%m-%Y %Hh%M').split(" ")
+        return f"""
+                Ce commande existe et fait par le proprietaire {listeInfo[1].upper()}\
+                pour son Terrain {listeInfo[6]} le {date_cmd[0]} à {date_cmd[1]} pour une \
+                reservation de ce terrain pour la date de {listeInfo[3].strftime('%d-%m-%Y')} \
+                à {listeInfo[4]} au {listeInfo[5]}.
+        """
+
 def salutationSimpleUser(UserName):
         return f"""
                 Bonjour 👋👋{UserName}👋👋,\n\nJe m'appelle AMETIA \
@@ -229,3 +248,12 @@ def informations(avance):
         """
 
         return informations
+
+
+def verifcommandePart(nomTerrain,name,date,heureDebut,heureFin):
+        return f"""
+                Bonjour Admin, Le propriétaire du terrain {nomTerrain} qui est {name.upper()} vient de faire \
+                une réservation pour sont terrain le {date} de {heureDebut} à {heureFin} \
+                \n\nAlors, veuillez-vous le contacter avant de la confirmer!! \
+                \n\nEt son Data unique est 👇👇👇👇
+        """

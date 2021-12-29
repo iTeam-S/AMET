@@ -4,6 +4,7 @@ from datetime import date, datetime
 import time
 import requete
 import admin
+import partenaire
 import json
 import const
 import re
@@ -11,6 +12,7 @@ import re
 admin = admin.Admin()
 bot = messenger.Messenger(ACCESS_TOKEN)
 req = requete.Requete()
+part = partenaire.Partenaire()
 
 
 class Traitement:
@@ -180,12 +182,15 @@ class Traitement:
                     sender_id = message['sender']['id']
                     print(sender_id)
                     sender_id_admin = req.verifSenderId(sender_id)
-                    # sender_id_part = req.verifSenderIdPart(sender_id)
+                    sender_id_part = req.verifSenderIdPart(sender_id)
                     # print(sender_id_admin)
 
                     if message['message'].get('quick_reply'):
                         if sender_id_admin:
                             admin.executionAdmin(
+                                sender_id, message['message']['quick_reply'].get('payload'))
+                        elif sender_id_part:
+                            part.executionPart(
                                 sender_id, message['message']['quick_reply'].get('payload'))
                         else:
                             self.__execution(
@@ -194,6 +199,11 @@ class Traitement:
                     elif message['message'].get('text'):
                         if sender_id_admin:
                             admin.executionAdmin(
+                                sender_id,
+                                message['message'].get('text')
+                            )
+                        elif sender_id_part:
+                            part.executionPart(
                                 sender_id,
                                 message['message'].get('text')
                             )
@@ -231,11 +241,17 @@ class Traitement:
                 if message.get('postback'):
                     sender_id = message['sender']['id']
                     sender_id_admin = req.verifSenderId(sender_id)
+                    sender_id_part = req.verifSenderIdPart(sender_id)
 
                     if sender_id_admin:
                         recipient_idAdmin = message['sender']['id']
                         pst_payload = message['postback']['payload']
                         admin.executionAdmin(recipient_idAdmin, pst_payload)
+
+                    elif sender_id_part:
+                        recipient_idAdmin = message['sender']['id']
+                        pst_payload = message['postback']['payload']
+                        part.executionPart(recipient_idAdmin, pst_payload)
                     else:
                         recipient_id = message['sender']['id']
                         pst_payload = message['postback']['payload']
@@ -327,6 +343,59 @@ class Traitement:
                 bot.send_message(sender_id, const.ErrorLoginAdmin)
                 bot.send_message(sender_id, const.inputUserNameOtherUser)
                 req.set_action(sender_id, "USERNAME_ADMIN")
+                return True
+
+        elif action == "USERNAME_PART":
+            email = commande
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
+            if(re.fullmatch(regex, email)):
+                req.set_temp(
+                    sender_id,
+                    json.dumps({"email": email})
+                )
+                bot.send_message(sender_id, const.inputPassWordOtherUser)
+                req.set_action(sender_id, "PASSWORD_PART")
+                return True
+
+            else:
+                bot.send_message(sender_id, const.ErrorFormatUserMail)
+                return True
+
+        elif action == "PASSWORD_PART":
+            password = commande
+            email = json.loads(req.get_temp(sender_id)).get("email")
+            verifLogin = req.loginPart(email, password)
+
+            if verifLogin:
+                verifDeconnection = req.verifDeconnectionPart(email, password)
+                print(verifDeconnection)
+
+                if verifDeconnection:
+                    bot.send_message(
+                        sender_id,
+                        const.connexion 
+                    )
+                    req.set_action(sender_id,None)
+                    bot.send_quick_reply(sender_id,"reconnexion")
+                    return True
+        
+                else:
+                    req.senderIdPart(
+                        sender_id,
+                        bot.get_user_name(sender_id).json().get('name').upper(),
+                        email
+                    )
+                    req.set_action(sender_id, None)
+                    req.set_temp(sender_id,None)
+                    bot.send_message(sender_id, const.salutationPart)
+                    bot.send_quick_reply(sender_id, "tachesPart")
+                    return True
+
+            else:
+                bot.send_message(sender_id, const.ErrorLoginAdmin)
+                bot.send_message(sender_id, const.inputUserNameOtherUser)
+                req.set_action(sender_id, "USERNAME_PART")
                 return True
 
         elif action == "DATE":
@@ -480,7 +549,7 @@ class Traitement:
                         print(listeHeureDebut)
                         print(listeHeureFin)
 
-                        print("sergio")
+                        
                         while a < len(listeHeureDebut):
                             verifIntervalleDebut.append(
                                 listeHeureDebut[a].split("h")[0])
@@ -501,6 +570,7 @@ class Traitement:
 
                         c = 0
                         while c < len(verifIntervalleDebut):
+                            
                             if int(
                                     verifIntervalleDebut[c]) <= int(
                                     verifHeureDeDebut[0]) < int(
@@ -510,9 +580,11 @@ class Traitement:
                                 return True
 
                             elif int(verifHeureDeDebut[0]) == int(verifIntervalleFin[c]):
+
                                 if int(
                                         verifHeureDeDebut[1]) >= int(
                                         listeHeureFin[c].split("h")[1]):
+                                    print("vfgdvhfe")
                                     data = json.loads(req.get_temp(sender_id))
                                     data["heureDebut"] = heure_debut
                                     req.set_temp(sender_id, json.dumps(data))
@@ -1082,11 +1154,11 @@ class Traitement:
                 dataAinserer.get("heureDebut").split("h")[0] +
                 ":" +
                 dataAinserer.get("heureDebut").split("h")[1] +
-                "00",
+                ":00",
                 dataAinserer.get("heureFin").split("h")[0] +
                 ":" +
-                dataAinserer.get("heureDebut").split("h")[1] +
-                "00",
+                dataAinserer.get("heureFin").split("h")[1] +
+                ":00",
                 dataAinserer.get("listeElementPayload")[1],
                 UniqueTime)
 
@@ -1207,7 +1279,8 @@ class Traitement:
             return True
 
         elif commande == "__PART":
-            print("part")
+            bot.send_message(sender_id, const.inputUserNameOtherUser)
+            req.set_action(sender_id, "USERNAME_PART")
             return True
 
         elif commande == "__NOUVEAU":
@@ -1222,6 +1295,12 @@ class Traitement:
             print("autre compte")
             bot.send_message(sender_id, const.inputUserNameOtherUser)
             req.set_action(sender_id, "USERNAME_ADMIN")
+            return True
+
+        elif commande == "__AUTRECOMPTEPART":
+            print("autre compte")
+            bot.send_message(sender_id, const.inputUserNameOtherUser)
+            req.set_action(sender_id, "USERNAME_PART")
             return True
 
         elif commande == "__ABANDONNER":

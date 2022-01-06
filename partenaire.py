@@ -1,13 +1,15 @@
 import messenger
-from conf import ACCESS_TOKEN,URL_SERVER
+from conf import ACCESS_TOKEN, URL_SERVER
 import requete
 import const
 import json
 from datetime import date, datetime
 import time
+import qrcode
 
 bot = messenger.Messenger(ACCESS_TOKEN)
-req= requete.Requete()
+req = requete.Requete()
+
 
 class Partenaire:
     def __init__(self):
@@ -15,7 +17,7 @@ class Partenaire:
 
 #-------------------------------------------OPTIONS---------------------------------------------------#
 
-    def getMesTerrains(self,id_part):
+    def getMesTerrains(self, id_part):
 
         data = req.getMesTerrains(id_part)
         mesTerrains = []
@@ -39,7 +41,7 @@ class Partenaire:
         return mesTerrains
 
 #------------------------------------------------FIN OPTIONS---------------------------------------------------#
-    def salutationPart(self,sender_id):
+    def salutationPart(self, sender_id):
         bot.send_message(
             sender_id,
             const.salutationPart
@@ -47,16 +49,16 @@ class Partenaire:
         bot.send_quick_reply(sender_id, "tachesPart")
         return True
 
-    def traitementCmdPart(self,sender_id,commande):
+    def traitementCmdPart(self, sender_id, commande):
 
-        if commande == "__VOIR": 
+        if commande == "__VOIR":
             # id_part = req.getIdPart(sender_id)
-            bot.send_message(sender_id,"Voici donc vos terrains")
+            bot.send_message(sender_id, "Voici donc vos terrains")
             bot.send_template(
                 sender_id,
                 self.getMesTerrains(
-                  req.getIdPart(sender_id)  
-                )    
+                    req.getIdPart(sender_id)
+                )
             )
             return True
 
@@ -92,6 +94,7 @@ class Partenaire:
             req.set_tempPart(sender_id, json.dumps(data))
 
             print(UniqueTime)
+            print(json.loads(req.get_tempPart(sender_id)).get("uniqueTime"))
             req.insertNouveauCommandePart(
                 idUserPart[0],
                 dataAinserer.get("daty"),
@@ -104,9 +107,23 @@ class Partenaire:
                 dataAinserer.get("heureFin").split("h")[1] +
                 ":00",
                 dataAinserer.get("listeElementPayload")[1],
-                UniqueTime)
+                json.loads(req.get_tempPart(sender_id)).get("uniqueTime")
+            )
 
-            bot.send_message(sender_id,const.attenteConfirmPart)
+            bot.send_message(sender_id, const.TrueCmd)
+            bot.send_message(sender_id, const.givingTicket)
+            dataQrCode = list(req.getElementQrcode(
+                json.loads(req.get_tempPart(sender_id)).get("uniqueTime"))[0]
+            )
+            print(dataQrCode)
+            img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
+            img.save(f"photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
+            bot.send_file_url(
+                sender_id,
+                f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
+                "image"
+            )
+
             ListIdAdmin = req.getIdAdmin()
             for i in range(len(ListIdAdmin)):
                 print(ListIdAdmin[i][0])
@@ -120,15 +137,15 @@ class Partenaire:
                         dataAinserer.get("heureFin")
                     )
                 )
-                bot.send_message(
-                    ListIdAdmin[i][0],
-                    json.loads(req.get_tempPart(sender_id)).get("uniqueTime")
-                )
-                req.set_action_admin(ListIdAdmin[i][0],None)
+                req.set_action_admin(ListIdAdmin[i][0], None)
+
+            req.set_temp(sender_id, None)
+            req.set_action(sender_id, None)
+            req.set_action_part(sender_id, None)
+            req.set_tempPart(sender_id, None)
             return True
 
-
-    def traitementPstPayloadPart(self,sender_id,commande):
+    def traitementPstPayloadPart(self, sender_id, commande):
 
         listeElementPayload = commande.split(" ")
 
@@ -146,19 +163,25 @@ class Partenaire:
             req.set_action_part(sender_id, "DATE")
             return True
 
-    def traitementActionPart(self,sender_id,commande,action):
+        elif listeElementPayload[0] == "__DECONNEXION":
+            req.set_action_part(sender_id, None)
+            req.set_tempPart(sender_id, None)
+            req.deconnexionPart(sender_id)
+            bot.send_message(sender_id, const.deconnexionPart)
+            return True
+
+    def traitementActionPart(self, sender_id, commande, action):
 
         if action == "DATE":
             daty = commande
             verifTypeDate = daty.split("-")
             dateNow = str(date.today().strftime("%d-%m-%Y")).split("-")
 
-            
             if (not verifTypeDate[0].isdigit() or (int(verifTypeDate[0]) not in range(0, 32))) \
                     or (not verifTypeDate[1].isdigit() or (int(verifTypeDate[1]) not in range(1, 13))) \
                     or (not verifTypeDate[2].isdigit() or (int(verifTypeDate[2]) not in range(2021, 2023))):
                 """
-                    Conditions qui verifient les types 
+                    Conditions qui verifient les types
                     de la date entrée par l'utilisateur
                 """
                 bot.send_message(sender_id, const.invalideFormatDate)
@@ -166,7 +189,8 @@ class Partenaire:
                 return True
 
             elif (int(verifTypeDate[0]) < int(dateNow[0]) and (int(verifTypeDate[1]) == int(dateNow[1])) and (int(verifTypeDate[2]) == int(dateNow[2]))) \
-                    or ((int(verifTypeDate[1]) < int(dateNow[1])) and (int(verifTypeDate[2]) == int(dateNow[2]))):
+                    or ((int(verifTypeDate[1]) < int(dateNow[1])) and (int(verifTypeDate[2]) == int(dateNow[2]))) \
+                    or int(verifTypeDate[2]) < int(dateNow[2]):
                 bot.send_message(sender_id, const.invalidLastDate)
                 req.set_action_part(sender_id, "DATE")
                 return True
@@ -186,15 +210,14 @@ class Partenaire:
                 print(indexProduit + "\n" + daty)
 
                 """
-                    Verifier la date entrée par l'utilisateur 
+                    Verifier la date entrée par l'utilisateur
                     si c'est déjà existe dans la base ou non?
                 """
                 exist = req.date_dispo(daty, indexProduit)
 
-                
                 if exist:
                     """
-                        s'elle existe alors, on va fetcher tous 
+                        s'elle existe alors, on va fetcher tous
                         les heures déjà réservés pour cette date
                     """
                     print(daty)
@@ -236,7 +259,7 @@ class Partenaire:
                         "Pour cette Date; les heures déjà resérvés sont:\n\n" +
                         "\n".join(listeMessage) +
                         "\n\nDonc vous pouvez choisir vos heures à part cela")
-                    bot.send_quick_reply(sender_id, "proposerCmdPart") 
+                    bot.send_quick_reply(sender_id, "proposerCmdPart")
                     req.set_action_part(sender_id, None)
                     return True
 
@@ -255,7 +278,7 @@ class Partenaire:
             verifHeureDeDebut = heure_debut.split("h")
 
             """
-                Avant tout, faut verifier 
+                Avant tout, faut verifier
                 l'heure entré par les utilisateurs
             """
             if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < 6 or int(verifHeureDeDebut[0]) > 20) \
@@ -265,7 +288,7 @@ class Partenaire:
 
             else:
                 """
-                    Ici on verifie si c'est 
+                    Ici on verifie si c'est
                     cohérent avec les marge
                 """
                 if (int(verifHeureDeDebut[1]) == 0) or (
@@ -328,17 +351,21 @@ class Partenaire:
                                 return True
 
                             elif int(verifHeureDeDebut[0]) == int(verifIntervalleFin[c]):
-                                
-                                if int(verifHeureDeDebut[0]) == int(verifIntervalleDebut[c]):
+
+                                if int(
+                                        verifHeureDeDebut[0]) == int(
+                                        verifIntervalleDebut[c]):
                                     print("ao zan eeeeeeeee")
                                     return True
 
                                 elif int(
                                         verifHeureDeDebut[1]) >= int(
                                         listeHeureFin[c].split("h")[1]):
-                                    data = json.loads(req.get_tempPart(sender_id))
+                                    data = json.loads(
+                                        req.get_tempPart(sender_id))
                                     data["heureDebut"] = heure_debut
-                                    req.set_tempPart(sender_id, json.dumps(data))
+                                    req.set_tempPart(
+                                        sender_id, json.dumps(data))
 
                                     bot.send_message(
                                         sender_id, const.inputFinalHour)
@@ -372,7 +399,6 @@ class Partenaire:
                         req.set_action_part(sender_id, "HEURE_FIN")
                         return True
 
-                    
                     else:
                         """
                             Ici c'est l'heure où sa date n'a
@@ -414,8 +440,8 @@ class Partenaire:
 
             else:
                 """
-                    Eto dia tsy maintsy ajaina foana ilay hoe tsy maintsy 
-                    00 na 30 ihany ny minutes ao aorinan'ilay ora fa ra tsy 
+                    Eto dia tsy maintsy ajaina foana ilay hoe tsy maintsy
+                    00 na 30 ihany ny minutes ao aorinan'ilay ora fa ra tsy
                     izany dia tsy ekena fa manimba zavatra
                 """
                 if int(
@@ -437,7 +463,7 @@ class Partenaire:
                         d = 0
                         while d < len(verifIntervalleDebut):
                             """
-                                De bouclena aloha mba anwvana verification sao 
+                                De bouclena aloha mba anwvana verification sao
                                 dia ka tafalatsaka amin'ny ora efa misy ilay ora napidirinlay
                                 utilisateur ka miteraka vol-na ora ka manimba zavatra
                             """
@@ -452,12 +478,12 @@ class Partenaire:
                                 return True
 
                             elif int(verifHeureDeFin[0]) == int(verifIntervalleDebut[d]):
-                                
+
                                 """
                                     verification ra mtov @heure debut
-                                    ray efa misy ny heure fin nampidiriny  
+                                    ray efa misy ny heure fin nampidiriny
                                 """
-                                
+
                                 if int(
                                         verifHeureDeFin[1]) <= int(
                                         listeHeureDebut[d].split("h")[1]):
@@ -466,11 +492,11 @@ class Partenaire:
                                         ny minute anle heure fin napidirina sy ilay
                                         heure debut efa misy
                                     """
-                                    
+
                                     if verifHeureDeFin[0] <= verifHeureDeDebut[0]:
                                         """
                                             Dia ra Eny zay rehetra zay a ka kely
-                                            na mitovy @heure debut le heure fin de 
+                                            na mitovy @heure debut le heure fin de
                                             Erreur satria ts manaja marge
                                         """
                                         bot.send_message(
@@ -482,7 +508,7 @@ class Partenaire:
 
                                     else:
                                         """
-                                            fa ra tsy zay dia marina zan 
+                                            fa ra tsy zay dia marina zan
                                             ka mety ny heureFin-ay
                                         """
                                         data = json.loads(
@@ -528,22 +554,22 @@ class Partenaire:
                                 Dia raha toa ka mitovy na kely noho ny
                                 heure debut ny heure fin dia tsy mety
                             """
-                            
+
                             bot.send_message(sender_id, const.ErrorMarging)
                             bot.send_quick_reply(
                                 sender_id, "annulatioErreurHeureFin")
                             req.set_action_part(sender_id, None)
                             return True
-                        
+
                         elif int(verifHeureDeFin[0]) == int(verifHeureDeDebut[0]) + 1:
 
-                            if verifHeureDeDebut[1]>verifHeureDeFin[1]:
+                            if verifHeureDeDebut[1] > verifHeureDeFin[1]:
                                 bot.send_message(sender_id, const.ErrorMarging)
                                 bot.send_quick_reply(
                                     sender_id, "annulatioErreurHeureFin")
                                 req.set_action_part(sender_id, None)
                                 return True
-                                
+
                             else:
                                 data = json.loads(req.get_tempPart(sender_id))
                                 data["heureFin"] = heure_fin
@@ -572,7 +598,6 @@ class Partenaire:
                                 req.set_action_part(sender_id, None)
                                 return True
 
-                                
                         else:
                             """
                                 fa raha tsia kosa dia verifena indray aloha sao
@@ -599,7 +624,7 @@ class Partenaire:
 
                             """
                                 Raha toa mo ka tsy tao mihitsy le izy a,
-                                de isaorana izany ny Tompo fa mety soamantsara 
+                                de isaorana izany ny Tompo fa mety soamantsara
                                 ny heure Fin-ny napidiriny ka afaka manohy ny lalany izy
                             """
                             data = json.loads(req.get_tempPart(sender_id))
@@ -629,7 +654,6 @@ class Partenaire:
                             req.set_action_part(sender_id, None)
                             return True
 
-                    
                     else:
                         """
                             Raha toa ka daty tsy mbola nisy nanao reservation mitsy mo
@@ -642,10 +666,10 @@ class Partenaire:
                                 sender_id, "annulatioErreurHeureFin")
                             req.set_action_part(sender_id, None)
                             return True
-                        
+
                         elif int(verifHeureDeFin[0]) == int(verifHeureDeDebut[0]) + 1:
-                            
-                            if verifHeureDeDebut[1]>verifHeureDeFin[1]:
+
+                            if verifHeureDeDebut[1] > verifHeureDeFin[1]:
                                 bot.send_message(sender_id, const.ErrorMarging)
                                 bot.send_quick_reply(
                                     sender_id, "annulatioErreurHeureFin")
@@ -708,26 +732,20 @@ class Partenaire:
                             req.set_action_part(sender_id, None)
                             return True
 
-                
                 else:
                     """
-                        Ka refa tsy anaja anilay 00 sy 30 zany izy 
+                        Ka refa tsy anaja anilay 00 sy 30 zany izy
                         amin'ilay minutes de ometsiaka ny belle eurreur
                     """
                     bot.send_message(sender_id, const.ErrorTranceEnd)
                     bot.send_quick_reply(sender_id, "annulatioErreurHeureFin")
                     req.set_action_part(sender_id, None)
                     return True
-            
 
-
-
-
-
-    def executionPart(self,sender_id,commande):
+    def executionPart(self, sender_id, commande):
         """
             Methode principal qui traite tous les faits
-            qui se passent et en action 
+            qui se passent et en action
             À chaque fois qu'on poste qelques choses sur Messenger;
             cette methode le gere et le guide à l'endroit où
             le POST va
@@ -745,17 +763,17 @@ class Partenaire:
 
         if self.traitementPstPayloadPart(sender_id, commande):
             return
-            
+
         if self.traitementCmdPart(sender_id, commande):
             return
 
         """
             Ici, si les deux methodes ci-dessus ne sont pas
-            verifiés donc il est possible que l'Admin 
-            possede d'une action qui definit la suite 
+            verifiés donc il est possible que l'Admin
+            possede d'une action qui definit la suite
             de sa discussion avec le bot
 
-            Alors on recupère cet action afin de determiner la 
+            Alors on recupère cet action afin de determiner la
             de la discussion
         """
         statut = req.get_action_part(sender_id)[0]
@@ -769,7 +787,7 @@ class Partenaire:
             l'action NULL et envoye d'un simple message TEXT
 
             Alors on le fait saluer et proposer l'activité
-            principal!! 
+            principal!!
         """
 
         if self.salutationPart(sender_id):
@@ -778,4 +796,3 @@ class Partenaire:
                 il ne deconnecte pas
             """
             return
-

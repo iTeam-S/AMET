@@ -90,7 +90,7 @@ Error30Marge = "Votre heure de début n'est pas mal mais selon notre marge(1h mi
 votre choix d'heure de début est alors invalide parce que ca va risqué toujours tombé dans les \
 intervalles des temps qui existent votre heure de fin\n\n \
 Donc on vous suppose de re-ecriver votre heure de debut et choisir la bonne en respectant toujour \
-le format et d'eviter aussi l'erreur des intervalles de temps\n\nMerci 😊😊😊" 
+le format et d'eviter aussi l'erreur des intervalles de temps\n\nMerci 😊😊😊"
 
 inputUserNameOtherUser = "Entrer alors votre nom d'utilisateur:"
 inputPassWordOtherUser = "Entrer votre mot de passe: "
@@ -157,6 +157,10 @@ deconnexion = "Merci pour ce que vous avez fait Admin! \
 Vous choisissez de se deconnecter alors pour la prochaine \
 connexion, Vous, il suffit de se connecter 👋👋👋😊😊😊"
 
+deconnexionPart = "Merci pour ce que vous avez fait notre chèr(e) partenaire! \
+Vous choisissez de se deconnecter alors pour la prochaine \
+connexion, Vous, il suffit de se connecter 👋👋👋😊😊😊"
+
 ErrorInputRef = "Votre réference est invalide\nVeuillez verifier et \
 Saisir à nouveau"
 
@@ -165,8 +169,12 @@ verification de votre reference"
 
 inputDataQrCode = "Entrer alors le data de QrCode:"
 ErrorVerifCmd = "Une erreur s'est produite,Veuillez saisir à nouveau!!"
+falseReference = "Votre avance pour ce reference saisie n'a pas bien arrivé \
+chez nous\n\nDonc on vous demande d'appeller urgement le numéro 0340000000 pour \
+resoudre ce probleme.\n\nOn vous attend pour l'appel alors\nMerci😊😊😊"
 
 confirmCmd = "Entrer alors le Data unique à confirmé"
+falseconfirmCmd = "Entrer le Data unique du client pour renvoyer du message"
 TrueCmd = "Votre commande est bien confirmé\n\nAlors 👇👇👇👇"
 ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
 le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
@@ -189,33 +197,38 @@ mdp = "Donner lui aussi de mot de passe:"
 ErrorInputUserMailPart = "Cet UserMail est invalide\n\nVeuillez saisir à nouveau"
 
 # -----------------------------FONCTIONS------------------------------------------------------#
-def verifReference(nom,terrain,operateur,reference):
+
+
+def verifReference(nom, terrain, operateur, reference, heure):
     return f"""
             Bonjour Admin, {nom} vient de vous envoyer une avance pour une reservation de Terrain \
-            {terrain.upper()} pour votre numero {operateur} de reference {reference} \
+            {terrain.upper()} pendant {heure} du temps pour votre numero {operateur} de reference {reference} \
             \n\nPouvez-vous le vérifier s'il vous plait?? \
             \n\nEt voici donc son unique Data de commande:
     """
 
-def infoCommande(listInfo,UserNameFb):
-        date_cmd = listInfo[1].strftime('%d-%m-%Y %Hh%M').split(" ")
-        return f"""
+
+def infoCommande(listInfo, UserNameFb):
+    date_cmd = listInfo[1].strftime('%d-%m-%Y %Hh%M').split(" ")
+    return f"""
                 Ce commande existe et fait par {UserNameFb} le {date_cmd[0]} à {date_cmd[1]}.\
                 \n\nIl est un commande du Terrain {listInfo[5].upper()} \
                 \npour la date {listInfo[2].strftime('%d-%m-%Y')} du {listInfo[3]} à {listInfo[4]}
         """
 
+
 def infocommandePart(listeInfo):
-        date_cmd = listeInfo[2].strftime('%d-%m-%Y %Hh%M').split(" ")
-        return f"""
+    date_cmd = listeInfo[2].strftime('%d-%m-%Y %Hh%M').split(" ")
+    return f"""
                 Ce commande existe et fait par le proprietaire {listeInfo[1].upper()}\
                 pour son Terrain {listeInfo[6]} le {date_cmd[0]} à {date_cmd[1]} pour une \
                 reservation de ce terrain pour la date de {listeInfo[3].strftime('%d-%m-%Y')} \
                 à {listeInfo[4]} au {listeInfo[5]}.
         """
 
+
 def salutationSimpleUser(UserName):
-        return f"""
+    return f"""
                 Bonjour 👋👋{UserName}👋👋,\n\nJe m'appelle AMETIA \
                 \n Je suis un des employés de notre entreprise qui a \
                 \npour mission de vous service pour votre commande auprès de nous \
@@ -223,16 +236,18 @@ def salutationSimpleUser(UserName):
                 \nfait une location des terrains de foot scientitiques ici Antananarivo
         """
 
+
 def TrueConfirm(UniqueTime):
-        return f"""
+    return f"""
                 Ce commande qui a de Data Unique {UniqueTime} est déjà confirmé \
                 \npar un autre Admin!! Merci 😊😊😊
-        
+
         """
+
 
 def informations(avance):
 
-        informations = f"""Votre commande a été bien enregistré\n\nPour que nous pouvons \
+    informations = f"""Votre commande a été bien enregistré\n\nPour que nous pouvons \
                 \nconfirmer vraiment votre commande,\nOn vous demande de payer une pétite avance du montant {avance}Ar \
                 \navec le frais de retrait et le reste de paymet aura lieu le jour où vous serez au terrain\n\n \
                 Voici donc nos numeros:\nTELMA:0340000000(Nom:Paul jean BA) \
@@ -247,13 +262,12 @@ def informations(avance):
                 Alors, on vous attend pour l'envoi de l'avance et la reférence ici 😊😊😊
         """
 
-        return informations
+    return informations
 
 
-def verifcommandePart(nomTerrain,name,date,heureDebut,heureFin):
-        return f"""
+def verifcommandePart(nomTerrain, name, date, heureDebut, heureFin):
+    return f"""
                 Bonjour Admin, Le propriétaire du terrain {nomTerrain} qui est {name.upper()} vient de faire \
-                une réservation pour sont terrain le {date} de {heureDebut} à {heureFin} \
-                \n\nAlors, veuillez-vous le contacter avant de la confirmer!! \
-                \n\nEt son Data unique est 👇👇👇👇
+                une réservation pour son terrain pour la date de {date} au {heureDebut} à {heureFin} \
+                \n\nAlors, veuillez-vous le contacter pour plus d'information\
         """

@@ -22,6 +22,7 @@ class Traitement:
 
 #---------------------------------------------OPTIONS--------------------------------------------------------------------#
 
+
     def elements_produits(self):
         '''
             Fonction qui fetch des données de chaques
@@ -33,7 +34,7 @@ class Traitement:
 
         while i < len(photos):
             produits.append({
-                "title": str(photos[i][0]) + " - Terrain" + photos[i][1],
+                "title": str(photos[i][0]) + " - Terrain " + photos[i][1],
                 "image_url": URL_SERVER + photos[i][3],
                 "subtitle": "Prix : " + str(photos[i][2]) + " Ar /heures",
                 "buttons": [
@@ -106,7 +107,7 @@ class Traitement:
 
     def gallery(self, id_prod):
         """
-            Fonction qui fetch tous les Galleries 
+            Fonction qui fetch tous les Galleries
             photo d'un produits demandé
         """
         all_gallery = req.get_gallerry(id_prod)
@@ -131,21 +132,20 @@ class Traitement:
 
     def details(self, id_prod):
         """
-            Fonction qui fecth le photo de Details 
+            Fonction qui fecth le photo de Details
             d'un produits demandé
         """
         photoDetails = req.get_detail(id_prod)
         urlDetails = URL_SERVER + photoDetails[0][0]
         return urlDetails
 
-
-    def refTrue(self,sender_id,nomOperateur,commande):
+    def refTrue(self, sender_id, nomOperateur, commande):
         """
             Fonction qui gère l'action et l'évenement
             qui se passent après la saisir de reference
             par un utilisateur
         """
-        bot.send_message(sender_id,const.attenteConfirmRef)
+        bot.send_message(sender_id, const.attenteConfirmRef)
         ListIdAdmin = req.getIdAdmin()
         for i in range(len(ListIdAdmin)):
             print(ListIdAdmin[i][0])
@@ -153,22 +153,24 @@ class Traitement:
                 ListIdAdmin[i][0],
                 const.verifReference(
                     bot.get_user_name(sender_id).json().get('name').upper(),
-                    json.loads(req.get_temp(sender_id)).get("listeElementPayload")[2],
+                    json.loads(
+                        req.get_temp(sender_id)).get("listeElementPayload")[2],
                     nomOperateur,
-                    commande
-                )
-            )
+                    commande,
+                    json.loads(
+                        req.get_temp(sender_id)).get("intervalle")))
             bot.send_message(
                 ListIdAdmin[i][0],
                 json.loads(req.get_temp(sender_id)).get("uniqueTime")
             )
-            req.set_action_admin(ListIdAdmin[i][0],None)
+            req.set_action_admin(ListIdAdmin[i][0], None)
         return True
 
 #--------------------------------------------FIN OPTIONS----------------------------------------------------------------#
 
 
 #-------------------------------------ANALYSES DES MESSAGES POSTÉS PAR LES UTILISATEURS--------------------------------#
+
 
     def _analyse(self, data):
         '''
@@ -259,16 +261,15 @@ class Traitement:
 
     #-------------------------------FIN ANALYSES DES MESSAGES POSTÉS PAR LES UTILISATEURS--------------------------------#
 
-
     #--------------------------------------LES TRAITEMENTS---------------------------------------------------------------#
 
     def salutation(self, sender_id):
         """
-            Saluer et presenter qui nous sommes 
+            Saluer et presenter qui nous sommes
             avant tout à l'utulisateurs
         """
         try:
-            bot.send_file_url(sender_id,f"{URL_SERVER}bot.jpg","image")
+            bot.send_file_url(sender_id, f"{URL_SERVER}bot.jpg", "image")
             bot.send_message(
                 sender_id,
                 const.salutationSimpleUser(
@@ -321,20 +322,17 @@ class Traitement:
                 if verifDeconnection:
                     bot.send_message(
                         sender_id,
-                        const.connexion 
-                    )
-                    req.set_action(sender_id,None)
-                    bot.send_quick_reply(sender_id,"reconnexion")
-                    return True
-        
-                else:
-                    req.senderIdAdmin(
-                        sender_id,
-                        bot.get_user_name(sender_id).json().get('name').upper(),
-                        email
+                        const.connexion
                     )
                     req.set_action(sender_id, None)
-                    req.set_temp(sender_id,None)
+                    bot.send_quick_reply(sender_id, "reconnexion")
+                    return True
+
+                else:
+                    req.senderIdAdmin(sender_id, bot.get_user_name(
+                        sender_id).json().get('name').upper(), email)
+                    req.set_action(sender_id, None)
+                    req.set_temp(sender_id, None)
                     bot.send_message(sender_id, const.salutationAdmin)
                     bot.send_quick_reply(sender_id, "tachesAdmin")
                     return True
@@ -374,20 +372,17 @@ class Traitement:
                 if verifDeconnection:
                     bot.send_message(
                         sender_id,
-                        const.connexion 
-                    )
-                    req.set_action(sender_id,None)
-                    bot.send_quick_reply(sender_id,"reconnexion")
-                    return True
-        
-                else:
-                    req.senderIdPart(
-                        sender_id,
-                        bot.get_user_name(sender_id).json().get('name').upper(),
-                        email
+                        const.connexion
                     )
                     req.set_action(sender_id, None)
-                    req.set_temp(sender_id,None)
+                    bot.send_quick_reply(sender_id, "reconnexion")
+                    return True
+
+                else:
+                    req.senderIdPart(sender_id, bot.get_user_name(
+                        sender_id).json().get('name').upper(), email)
+                    req.set_action(sender_id, None)
+                    req.set_temp(sender_id, None)
                     bot.send_message(sender_id, const.salutationPart)
                     bot.send_quick_reply(sender_id, "tachesPart")
                     return True
@@ -403,12 +398,11 @@ class Traitement:
             verifTypeDate = daty.split("-")
             dateNow = str(date.today().strftime("%d-%m-%Y")).split("-")
 
-            
             if (not verifTypeDate[0].isdigit() or (int(verifTypeDate[0]) not in range(0, 32))) \
                     or (not verifTypeDate[1].isdigit() or (int(verifTypeDate[1]) not in range(1, 13))) \
                     or (not verifTypeDate[2].isdigit() or (int(verifTypeDate[2]) not in range(2021, 2023))):
                 """
-                    Conditions qui verifient les types 
+                    Conditions qui verifient les types
                     de la date entrée par l'utilisateur
                 """
                 bot.send_message(sender_id, const.invalideFormatDate)
@@ -416,7 +410,8 @@ class Traitement:
                 return True
 
             elif (int(verifTypeDate[0]) < int(dateNow[0]) and (int(verifTypeDate[1]) == int(dateNow[1])) and (int(verifTypeDate[2]) == int(dateNow[2]))) \
-                    or ((int(verifTypeDate[1]) < int(dateNow[1])) and (int(verifTypeDate[2]) == int(dateNow[2]))):
+                    or ((int(verifTypeDate[1]) < int(dateNow[1])) and (int(verifTypeDate[2]) == int(dateNow[2]))) \
+                    or int(verifTypeDate[2]) < int(dateNow[2]):
                 bot.send_message(sender_id, const.invalidLastDate)
                 req.set_action(sender_id, "DATE")
                 return True
@@ -436,15 +431,14 @@ class Traitement:
                 print(indexProduit + "\n" + daty)
 
                 """
-                    Verifier la date entrée par l'utilisateur 
+                    Verifier la date entrée par l'utilisateur
                     si c'est déjà existe dans la base ou non?
                 """
                 exist = req.date_dispo(daty, indexProduit)
 
-                
                 if exist:
                     """
-                        s'elle existe alors, on va fetcher tous 
+                        s'elle existe alors, on va fetcher tous
                         les heures déjà réservés pour cette date
                     """
                     print(daty)
@@ -490,7 +484,6 @@ class Traitement:
                     req.set_action(sender_id, None)
                     return True
 
-                
                 else:
                     """
                         S'elle n'est pas existe, donc l'utilisateur
@@ -506,7 +499,7 @@ class Traitement:
             verifHeureDeDebut = heure_debut.split("h")
 
             """
-                Avant tout, faut verifier 
+                Avant tout, faut verifier
                 l'heure entré par les utilisateurs
             """
             if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < 6 or int(verifHeureDeDebut[0]) > 20) \
@@ -516,7 +509,7 @@ class Traitement:
 
             else:
                 """
-                    Ici on verifie si c'est 
+                    Ici on verifie si c'est
                     cohérent avec les marge
                 """
                 if (int(verifHeureDeDebut[1]) == 0) or (
@@ -549,7 +542,6 @@ class Traitement:
                         print(listeHeureDebut)
                         print(listeHeureFin)
 
-                        
                         while a < len(listeHeureDebut):
                             verifIntervalleDebut.append(
                                 listeHeureDebut[a].split("h")[0])
@@ -570,7 +562,7 @@ class Traitement:
 
                         c = 0
                         while c < len(verifIntervalleDebut):
-                            
+
                             if int(
                                     verifIntervalleDebut[c]) <= int(
                                     verifHeureDeDebut[0]) < int(
@@ -584,7 +576,6 @@ class Traitement:
                                 if int(
                                         verifHeureDeDebut[1]) >= int(
                                         listeHeureFin[c].split("h")[1]):
-                                    print("vfgdvhfe")
                                     data = json.loads(req.get_temp(sender_id))
                                     data["heureDebut"] = heure_debut
                                     req.set_temp(sender_id, json.dumps(data))
@@ -621,7 +612,6 @@ class Traitement:
                         req.set_action(sender_id, "HEURE_FIN")
                         return True
 
-                    
                     else:
                         """
                             Ici c'est l'heure où sa date n'a
@@ -663,8 +653,8 @@ class Traitement:
 
             else:
                 """
-                    Eto dia tsy maintsy ajaina foana ilay hoe tsy maintsy 
-                    00 na 30 ihany ny minutes ao aorinan'ilay ora fa ra tsy 
+                    Eto dia tsy maintsy ajaina foana ilay hoe tsy maintsy
+                    00 na 30 ihany ny minutes ao aorinan'ilay ora fa ra tsy
                     izany dia tsy ekena fa manimba zavatra
                 """
                 if int(
@@ -686,7 +676,7 @@ class Traitement:
                         d = 0
                         while d < len(verifIntervalleDebut):
                             """
-                                De bouclena aloha mba anwvana verification sao 
+                                De bouclena aloha mba anwvana verification sao
                                 dia ka tafalatsaka amin'ny ora efa misy ilay ora napidirinlay
                                 utilisateur ka miteraka vol-na ora ka manimba zavatra
                             """
@@ -701,12 +691,12 @@ class Traitement:
                                 return True
 
                             elif int(verifHeureDeFin[0]) == int(verifIntervalleDebut[d]):
-                                
+
                                 """
                                     verification ra mtov @heure debut
-                                    ray efa misy ny heure fin nampidiriny  
+                                    ray efa misy ny heure fin nampidiriny
                                 """
-                                
+
                                 if int(
                                         verifHeureDeFin[1]) <= int(
                                         listeHeureDebut[d].split("h")[1]):
@@ -715,11 +705,11 @@ class Traitement:
                                         ny minute anle heure fin napidirina sy ilay
                                         heure debut efa misy
                                     """
-                                    
+
                                     if verifHeureDeFin[0] <= verifHeureDeDebut[0]:
                                         """
                                             Dia ra Eny zay rehetra zay a ka kely
-                                            na mitovy @heure debut le heure fin de 
+                                            na mitovy @heure debut le heure fin de
                                             Erreur satria ts manaja marge
                                         """
                                         bot.send_message(
@@ -731,7 +721,7 @@ class Traitement:
 
                                     else:
                                         """
-                                            fa ra tsy zay dia marina zan 
+                                            fa ra tsy zay dia marina zan
                                             ka mety ny heureFin-ay
                                         """
                                         data = json.loads(
@@ -778,22 +768,22 @@ class Traitement:
                                 Dia raha toa ka mitovy na kely noho ny
                                 heure debut ny heure fin dia tsy mety
                             """
-                            
+
                             bot.send_message(sender_id, const.ErrorMarging)
                             bot.send_quick_reply(
                                 sender_id, "annulatioErreurHeureFin")
                             req.set_action(sender_id, None)
                             return True
-                        
+
                         elif int(verifHeureDeFin[0]) == int(verifHeureDeDebut[0]) + 1:
 
-                            if verifHeureDeDebut[1]>verifHeureDeFin[1]:
+                            if verifHeureDeDebut[1] > verifHeureDeFin[1]:
                                 bot.send_message(sender_id, const.ErrorMarging)
                                 bot.send_quick_reply(
                                     sender_id, "annulatioErreurHeureFin")
                                 req.set_action(sender_id, None)
                                 return True
-                                
+
                             else:
                                 data = json.loads(req.get_temp(sender_id))
                                 data["heureFin"] = heure_fin
@@ -822,7 +812,6 @@ class Traitement:
                                 req.set_action(sender_id, None)
                                 return True
 
-                                
                         else:
                             """
                                 fa raha tsia kosa dia verifena indray aloha sao
@@ -849,7 +838,7 @@ class Traitement:
 
                             """
                                 Raha toa mo ka tsy tao mihitsy le izy a,
-                                de isaorana izany ny Tompo fa mety soamantsara 
+                                de isaorana izany ny Tompo fa mety soamantsara
                                 ny heure Fin-ny napidiriny ka afaka manohy ny lalany izy
                             """
                             data = json.loads(req.get_temp(sender_id))
@@ -879,7 +868,6 @@ class Traitement:
                             req.set_action(sender_id, None)
                             return True
 
-                    
                     else:
                         """
                             Raha toa ka daty tsy mbola nisy nanao reservation mitsy mo
@@ -892,10 +880,10 @@ class Traitement:
                                 sender_id, "annulatioErreurHeureFin")
                             req.set_action(sender_id, None)
                             return True
-                        
+
                         elif int(verifHeureDeFin[0]) == int(verifHeureDeDebut[0]) + 1:
-                            
-                            if verifHeureDeDebut[1]>verifHeureDeFin[1]:
+
+                            if verifHeureDeDebut[1] > verifHeureDeFin[1]:
                                 bot.send_message(sender_id, const.ErrorMarging)
                                 bot.send_quick_reply(
                                     sender_id, "annulatioErreurHeureFin")
@@ -958,10 +946,9 @@ class Traitement:
                             req.set_action(sender_id, None)
                             return True
 
-                
                 else:
                     """
-                        Ka refa tsy anaja anilay 00 sy 30 zany izy 
+                        Ka refa tsy anaja anilay 00 sy 30 zany izy
                         amin'ilay minutes de ometsiaka ny belle eurreur
                     """
                     bot.send_message(sender_id, const.ErrorTranceEnd)
@@ -990,7 +977,7 @@ class Traitement:
 
             elif operateur == "ORANGE":
                 regex = r'\b[A-Z0-9]+\.[0-9|A-Z0-9]+\.[A-Z0-9]{2,}\b'
-                
+
                 if(re.fullmatch(regex, commande)):
                     self.refTrue(
                         sender_id,
@@ -1006,10 +993,9 @@ class Traitement:
                     )
                     return True
 
-
             elif operateur == "AIRTEL":
                 regex = r'\b[A-Z0-9]+\.[0-9|A-Z0-9]+\.[A-Z0-9]{2,}\b'
-                
+
                 if(re.fullmatch(regex, commande)):
                     self.refTrue(
                         sender_id,
@@ -1025,39 +1011,26 @@ class Traitement:
                     )
                     return True
 
-
         elif action == "ATTENTE_SEARCH":
             try:
                 result = req.get_productSearch(commande)
 
                 if result:
-                    data = [
-                                {
-                                    "title": str(result[0]) + " - Terrain " + result[1],
-                                    "image_url": URL_SERVER + result[3],
-                                    "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
-                                    "buttons": [
-                                        {
-                                            "type": "postback",
-                                            "title": "Voir Gallery",
-                                            "payload": "__GALERY" + " " + str(result[0])
-                                        },
-                                        {
-                                            "type": "postback",
-                                            "title": "Details",
-                                            "payload": "__DETAILS" + " " + str(result[0])
-                                        },
-                                        {
-                                            "type": "postback",
-                                            "title": "Disponibilité",
-                                            "payload": f"__DISPONIBILITÉ {str(result[0])} {result[1]} {str(result[2])}"
-                                        }
-                                    ]
-                                }
-                            ]
-                    bot.send_message(sender_id,const.messageSearch)
-                    bot.send_template(sender_id,data)
-                    req.set_action(sender_id,None)
+                    data = [{"title": str(result[0]) + " - Terrain " + result[1],
+                             "image_url": URL_SERVER + result[3],
+                             "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
+                             "buttons": [{"type": "postback",
+                                          "title": "Voir Gallery",
+                                          "payload": "__GALERY" + " " + str(result[0])},
+                                         {"type": "postback",
+                                          "title": "Details",
+                                          "payload": "__DETAILS" + " " + str(result[0])},
+                                         {"type": "postback",
+                                          "title": "Disponibilité",
+                                          "payload": f"__DISPONIBILITÉ {str(result[0])} {result[1]} {str(result[2])}"}]}]
+                    bot.send_message(sender_id, const.messageSearch)
+                    bot.send_template(sender_id, data)
+                    req.set_action(sender_id, None)
                     print(result)
                     return True
 
@@ -1066,18 +1039,18 @@ class Traitement:
                         sender_id,
                         const.emptySearch
                     )
-                    bot.send_quick_reply(sender_id,"emptySearch")
-                    req.set_action(sender_id,None)
+                    bot.send_quick_reply(sender_id, "emptySearch")
+                    req.set_action(sender_id, None)
                     return True
-                
+
             except BaseException:
                 bot.send_message(
                     sender_id,
                     const.reSearch
                 )
-                req.set_action(sender_id,"ATTENTE_SEARCH")
+                req.set_action(sender_id, "ATTENTE_SEARCH")
                 return True
-            
+
     def traitement_cmd(self, sender_id, commande):
         """
             Methode qui permet d'envoyer les options
@@ -1088,7 +1061,7 @@ class Traitement:
         cmd = commande.split(" ")
 
         if commande == "__LOUER_TERRAIN":
-            bot.send_quick_reply(sender_id,"AproposTerrain")
+            bot.send_quick_reply(sender_id, "AproposTerrain")
             return True
 
         elif commande == "__INFORMATION":
@@ -1106,13 +1079,13 @@ class Traitement:
             )
             req.set_action(sender_id, None)
             return True
-        
+
         elif commande == "__RECHERCHER":
             bot.send_message(
                 sender_id,
                 const.search
             )
-            req.set_action(sender_id,"ATTENTE_SEARCH")
+            req.set_action(sender_id, "ATTENTE_SEARCH")
             return True
 
         elif commande == "__CONTINUER":
@@ -1135,7 +1108,7 @@ class Traitement:
             return True
 
         elif commande == "__PRODUIT":
-            bot.send_quick_reply(sender_id,"AproposTerrain")
+            bot.send_quick_reply(sender_id, "AproposTerrain")
             return True
 
         elif commande == "__OUI":
@@ -1160,72 +1133,89 @@ class Traitement:
                 dataAinserer.get("heureFin").split("h")[1] +
                 ":00",
                 dataAinserer.get("listeElementPayload")[1],
-                UniqueTime)
+                json.loads(req.get_temp(sender_id)).get("uniqueTime"))
 
             """
-                Get d'intervalle de temps du commande pour 
+                Get d'intervalle de temps du commande pour
                 le but de payer deja 50% pour l'avance
             """
-            heure = int(dataAinserer.get("heureFin").split("h")[0]) - int(dataAinserer.get("heureDebut").split("h")[0])
+            heure = int(dataAinserer.get("heureFin").split("h")[
+                        0]) - int(dataAinserer.get("heureDebut").split("h")[0])
             print(heure)
 
-            if int(dataAinserer.get("heureDebut").split("h")[1])<int(dataAinserer.get("heureFin").split("h")[1]):
+            if int(dataAinserer.get("heureDebut").split("h")[1]) < int(
+                    dataAinserer.get("heureFin").split("h")[1]):
                 intervalle = heure + 0.5
                 print(intervalle)
+                data = json.loads(req.get_temp(sender_id))
+                data["intervalle"] = f"{heure}heure(s) et demi"
+                req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[3])
-                avance = int((intervalle * prix)/2)
+                avance = int((intervalle * prix) / 2)
                 bot.send_message(
-                    sender_id, 
+                    sender_id,
                     const.informations(avance)
                 )
                 bot.send_message(sender_id, "Exemple réference pour TELMA")
                 bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
                 bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
-                bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id,"Exemple réference pour AIRTEL")
-                bot.send_file_url(sender_id,f"{URL_SERVER}airtel.jpg","image")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_message(sender_id, "Exemple réference pour AIRTEL")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}airtel.jpg", "image")
                 bot.send_message(sender_id, const.problems)
-                bot.send_quick_reply(sender_id,"operateurs")
-                req.set_action(sender_id,None)
+                bot.send_quick_reply(sender_id, "operateurs")
+                req.set_action(sender_id, None)
                 return True
-                
-            elif int(dataAinserer.get("heureDebut").split("h")[1])>int(dataAinserer.get("heureFin").split("h")[1]):
+
+            elif int(dataAinserer.get("heureDebut").split("h")[1]) > int(dataAinserer.get("heureFin").split("h")[1]):
                 intervalle = (heure - 1) + 0.5
                 print(intervalle)
+                data = json.loads(req.get_temp(sender_id))
+                data["intervalle"] = f"{heure - 1}heure(s) et demi"
+                req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[3])
-                avance = int((intervalle * prix)/2)
+                avance = int((intervalle * prix) / 2)
                 bot.send_message(
-                    sender_id, 
+                    sender_id,
                     const.informations(avance)
                 )
                 bot.send_message(sender_id, "Exemple réference pour TELMA")
                 bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
                 bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
-                bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id,"Exemple réference pour AIRTEL")
-                bot.send_file_url(sender_id,f"{URL_SERVER}airtel.jpg","image")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_message(sender_id, "Exemple réference pour AIRTEL")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}airtel.jpg", "image")
                 bot.send_message(sender_id, const.problems)
-                bot.send_quick_reply(sender_id,"operateurs")
-                req.set_action(sender_id,None)
+                bot.send_quick_reply(sender_id, "operateurs")
+                req.set_action(sender_id, None)
                 return True
-                
+
             else:
+                data = json.loads(req.get_temp(sender_id))
+                data["intervalle"] = f"{heure}heure(s)"
+                req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[3])
-                avance = int((heure * prix)/2)
+                avance = int((heure * prix) / 2)
                 bot.send_message(
-                    sender_id, 
+                    sender_id,
                     const.informations(avance)
                 )
                 bot.send_message(sender_id, "Exemple réference pour TELMA")
                 bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
                 bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
-                bot.send_file_url(sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id,"Exemple réference pour AIRTEL")
-                bot.send_file_url(sender_id,f"{URL_SERVER}airtel.jpg","image")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_message(sender_id, "Exemple réference pour AIRTEL")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}airtel.jpg", "image")
                 bot.send_message(sender_id, const.problems)
-                bot.send_quick_reply(sender_id,"operateurs")
-                req.set_action(sender_id,None)
-                return True 
+                bot.send_quick_reply(sender_id, "operateurs")
+                req.set_action(sender_id, None)
+                return True
 
         elif commande == "__TELMA":
             data = json.loads(req.get_temp(sender_id))
@@ -1235,7 +1225,7 @@ class Traitement:
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
-        
+
         elif commande == "__ORANGE":
             data = json.loads(req.get_temp(sender_id))
             data["operateur"] = "ORANGE"
@@ -1253,7 +1243,6 @@ class Traitement:
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
-
 
         elif commande == "__NON":
             bot.send_message(sender_id, const.thanking)
@@ -1284,11 +1273,11 @@ class Traitement:
             return True
 
         elif commande == "__NOUVEAU":
-            req.set_action(sender_id,"ATTENTE_SEARCH")
+            req.set_action(sender_id, "ATTENTE_SEARCH")
             bot.send_message(
                 sender_id,
                 const.essayer
-                )
+            )
             return True
 
         elif commande == "__AUTRECOMPTE":
@@ -1308,14 +1297,12 @@ class Traitement:
                 sender_id,
                 const.abandon
             )
-            bot.send_quick_reply(sender_id,"proposerAction")
+            bot.send_quick_reply(sender_id, "proposerAction")
             return True
 
-
     def traitement_pstPayload(self, sender_id, pst_payload):
-
         """
-            Methode qui traite les poste paloyad 
+            Methode qui traite les poste paloyad
             des Tempaltes des produits
         """
         listeElementPayload = pst_payload.split(" ")
@@ -1354,19 +1341,19 @@ class Traitement:
             """
                 Payload de PERSISTENT_MENU
             """
-            req.set_action(sender_id,None)
-            req.set_temp(sender_id,None)
-            bot.send_quick_reply(sender_id,"proposerAction")
+            req.set_action(sender_id, None)
+            req.set_temp(sender_id, None)
+            bot.send_quick_reply(sender_id, "proposerAction")
             return True
-        
+
         elif listeElementPayload[0] == "__DECONNEXION":
-            req.set_action(sender_id,None)
-            req.set_temp(sender_id,None)
+            req.set_action(sender_id, None)
+            req.set_temp(sender_id, None)
             bot.send_message(
                 sender_id,
                 const.deconnectionCore
             )
-            bot.send_quick_reply(sender_id,"proposerAction")
+            bot.send_quick_reply(sender_id, "proposerAction")
             return True
 
     def __execution(self, user_id, commande):

@@ -28,8 +28,8 @@ class Requete:
             return fonction(*arg, **kwarg)
         return trt_verif
 
-
     #----------------------REQUETES POUR LES UTILISATEURS SIMPLES---------------------------#
+
     @verif_db
     def get_produits(self):
         req = """
@@ -39,16 +39,16 @@ class Requete:
               """
         self.cursor.execute(req)
         return self.cursor.fetchall()
-    
+
     @verif_db
-    def get_productSearch(self,name):
+    def get_productSearch(self, name):
         req = """
                 SELECT id_prod, nom_prod, prix,photo_couverture
                 FROM produits
-                WHERE nom_prod LIKE UPPER(%s) 
+                WHERE nom_prod LIKE UPPER(%s)
                 OR nom_prod LIKE LOWER(%s)
         """
-        self.cursor.execute(req,(name,name))
+        self.cursor.execute(req, (name, name))
         return self.cursor.fetchone()
 
     @verif_db
@@ -93,7 +93,7 @@ class Requete:
             """
         self.cursor.execute(req, (value,))
         data = self.cursor.fetchone()
-        self.db.commit() #pour eviter la cache 
+        self.db.commit()  # pour eviter la cache
         return data
 
     @verif_db
@@ -122,7 +122,7 @@ class Requete:
             l'utilisateur.
         """
         req = '''
-                SELECT  dateAlaTerrain FROM commande 
+                SELECT  dateAlaTerrain FROM commande
                 WHERE dateAlaTerrain=%s AND id_prod=%s
             '''
         self.cursor.execute(req, (daty, id_prod))
@@ -205,63 +205,67 @@ class Requete:
         return self.cursor.fetchone()[0]
 
     @verif_db
-    def infoCommande(self,id_cmd,UniqueTime):
+    def infoCommande(self, id_cmd, UniqueTime):
         req = """
                 SELECT fb_id,date_cmd,dateAlaTerrain,
                 heureDebutCmd,heureFinCmd,nom_prod
                 FROM utilisateur
-                INNER JOIN commande 
+                INNER JOIN commande
                 ON utilisateur.id = commande.id
-                INNER JOIN produits 
+                INNER JOIN produits
                 ON commande.id_prod = produits.id_prod
                 WHERE id_cmd = %s
                 AND dataQrCode = %s
                 AND statut = 'CONFIRMÉ'
         """
-        self.cursor.execute(req,(id_cmd,UniqueTime))
+        self.cursor.execute(req, (id_cmd, UniqueTime))
         return self.cursor.fetchall()
 
     @verif_db
-    def getStatutCmd(self,uniqueTime):
+    def getStatutCmd(self, uniqueTime):
         req = """
                 SELECT statut FROM commande
                 WHERE dataQrcode = %s
         """
-        self.cursor.execute(req,(uniqueTime,))
+        self.cursor.execute(req, (uniqueTime,))
         return self.cursor.fetchone()[0]
-    
-    
+
+
 #----------------------------REQUETES POUR L'ADMIN----------------------------#
+
+
     @verif_db
     def difference(self):
         req = """
                 SELECT id_cmd, TIMEDIFF(NOW(),date_cmd)
-                FROM commande 
+                FROM commande
                 WHERE statut = "NON CONFIRMÉ"
         """
         self.cursor.execute(req)
-        return self.cursor.fetchall()
-    
-    @verif_db
-    def deleteCmdNonConfrm(self,id_cmd):
-        req = """
-                DELETE FROM commande 
-                WHERE id = %s
-        
-        """
-        req.self.execute(req,(id_cmd,))
+        data = self.cursor.fetchall()
         self.db.commit()
-        
+        return data
+
     @verif_db
-    def getFbidProp(self,id_cmd):
+    def deleteCmdNonConfrm(self, id_cmd):
         req = """
-                SELECT fb_id 
+                DELETE FROM commande
+                WHERE id = %s
+
+        """
+        req.self.execute(req, (id_cmd,))
+        self.db.commit()
+
+    @verif_db
+    def getFbidProp(self, id_cmd):
+        req = """
+                SELECT fb_id
                 FROM utilisateur
-                INNER JOIN commande 
+                INNER JOIN commande
                 ON utilisateur.id = commande.id
                 WHERE id_cmd = %s
         """
-        self.cursor.execute(req,(id_cmd,))
+        self.cursor.execute(req, (id_cmd,))
         data = self.cursor.fetchone()[0]
         self.db.commit()
         return data
@@ -270,23 +274,23 @@ class Requete:
     def getIdAdmin(self):
         reqAdmin = """
                 SELECT DISTINCT(idLastConnect)
-                FROM AutreUtils 
-                WHERE idLastConnect IS NOT NULL 
+                FROM AutreUtils
+                WHERE idLastConnect IS NOT NULL
                 AND idLastConnect = fb_id
         """
         self.cursor.execute(reqAdmin)
         return self.cursor.fetchall()
 
     @verif_db
-    def getRecipientId(self,uniqueTime):
+    def getRecipientId(self, uniqueTime):
         reqAdmin = """
-                SELECT fb_id 
+                SELECT fb_id
                 FROM utilisateur
                 INNER JOIN commande
                 ON utilisateur.id = commande.id
                 WHERE dataQrCode = %s
         """
-        self.cursor.execute(reqAdmin,(uniqueTime,))
+        self.cursor.execute(reqAdmin, (uniqueTime,))
         return self.cursor.fetchone()[0]
 
     @verif_db
@@ -294,7 +298,7 @@ class Requete:
         reqAdmin = 'SELECT actions FROM AutreUtils WHERE fb_id = %s'
         self.cursor.execute(reqAdmin, (sender_id_admin,))
         data = self.cursor.fetchone()
-        self.db.commit() #Pour eviter la cache 
+        self.db.commit()  # Pour eviter la cache
         return data
 
     @verif_db
@@ -315,26 +319,27 @@ class Requete:
                 """
         self.cursor.execute(reqAdmin, (userName, password))
         return self.cursor.fetchall()
-    
+
     @verif_db
-    def verifDeconnection(self,userName,password):
-        reqAdmin="""
+    def verifDeconnection(self, userName, password):
+        reqAdmin = """
                 SELECT fb_id FROM AutreUtils
                 WHERE userMail=%s
-                AND mdp=SHA2(%s,256)       
+                AND mdp=SHA2(%s,256)
         """
         self.cursor.execute(reqAdmin, (userName, password))
         return self.cursor.fetchone()[0]
 
     @verif_db
-    def senderIdAdmin(self, sender_id,UserNameFb,email):
+    def senderIdAdmin(self, sender_id, UserNameFb, email):
         reqAdmin = """
                     UPDATE AutreUtils
                     SET fb_id=%s , idLastConnect = %s,
-                    nameUserLastConnect=%s 
+                    nameUserLastConnect=%s
                     WHERE userMail=%s
                 """
-        self.cursor.execute(reqAdmin, (sender_id,sender_id,UserNameFb,email))
+        self.cursor.execute(
+            reqAdmin, (sender_id, sender_id, UserNameFb, email))
         self.db.commit()
 
     @verif_db
@@ -382,25 +387,24 @@ class Requete:
         self.cursor.execute(reqAdmin, (id_prod,))
         self.db.commit()
 
-
     @verif_db
-    def create_productWithPart(self, name, details, prix, couverture,id_part):
+    def create_productWithPart(self, name, details, prix, couverture, id_part):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part) 
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part)
                     VALUES (%s, %s, %s, %s,1,%s)
                 """
-        self.cursor.execute(reqAdmin, (name, details, prix, couverture,id_part))
+        self.cursor.execute(
+            reqAdmin, (name, details, prix, couverture, id_part))
         self.db.commit()
 
     @verif_db
     def create_product(self, name, details, prix, couverture):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ) 
-                    VALUES (%s, %s, %s, %s,1,%s)
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ)
+                    VALUES (%s, %s, %s, %s,1)
                 """
         self.cursor.execute(reqAdmin, (name, details, prix, couverture))
 
-   
     @verif_db
     def update_product(self, id_product, colonne, value_colonne):
         reqAdmin = f"""
@@ -439,28 +443,38 @@ class Requete:
                 VALUES(%s,%s)
         """
         self.cursor.execute(reqAdmin, (contenu, id_prod))
-    
+        self.db.commit()
+
     @verif_db
-    def deconnexion(self,sender_id):
-        reqAdmin="""
+    def updatePartenaire(self, id_prod, newId_part):
+        reqAdmin = """
+                UPDATE produits SET id_part = %s
+                WHERE id_prod = %s
+        """
+        self.cursor.execute(reqAdmin, (newId_part, id_prod))
+        self.db.commit()
+
+    @verif_db
+    def deconnexion(self, sender_id):
+        reqAdmin = """
                 UPDATE AutreUtils SET fb_id=NULL
                 WHERE idLastConnect = %s
         """
-        self.cursor.execute(reqAdmin,(sender_id,))
+        self.cursor.execute(reqAdmin, (sender_id,))
         self.db.commit()
 
 
 #----------------------------------REQUETES PARTENAIRES------------------------------------------#
 
     @verif_db
-    def senderIdPart(self,sender_id,UserNameFb,email):
+    def senderIdPart(self, sender_id, UserNameFb, email):
         reqPart = """
                     UPDATE partenaire
                     SET fb_idPart=%s,
-                    UserNameFbPart=%s 
+                    UserNameFbPart=%s
                     WHERE userMail=%s
                 """
-        self.cursor.execute(reqPart, (sender_id,UserNameFb,email))
+        self.cursor.execute(reqPart, (sender_id, UserNameFb, email))
         self.db.commit()
 
     @verif_db
@@ -470,8 +484,8 @@ class Requete:
                 WHERE fb_idPart=%s
             """
         self.cursor.execute(reqPart, (value,))
-        data = self.cursor.fetchone()
-        self.db.commit() #pour eviter la cache 
+        data = self.cursor.fetchall()
+        self.db.commit()  # pour eviter la cache
         return data
 
     @verif_db
@@ -487,11 +501,11 @@ class Requete:
         return data
 
     @verif_db
-    def verifDeconnectionPart(self,userName,password):
-        reqPart="""
+    def verifDeconnectionPart(self, userName, password):
+        reqPart = """
                 SELECT fb_idPart FROM partenaire
                 WHERE userMail=%s
-                AND mdpPart=SHA2(%s,256)       
+                AND mdpPart=SHA2(%s,256)
         """
         self.cursor.execute(reqPart, (userName, password))
         data = self.cursor.fetchone()[0]
@@ -499,26 +513,26 @@ class Requete:
         return data
 
     @verif_db
-    def getMesTerrains(self,id_part):
+    def getMesTerrains(self, id_part):
         reqPart = """
                 SELECT id_prod, nom_prod, prix,
                 photo_couverture FROM produits
                 WHERE id_part = %s
               """
-        self.cursor.execute(reqPart,(id_part,))
+        self.cursor.execute(reqPart, (id_part,))
         data = self.cursor.fetchall()
         self.db.commit()
         return data
 
     @verif_db
-    def getIdPart(self,sender_id):
+    def getIdPart(self, sender_id):
         reqPart = """
-                    SELECT id_part 
+                    SELECT id_part
                     FROM partenaire
                     WHERE fb_idPart = %s
         """
-        self.cursor.execute(reqPart,(sender_id,))
-        data = self.cursor.fetchone()[0]
+        self.cursor.execute(reqPart, (sender_id,))
+        data = self.cursor.fetchall()[0][0]
         self.db.commit()
         return True
 
@@ -532,7 +546,7 @@ class Requete:
         self.db.commit()
 
     @verif_db
-    def set_tempPart(self,sender_id,data):
+    def set_tempPart(self, sender_id, data):
         '''
             Inserer des données temporaire dans la table
         '''
@@ -544,8 +558,8 @@ class Requete:
     def get_action_part(self, sender_id_part):
         reqPart = 'SELECT actions FROM partenaire WHERE fb_idPart = %s'
         self.cursor.execute(reqPart, (sender_id_part,))
-        data = self.cursor.fetchone()
-        self.db.commit() #Pour eviter la cache 
+        data = self.cursor.fetchall()[0]
+        self.db.commit()  # Pour eviter la cache
         return data
 
     @verif_db
@@ -555,18 +569,18 @@ class Requete:
         '''
         reqPart = 'SELECT temp FROM partenaire WHERE fb_idPart = %s'
         self.cursor.execute(reqPart, (user_id,))
-        data = self.cursor.fetchone()[0]
+        data = self.cursor.fetchall()[0][0]
         self.db.commit()
         return data
-        
+
     @verif_db
     def getIdUserPart(self, sender_id):
         reqPart = """
-                SELECT id_part,FullName 
+                SELECT id_part,FullName
                 FROM partenaire WHERE fb_idPart=%s
         """
         self.cursor.execute(reqPart, (sender_id,))
-        data = self.cursor.fetchone()
+        data = self.cursor.fetchall()[0]
         self.db.commit()
         return data
 
@@ -580,8 +594,9 @@ class Requete:
             id_prod,
             dataQrCode):
         reqPart = """
-               INSERT IGNORE INTO commande(id_part,date_cmd,dateAlaTerrain,heureDebutCmd,HeureFinCmd,id_prod,dataQrCode)
-               VALUES(%s,NOW(),%s,%s,%s,%s,%s)
+               INSERT IGNORE INTO commande(id_part,date_cmd,dateAlaTerrain,
+               heureDebutCmd,HeureFinCmd,id_prod,statut,dataQrCode)
+               VALUES(%s,NOW(),%s,%s,%s,%s,"CONFIRMÉ",%s)
             """
         self.cursor.execute(
             reqPart,
@@ -594,7 +609,7 @@ class Requete:
         self.db.commit()
 
     @verif_db
-    def getRecipientIdPart(self,uniqueTime):
+    def getRecipientIdPart(self, uniqueTime):
         reqPart = """
                 SELECT fb_idPart
                 FROM partenaire
@@ -602,42 +617,42 @@ class Requete:
                 ON partenaire.id_part = commande.id_part
                 WHERE dataQrCode = %s
         """
-        self.cursor.execute(reqPart,(uniqueTime,))
+        self.cursor.execute(reqPart, (uniqueTime,))
         return self.cursor.fetchone()[0]
 
     @verif_db
-    def infoCommandePart(self,id_cmd,UniqueTime):
+    def infoCommandePart(self, id_cmd, UniqueTime):
         reqPart = """
                 SELECT fb_idPart,FullName,date_cmd,dateAlaTerrain,
                 heureDebutCmd,heureFinCmd,nom_prod
                 FROM partenaire
-                INNER JOIN commande 
+                INNER JOIN commande
                 ON partenaire.id_part = commande.id_part
-                INNER JOIN produits 
+                INNER JOIN produits
                 ON commande.id_prod = produits.id_prod
                 WHERE id_cmd = %s
                 AND dataQrCode = %s
                 AND statut = 'CONFIRMÉ'
         """
-        self.cursor.execute(reqPart,(id_cmd,UniqueTime))
+        self.cursor.execute(reqPart, (id_cmd, UniqueTime))
         data = self.cursor.fetchall()
         self.db.commit()
         return data
 
     @verif_db
-    def insertNouveauPart(self,UserMail,mdp,fullName):
+    def insertNouveauPart(self, UserMail, mdp, fullName):
         reqPart = """
                 INSERT IGNORE INTO partenaire(UserMail,mdpPart,FullName)
-                VALUES(%s,SHA2(%s,256),%s)    
+                VALUES(%s,SHA2(%s,256),%s)
         """
-        self.cursor.execute(reqPart,(UserMail,mdp,fullName))
+        self.cursor.execute(reqPart, (UserMail, mdp, fullName))
         self.db.commit()
 
     @verif_db
     def getPartenaire(self):
         reqPart = """
-                    SELECT id_part,FullName 
-                    FROM partenaire 
+                    SELECT id_part,FullName
+                    FROM partenaire
         """
         self.cursor.execute(reqPart)
         data = self.cursor.fetchall()
@@ -645,14 +660,23 @@ class Requete:
         return data
 
     @verif_db
-    def getNamePart(self,id_prod):
+    def getNamePart(self, id_prod):
         reqPart = """
                     SELECT FullName FROM partenaire
                     INNER JOIN produits
                     ON partenaire.id_part = produits.id_part
                     WHERE id_prod = %s
         """
-        self.cursor.execute(reqPart,(id_prod,))
-        data = self.cursor.fetchone()[0]
+        self.cursor.execute(reqPart, (id_prod,))
+        data = self.cursor.fetchone()
         self.db.commit()
         return data
+
+    @verif_db
+    def deconnexionPart(self, fb_idPart):
+        reqPart = """
+                UPDATE partenaire SET fb_idPart=NULL
+                WHERE fb_idPart = %s
+        """
+        self.cursor.execute(reqPart, (fb_idPart,))
+        self.db.commit()

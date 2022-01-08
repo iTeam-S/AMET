@@ -563,7 +563,7 @@ class Messenger:
             ]
 
         elif types == "confirmSupprGallerry":
-            text = "Voulez-vous supprimmer vraiment ce produit?"
+            text = "Voulez-vous supprimmer vraiment cette photo?"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -637,6 +637,7 @@ class Messenger:
         '''
             Envoyé piece jointe par lien.
         '''
+        self.send_action(destId, 'typing_on')
         dataJSON = {
             'messaging_type': "RESPONSE",
             'recipient': {
@@ -654,64 +655,11 @@ class Messenger:
         }
         header = {'content-type': 'application/json; charset=utf-8'}
         params = {"access_token": self.token}
+        self.send_action(destId, 'typing_off')
+
         return requests.post(
             self.url + '/messages',
             json=dataJSON,
-            headers=header,
-            params=params
-        )
-
-    def listeCmdNonConfirm(self, dest_id, elements):
-
-        text = "Voici donc les listes des commandes non confirés"
-
-        data_json = {
-            'messaging_type': "RESPONSE",
-            'recipient': {
-                "id": dest_id
-            },
-
-            'message': {
-                'text': text,
-                'quick_replies': elements
-            }
-        }
-
-        header = {'content-type': 'application/json; charset=utf-8'}
-        params = {"access_token": self.token}
-
-        return requests.post(
-            self.url + '/messages',
-            json=data_json,
-            headers=header,
-            params=params
-        )
-
-    def listePartenaire(self, dest_id, elements, **kwargs):
-
-        text = "Voici donc les listes des partenaires\n\nAlors choisissez"
-
-        data_json = {
-            'messaging_type': "RESPONSE",
-            'recipient': {
-                "id": dest_id
-            },
-
-            'message': {
-                'text': text,
-                'quick_replies': elements
-            }
-        }
-
-        if kwargs.get("next"):
-            data_json['message']['quick_replies'] = kwargs.get("next")
-
-        header = {'content-type': 'application/json; charset=utf-8'}
-        params = {"access_token": self.token}
-
-        return requests.post(
-            self.url + '/messages',
-            json=data_json,
             headers=header,
             params=params
         )

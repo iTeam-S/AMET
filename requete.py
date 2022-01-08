@@ -236,36 +236,35 @@ class Requete:
 
     @verif_db
     def difference(self):
-        req = """
+        reqAdmin = """
                 SELECT id_cmd, TIMEDIFF(NOW(),date_cmd)
                 FROM commande
                 WHERE statut = "NON CONFIRMÉ"
         """
-        self.cursor.execute(req)
+        self.cursor.execute(reqAdmin)
         data = self.cursor.fetchall()
         self.db.commit()
         return data
 
     @verif_db
     def deleteCmdNonConfrm(self, id_cmd):
-        req = """
+        reqAdmin = """
                 DELETE FROM commande
-                WHERE id = %s
-
+                WHERE id_cmd = %s
         """
-        req.self.execute(req, (id_cmd,))
+        self.cursor.execute(reqAdmin, (id_cmd,))
         self.db.commit()
 
     @verif_db
     def getFbidProp(self, id_cmd):
-        req = """
+        reqAdmin = """
                 SELECT fb_id
                 FROM utilisateur
                 INNER JOIN commande
                 ON utilisateur.id = commande.id
                 WHERE id_cmd = %s
         """
-        self.cursor.execute(req, (id_cmd,))
+        self.cursor.execute(reqAdmin, (id_cmd,))
         data = self.cursor.fetchone()[0]
         self.db.commit()
         return data
@@ -534,7 +533,7 @@ class Requete:
         self.cursor.execute(reqPart, (sender_id,))
         data = self.cursor.fetchall()[0][0]
         self.db.commit()
-        return True
+        return data
 
     @verif_db
     def set_action_part(self, sender_id_part, action):

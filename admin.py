@@ -45,6 +45,84 @@ class Admin:
             i = i + 1
         return produits
 
+    def ElementNonCofirmCommande(self):
+        """
+            Fonction qui liste les commandes non
+            confirmés sous forme template
+        """
+        liste = req.difference()
+        elements = []
+
+        for z in range(len(liste)):
+            elements.append({
+                "title": f"{liste[z][0]}-->{liste[z][1]}",
+                "image_url": URL_SERVER + "noconfirm.png",
+                "buttons": [
+                    {
+                        "type": "postback",
+                        "title": "SUPPRIMER",
+                        "payload": f"__IDM {liste[z][0]}"
+                    }]
+            })
+        return elements
+
+    def getPartenaire(self, type):
+        part = req.getPartenaire()
+        listPart = []
+
+        if type == "AJOUTER":
+
+            for i in range(len(part)):
+                listPart.append({
+                    "title": f"{part[i][0]} - {part[i][1]}",
+                    "image_url": URL_SERVER + "partenaire.png",
+                    "buttons": [
+                        {
+                            "type": "postback",
+                            "title": "AJOUTER",
+                            "payload": f"__PARTENER {part[i][0]}"
+                        }]
+                })
+            print(listPart)
+            return listPart
+
+        else:
+
+            for j in range(len(part)):
+                listPart.append({
+                    "title": f"{part[j][0]} - {part[j][1]}",
+                    "image_url": URL_SERVER + "partenaire.png",
+                    "buttons": [
+                        {
+                            "type": "postback",
+                            "title": "AJOUTER",
+                            "payload": f"__PARTENAIREMODIF {part[j][0]}"
+                        }]
+                })
+            print(listPart)
+            return listPart
+
+    def gallery(self, id_prod):
+        all_gallery = req.get_gallerry(id_prod)
+        listeGallery = []
+        j = 0
+
+        while j < len(all_gallery):
+            listeGallery.append({
+                "title": "image 😊😊😊",
+                "image_url": URL_SERVER + all_gallery[j][0],
+                "buttons": [
+                    {
+                        "type": "postback",
+                        "title": "SUPPRIMMER",
+                        "payload": "__SUPPRIMER_GALLERRY" + " " + str(all_gallery[j][1])
+                    }
+                ]
+            })
+            j = j + 1
+
+        return listeGallery
+
     def productModify(self, sender_id, produits, page):
         '''
             fonction gerant affichant les produits
@@ -76,13 +154,8 @@ class Admin:
                     next=[
                         {
                             "content_type": "text",
-                            "title": "page_suivante",
+                            "title": "⏭page_suivante",
                             "payload": f"__LISTER {page+1}",
-                            "image_url":
-                                "https://icon-icons.com/downloadimage.php"
-                                + "?id=81300&root=1149/PNG/512/&file=" +
-                                "1486504364-chapter-controls-forward-play"
-                                + "-music-player-video-player-next_81300.png"
                         }
                     ]
                 )
@@ -91,106 +164,50 @@ class Admin:
         else:
             bot.send_message(sender_id, str(res))
 
-    def gallery(self, id_prod):
-        all_gallery = req.get_gallerry(id_prod)
-        listeGallery = []
-        j = 0
+    def ListeNonCofirmCommande(self, sender_id, elements, page):
+        '''
+            fonction gerant l'affichage de liste
+            des commandes non confirmés
+        '''
+        res = elements
 
-        while j < len(all_gallery):
-            listeGallery.append({
-                "title": "image 😊😊😊",
-                "image_url": URL_SERVER + all_gallery[j][0],
-                "buttons": [
-                    {
-                        "type": "postback",
-                        "title": "SUPPRIMMER",
-                        "payload": "__SUPPRIMER_GALLERRY" + " " + str(all_gallery[j][1])
-                    }
-                ]
-            })
-            j = j + 1
+        if res:
 
-        return listeGallery
+            deb_indice = (page - 1) * 10
 
-    def ListeNonCofirmCommande(self):
-        """
-            Fonction qui liste les commandes non 
-            confirmés sous forme QuickReply
-        """
-        liste = req.difference()
-        elements = []
-
-        for z in range(len(liste)):
-            elements.append(
-                {
-                    "content_type": "text",
-                    "title":f"N°{liste[z][0]} --> {liste[z][1]}",
-                    "payload": f"__IDM {liste[z][0]}",
-                }
-            )
-        return elements
-
-    def getPartenaire(self,type):
-        part = req.getPartenaire()
-        listPart = []
-
-        if type == "AJOUTER":
-
-            for i in range(len(part)):
-                listPart.append(
-                    {
-                    "content_type": "text",
-                    "title": f"🤝{part[i][0]} - {part[i][1]}",
-                    "payload": f"__PARTENAIRE {part[i][0]}",
-                    }
+            if len(res) > deb_indice + 10:
+                bot.send_template(
+                    sender_id, res[deb_indice:deb_indice + 10],
+                    next=[
+                        {
+                            "content_type": "text",
+                            "title": "⏭page_suivante",
+                            "payload": f"__AFFICHERNOCOFIRM {page+1}",
+                        }
+                    ]
                 )
-            print(listPart)
-            return listPart
 
+            else:
+                bot.send_template(sender_id, res[deb_indice:deb_indice + 10])
         else:
+            bot.send_message(sender_id, "Rien pour le moments")
+            return True
 
-            for j in range(len(part)):
-                listPart.append(
-                    {
-                    "content_type": "text",
-                    "title": f"🤝{part[j][0]} - {part[j][1]}",
-                    "payload": f"__PARTENAIREMODIF {part[j][0]}",
-                    }
-                )
-            print(listPart)
-            return listPart
-
-   
-    def listPartenaire(self,sender_id,listPart,page,type):
+    def listPartenaire(self, sender_id, listPart, page, type):
         '''
             fonction gerant l'affichage de liste des partenaires
         '''
         # recuperation de la liste des produits
         res = listPart
         if res:  # confirmation des resultat
-            '''
-            Avant d'envoyer le resultat, il faut verifier si la liste
-            ne depasse pas 10 pourque l'API Messenger ne renvoie
-            pas d'erreur. Sinon, Mettre un systeme de page suivante.
-            '''
 
-            '''
-            prendre le debut de resultat à prendre dans la liste
-            si page 1 donc, le debut est à 0, d'ou on commence par
-            l'indice 0 du liste, si page 1 donc à 10.
-            '''
-            deb_indice = (page - 1) * 13
+            deb_indice = (page - 1) * 10
 
-            '''
-            On verifie que si la longueur du liste prise depuis le
-            deb_indice+10 est encours superieur à la longueur de la liste,
-            donc on envoie une argument pour la page suivante.
-            '''
             if type == "AJOUTER":
 
-                if len(res) > deb_indice + 13:
-                    bot.listePartenaire(
-                        sender_id, res[deb_indice:deb_indice + 13],
+                if len(res) > deb_indice + 10:
+                    bot.send_template(
+                        sender_id, res[deb_indice:deb_indice + 10],
                         next=[
                             {
                                 "content_type": "text",
@@ -201,13 +218,14 @@ class Admin:
                     )
 
                 else:
-                    bot.listePartenaire(sender_id, res[deb_indice:deb_indice + 13])
-            
+                    bot.send_template(
+                        sender_id, res[deb_indice:deb_indice + 10])
+
             else:
 
-                if len(res) > deb_indice + 13:
-                    bot.listePartenaire(
-                        sender_id, res[deb_indice:deb_indice + 13],
+                if len(res) > deb_indice + 10:
+                    bot.send_template(
+                        sender_id, res[deb_indice:deb_indice + 10],
                         next=[
                             {
                                 "content_type": "text",
@@ -218,10 +236,14 @@ class Admin:
                     )
 
                 else:
-                    bot.listePartenaire(sender_id, res[deb_indice:deb_indice + 13])
+                    bot.send_template(
+                        sender_id, res[deb_indice:deb_indice + 10])
 
         else:
-            bot.send_message(sender_id, str(res))  
+            bot.send_message(
+                sender_id,
+                "Pas de Partenaire disponible pour le moments")
+            return True
 
     #--------------------------------------------FIN OPTIONS------------------------------------------------------------#
 
@@ -230,13 +252,12 @@ class Admin:
         bot.send_quick_reply(sender_id, "tachesAdmin")
         return True
 
-    
     def traitementPstPayloadAdmin(self, sender_id, commande):
         """
-            Methode qui traite les poste paloyad 
+            Methode qui traite les poste paloyad
             des Tempaltes des produits
         """
-        
+
         payload = commande.split(" ")
         if payload[0] == "__MODIFIER":
             req.set_tempAdmin(
@@ -264,29 +285,59 @@ class Admin:
             bot.send_quick_reply(sender_id, "confirmSupprGallerry")
             return True
 
+        elif payload[0] == "__IDM":
+            req.set_tempAdmin(
+                sender_id,
+                json.dumps({"id_cmd": payload[1]})
+            )
+            print(json.loads(req.get_tempAdmin(sender_id)))
+            bot.send_quick_reply(sender_id, "nonConfirm")
+            return True
+
+        elif payload[0] == "__PARTENER":
+            data = json.loads(req.get_tempAdmin(sender_id))
+            data["id_part"] = payload[1]
+            req.set_tempAdmin(sender_id, json.dumps(data))
+            print(json.loads(req.get_tempAdmin(sender_id)))
+            bot.send_quick_reply(sender_id, "confirmCreateAdminWithPart")
+            req.set_action_admin(sender_id, None)
+            return True
+
+        elif payload[0] == "__PARTENAIREMODIF":
+            print(payload[1])
+            print(json.loads(
+                req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
+
+            data = json.loads(req.get_tempAdmin(sender_id))
+            data["id_partModif"] = payload[1]
+            req.set_tempAdmin(sender_id, json.dumps(data))
+            print(json.loads(req.get_tempAdmin(sender_id)))
+            bot.send_quick_reply(sender_id, "confirmModifPart")
+            return True
+
         elif payload[0] == "__DECONNEXION":
             """
                 Payload de PERSISTENT_MENU
             """
-            req.set_action_admin(sender_id,None)
-            req.set_tempAdmin(sender_id,None)
+            req.set_action_admin(sender_id, None)
+            req.set_tempAdmin(sender_id, None)
             req.deconnexion(sender_id)
-            bot.send_message(sender_id,const.deconnexion)
+            bot.send_message(sender_id, const.deconnexion)
             return True
 
         elif payload[0] == "__MENU":
             """
                 Payload de PERSISTENT_MENU
             """
-            req.set_action_admin(sender_id,None)
-            req.set_tempAdmin(sender_id,None)
-            bot.send_quick_reply(sender_id,"tachesAdmin")
+            req.set_action_admin(sender_id, None)
+            req.set_tempAdmin(sender_id, None)
+            bot.send_quick_reply(sender_id, "tachesAdmin")
             return True
 
     def traitementActionAdmin(self, sender_id, commande, statut):
         """
-            Methode qui traite les faits que l'admin 
-            doit faire par rapport à son action actuel 
+            Methode qui traite les faits que l'admin
+            doit faire par rapport à son action actuel
         """
 
         #-----------------------------------MODIFICATION---------------------------------------------#
@@ -378,7 +429,7 @@ class Admin:
 
         elif statut == "MODIFIER_GALLERY":
             try:
-                dataUrl =  commande
+                dataUrl = commande
                 print(dataUrl)
                 print(len(dataUrl))
                 if len(dataUrl) < json.loads(
@@ -496,8 +547,8 @@ class Admin:
                     data = json.loads(req.get_tempAdmin(sender_id))
                     data["gallery"] = listeUrlPhotoGallery
                     req.set_tempAdmin(sender_id, json.dumps(data))
-                    req.set_action_admin(sender_id,None)
-                    bot.send_quick_reply(sender_id,"choixTypePart")
+                    req.set_action_admin(sender_id, None)
+                    bot.send_quick_reply(sender_id, "choixTypePart")
                     print(json.loads(req.get_tempAdmin(sender_id)))
                     return True
                 else:
@@ -511,19 +562,19 @@ class Admin:
 
         #--------------------------------CREER UN NOUVEAU PARTENAIRE---------------------#
         elif statut == "ATTENTE_FULLNAME":
-                
+
             print(statut)
-            req.set_tempAdmin(sender_id, json.dumps({"fullName":commande}))
+            req.set_tempAdmin(sender_id, json.dumps({"fullName": commande}))
             print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_message(sender_id, const.inputUserMail)
             req.set_action_admin(sender_id, "ATTENTE_USERMAIL")
             return True
-        
+
         elif statut == "ATTENTE_USERMAIL":
 
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
-            if(re.fullmatch(regex,commande)):
+            if(re.fullmatch(regex, commande)):
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["userMail"] = commande
                 req.set_tempAdmin(sender_id, json.dumps(data))
@@ -533,8 +584,8 @@ class Admin:
                 return True
 
             else:
-                bot.send_message(sender_id,const.ErrorInputUserMailPart)
-                req.set_action_admin(sender_id,"ATTENTE_USERMAIL")
+                bot.send_message(sender_id, const.ErrorInputUserMailPart)
+                req.set_action_admin(sender_id, "ATTENTE_USERMAIL")
                 return True
 
         elif statut == "ATTENTE_MDP":
@@ -542,7 +593,7 @@ class Admin:
             data["mdp"] = commande
             req.set_tempAdmin(sender_id, json.dumps(data))
             print(json.loads(req.get_tempAdmin(sender_id)))
-            bot.send_quick_reply(sender_id,"trueCreatePart")
+            bot.send_quick_reply(sender_id, "trueCreatePart")
             return True
 
         #--------------------------------VERIFIER COMMANDE-------------------------------#
@@ -550,52 +601,54 @@ class Admin:
             try:
                 try:
                     dataQrCode = commande.split("_")
-                    informations = list(req.infoCommande(dataQrCode[0],dataQrCode[1])[0])
+                    informations = list(
+                        req.infoCommande(
+                            dataQrCode[0],
+                            dataQrCode[1])[0])
                     bot.send_message(
-                        sender_id,
-                        const.infoCommande(
-                            informations,
-                            bot.get_user_name(informations[0]).json().get('name').upper()   
-                        )
-                    )
-                    req.set_action_admin(sender_id,None)
+                        sender_id, const.infoCommande(
+                            informations, bot.get_user_name(
+                                informations[0]).json().get('name').upper()))
+                    req.set_action_admin(sender_id, None)
                     return True
 
                 except BaseException:
                     dataQrCode = commande.split("_")
-                    informationsPart = list(req.infoCommandePart(dataQrCode[0],dataQrCode[1])[0])
+                    informationsPart = list(
+                        req.infoCommandePart(
+                            dataQrCode[0], dataQrCode[1])[0])
                     bot.send_message(
                         sender_id,
                         const.infocommandePart(
                             informationsPart
                         )
                     )
-                    req.set_action_admin(sender_id,None)
-                    return True 
+                    req.set_action_admin(sender_id, None)
+                    return True
 
             except BaseException:
-                bot.send_message(sender_id,const.ErrorVerifCmd)
-                req.set_action_admin(sender_id,"VERIF_COMMANDE")
+                bot.send_message(sender_id, const.ErrorVerifCmd)
+                req.set_action_admin(sender_id, "VERIF_COMMANDE")
                 return True
-        
+
         #---------------------------CONFIRMER COMMANDE-------------------------------------#
         elif statut == "CONFIRM_CMD":
             try:
                 statut = req.getStatutCmd(commande)
-                
+
                 if statut == "CONFIRMÉ":
                     bot.send_message(
                         sender_id,
                         const.TrueConfirm(commande)
                     )
-                    req.set_action_admin(sender_id,None)
+                    req.set_action_admin(sender_id, None)
                     return True
 
                 else:
-            
+
                     recipientIdQrcode = req.getRecipientId(commande)
                     req.setStatut(commande)
-                    bot.send_message(recipientIdQrcode,const.TrueCmd)
+                    bot.send_message(recipientIdQrcode, const.TrueCmd)
                     bot.send_message(recipientIdQrcode, const.givingTicket)
                     dataQrCode = list(req.getElementQrcode(commande)[0])
                     print(dataQrCode)
@@ -605,22 +658,22 @@ class Admin:
                         recipientIdQrcode,
                         f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
                         "image")
-                    bot.send_message(sender_id,const.ThinkingAdmin)
-                    req.set_action_admin(sender_id,None)
+                    bot.send_message(sender_id, const.ThinkingAdmin)
+                    req.set_action_admin(sender_id, None)
                     req.set_temp(recipientIdQrcode, None)
                     req.set_action(recipientIdQrcode, None)
                     return True
 
             except BaseException:
-                bot.send_message(sender_id,const.ErrorVerifCmd)
-                req.set_action_admin(sender_id,"CONFIRM_CMD")
+                bot.send_message(sender_id, const.ErrorVerifCmd)
+                req.set_action_admin(sender_id, "CONFIRM_CMD")
                 return True
 
         elif statut == "FALSECONFIRM_CMD":
             fbIdClient = req.getRecipientId(commande)
-            bot.send_message(fbIdClient,const.falseReference)
-            bot.send_message(sender_id,"Message renvoyé✅✅")
-            req.set_action_admin(sender_id,None)
+            bot.send_message(fbIdClient, const.falseReference)
+            bot.send_message(sender_id, "Message renvoyé✅✅")
+            req.set_action_admin(sender_id, None)
             req.set_temp(fbIdClient, None)
             req.set_action(fbIdClient, None)
             return True
@@ -631,28 +684,19 @@ class Admin:
                 result = req.get_productSearch(commande)
 
                 if result:
-                    data = [
-                               {
-                                    "title": str(result[0]) + " - Terrain " + result[1],
-                                    "image_url": URL_SERVER + result[3],
-                                    "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
-                                    "buttons": [
-                                        {
-                                            "type": "postback",
-                                            "title": "MODIFIER",
-                                            "payload": "__MODIFIER" + " " + str(result[0])
-                                        },
-                                        {
-                                            "type": "postback",
-                                            "title": "SUPPRIMER",
-                                            "payload": "__SUPPRIMER" + " " + str(result[0])
-                                        },
-                                    ]
-                                } 
-                            ]
-                    bot.send_message(sender_id,const.messageSearch)
-                    bot.send_template(sender_id,data)
-                    req.set_action_admin(sender_id,None)
+                    data = [{"title": str(result[0]) + " - Terrain " + result[1],
+                             "image_url": URL_SERVER + result[3],
+                             "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
+                             "buttons": [{"type": "postback",
+                                          "title": "MODIFIER",
+                                          "payload": "__MODIFIER" + " " + str(result[0])},
+                                         {"type": "postback",
+                                          "title": "SUPPRIMER",
+                                          "payload": "__SUPPRIMER" + " " + str(result[0])},
+                                         ]}]
+                    bot.send_message(sender_id, const.messageSearch)
+                    bot.send_template(sender_id, data)
+                    req.set_action_admin(sender_id, None)
                     return True
 
                 else:
@@ -660,18 +704,17 @@ class Admin:
                         sender_id,
                         const.emptySearch
                     )
-                    bot.send_quick_reply(sender_id,"emptySearch")
-                    req.set_action(sender_id,None)
+                    bot.send_quick_reply(sender_id, "emptySearch")
+                    req.set_action(sender_id, None)
                     return True
-                
+
             except BaseException:
                 bot.send_message(
                     sender_id,
                     const.reSearch
                 )
-                req.set_action(sender_id,"ATTENTE_SEARCH")
+                req.set_action(sender_id, "ATTENTE_SEARCH")
                 return True
-
 
     def traitementCmdAdmin(self, sender_id, commande):
         """
@@ -683,77 +726,80 @@ class Admin:
         cmd = commande.split(" ")
 
         if commande == "__CREATE":
-            bot.send_quick_reply(sender_id,"acreer")
+            bot.send_quick_reply(sender_id, "acreer")
             return True
-        
+
         elif commande == "__PRODUITS":
             bot.send_message(sender_id, const.inputProductName)
             req.set_action_admin(sender_id, "ATTENTE_NOM")
             return True
 
         elif commande == "__PARTENAIRE":
-            bot.send_message(sender_id,const.inputPartFullName)
-            req.set_action_admin(sender_id,"ATTENTE_FULLNAME")
+            bot.send_message(sender_id, const.inputPartFullName)
+            req.set_action_admin(sender_id, "ATTENTE_FULLNAME")
             return True
 
         elif commande == "__READ":
-            bot.send_quick_reply(sender_id,"AproposTerrain")
+            bot.send_quick_reply(sender_id, "AproposTerrain")
             return True
 
         elif commande == "__VERIFCOMMANDE":
-            req.set_action_admin(sender_id,"VERIF_COMMANDE")
-            bot.send_message(sender_id,const.inputDataQrCode)
+            req.set_action_admin(sender_id, "VERIF_COMMANDE")
+            bot.send_message(sender_id, const.inputDataQrCode)
             return True
-        
+
         elif commande == "__CONFIRMCMD":
-            bot.send_quick_reply(sender_id,"ConfirmOrRenvoyeMsg")
+            bot.send_quick_reply(sender_id, "ConfirmOrRenvoyeMsg")
             return True
 
         elif commande == "__TRUECONFIRM":
-            bot.send_message(sender_id,const.confirmCmd)
-            req.set_action_admin(sender_id,"CONFIRM_CMD")
+            bot.send_message(sender_id, const.confirmCmd)
+            req.set_action_admin(sender_id, "CONFIRM_CMD")
             return True
-        
+
         elif commande == "__FALSECONFIRM":
-            bot.send_message(sender_id,const.falseconfirmCmd)
-            req.set_action_admin(sender_id,"FALSECONFIRM_CMD")
+            bot.send_message(sender_id, const.falseconfirmCmd)
+            req.set_action_admin(sender_id, "FALSECONFIRM_CMD")
             return True
-        
-        elif commande == "__NOCONFIRM":
-            bot.listeCmdNonConfirm(
+
+        elif cmd[0] == "__NOCONFIRM":
+            bot.send_message(
                 sender_id,
-                self.ListeNonCofirmCommande()
+                "Voici les listes des commandes non confirmés")
+            self.ListeNonCofirmCommande(
+                sender_id,
+                self.ElementNonCofirmCommande(),
+                page=int(cmd[-1]) if cmd[-1].isdigit() else 1
             )
             return True
 
-        
+        elif cmd[0] == "__AFFICHERNOCOFIRM":
+            self.ListeNonCofirmCommande(
+                sender_id,
+                self.ElementNonCofirmCommande(),
+                page=int(cmd[-1]) if cmd[-1].isdigit() else 1
+            )
+            return True
 
         #---------------QuickReply pour le traitement des commandes non confirmées--------------#
-        elif cmd [0] == "__IDM":
-            req.set_tempAdmin(
-                sender_id,
-                json.dumps({"id_cmd":cmd[1]})
-            )
-            bot.send_quick_reply(sender_id,"nonConfirm")
-            return True
-        
+
         elif commande == "__SUPPR":
             id_cmd = json.loads(req.get_tempAdmin(sender_id)).get("id_cmd")
             fb_idProp = req.getFbidProp(id_cmd)
-            # req.deleteCmdNonConfrm(id_cmd)
-            req.set_action(fb_idProp,None)
-            req.set_temp(fb_idProp,None)
+            req.deleteCmdNonConfrm(id_cmd)
+            req.set_action(fb_idProp, None)
+            req.set_temp(fb_idProp, None)
             bot.send_message(
                 sender_id,
                 const.supprimmer
             )
-            req.set_tempAdmin(sender_id,None)
+            req.set_tempAdmin(sender_id, None)
             bot.send_message(
                 fb_idProp,
-                const.cmdSuppr    
+                const.cmdSuppr
             )
             return True
-            
+
         #--------------------------AJOUTER NOVEAUX GALLERRY POUR UN PRODUIT----------------------#
         elif commande == "__AJOUTER":
             req.set_action_admin(sender_id, "MODIFIER_GALLERY")
@@ -801,12 +847,12 @@ class Admin:
             # envoi un quick reply pour ajouter à nouveau
             bot.send_quick_reply(sender_id, "ajouterAnouveau")
             return True
-        
+
         elif commande == "__MODIFPART":
-            #Afficher d'abord le partenaire de ce produit
+            # Afficher d'abord le partenaire de ce produit
             part = req.getNamePart(
                 json.loads(
-                        req.get_tempAdmin(sender_id)).get("listeElementPayload")[1]
+                    req.get_tempAdmin(sender_id)).get("listeElementPayload")[1]
             )
 
             if part:
@@ -814,7 +860,7 @@ class Admin:
                     sender_id,
                     f"le proprietaire de ce terrain actuel est {part[0]}"
                 )
-                bot.send_quick_reply(sender_id,"ChoixModifPart")
+                bot.send_quick_reply(sender_id, "ChoixModifPart")
                 return True
 
             else:
@@ -822,36 +868,27 @@ class Admin:
                     sender_id,
                     "Pour le moment, ce produit n'a pas de partenaire"
                 )
-                bot.send_quick_reply(sender_id,"ChoixModifPart")
+                bot.send_quick_reply(sender_id, "ChoixModifPart")
                 return True
 
         elif commande == "__AJOUTPARTMODIF":
+            bot.send_message(
+                sender_id,
+                "Voici les listes des partenaires existants")
             self.listPartenaire(
                 sender_id,
                 self.getPartenaire("MODIFIER"),
                 page=int(cmd[-1]) if cmd[-1].isdigit() else 1,
-                type = "MODIFIER"
+                type="MODIFIER"
             )
             return True
 
         elif commande == "__NULLMODIF":
             data = json.loads(req.get_tempAdmin(sender_id))
             data["id_partModif"] = None
-            req.set_tempAdmin(sender_id, json.dumps(data)) 
-            print(json.loads(req.get_tempAdmin(sender_id)))
-            bot.send_quick_reply(sender_id,"confirmModifPart")
-            return True
-        
-        elif cmd[0] == "__PARTENAIREMODIF":
-            print(cmd[1])
-            print(json.loads(
-                        req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
-            
-            data = json.loads(req.get_tempAdmin(sender_id))
-            data["id_partModif"] = cmd[1]
             req.set_tempAdmin(sender_id, json.dumps(data))
             print(json.loads(req.get_tempAdmin(sender_id)))
-            bot.send_quick_reply(sender_id,"confirmModifPart")
+            bot.send_quick_reply(sender_id, "confirmModifPart")
             return True
 
         elif commande == "__OUIPARTMODIF":
@@ -860,12 +897,12 @@ class Admin:
             if values.get("id_partModif") is None:
                 req.updatePartenaire(
                     values.get("listeElementPayload")[1],
-                    newId_part = None
+                    newId_part=None
                 )
-                req.set_action_admin(sender_id,None)
-                req.set_tempAdmin(sender_id,None)
-                bot.send_message(sender_id,const.modifSuccess)
-                return True 
+                req.set_action_admin(sender_id, None)
+                req.set_tempAdmin(sender_id, None)
+                bot.send_message(sender_id, const.modifSuccess)
+                return True
 
             else:
 
@@ -873,15 +910,13 @@ class Admin:
                     values.get("listeElementPayload")[1],
                     values.get("id_partModif")
                 )
-                req.set_action_admin(sender_id,None)
-                req.set_tempAdmin(sender_id,None)
-                bot.send_message(sender_id,const.modifSuccess)
+                req.set_action_admin(sender_id, None)
+                req.set_tempAdmin(sender_id, None)
+                bot.send_message(sender_id, const.modifSuccess)
                 return True
-
 
         #----------QuickReply pour la confirmation d'insertion du nouveau produit ------------#
         elif commande == "__OUIWITHOUTPART":
-            print("tafiditra ato ve enw")
             values = json.loads(req.get_tempAdmin(sender_id))
             req.create_product(
                 values.get("nom"),
@@ -947,22 +982,17 @@ class Admin:
             return True
 
         elif commande == "__AUTRE":
-            bot.send_message(sender_id, "Liste des données donc")
-            self.productModify(
-                sender_id,
-                self.getProductModifier(),
-                page=int(cmd[-1]) if cmd[-1].isdigit() else 1
-            )
+            bot.send_quick_reply(sender_id, "AproposTerrain")
             return True
 
     #---------------Tous les reponses NON---------------------------------------------------#
         elif commande == "__NON" or commande == "__no" \
-         or commande == "__NON_GALLERRY" or commande == "__TSIA" \
-         or commande == "__NONSUPPR":
+                or commande == "__NON_GALLERRY" or commande == "__TSIA" \
+                or commande == "__NONSUPPR":
             bot.send_message(sender_id, "🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️🤷🏼‍♂️")
             req.set_action_admin(sender_id, None)
-            req.set_action_admin(sender_id,None)    
-            return True            
+            req.set_action_admin(sender_id, None)
+            return True
 
     #---------------Quick_reply MANAGE product ---------------------------------------------#
         elif commande == "__RECHERCHER":
@@ -970,9 +1000,9 @@ class Admin:
                 sender_id,
                 const.search
             )
-            req.set_action_admin(sender_id,"ATTENTE_SEARCH")
+            req.set_action_admin(sender_id, "ATTENTE_SEARCH")
             return True
-        
+
         elif cmd[0] == "__LISTER":
             bot.send_message(sender_id, const.listData)
             self.productModify(
@@ -981,33 +1011,33 @@ class Admin:
                 page=int(cmd[-1]) if cmd[-1].isdigit() else 1
             )
             return True
-        
+
         elif cmd[0] == "__AFFICHER":
-            bot.send_message(sender_id,"Voici les listes de partenaire")
+            bot.send_message(sender_id, "Voici les listes de partenaire")
             self.listPartenaire(
                 sender_id,
                 self.getPartenaire("AJOUTER"),
                 page=int(cmd[-1]) if cmd[-1].isdigit() else 1,
-                type = "AJOUTER"
+                type="AJOUTER"
             )
             return True
 
         elif cmd[0] == "__AFFICHERMODIF":
-            bot.send_message(sender_id,"Voici les listes de partenaire")
+            bot.send_message(sender_id, "Voici les listes de partenaire")
             self.listPartenaire(
                 sender_id,
                 self.getPartenaire("MODIFIER"),
                 page=int(cmd[-1]) if cmd[-1].isdigit() else 1,
-                type = "MODIFIER"
+                type="MODIFIER"
             )
             return True
 
         elif commande == "__NOUVEAU":
-            req.set_action_admin(sender_id,"ATTENTE_SEARCH")
+            req.set_action_admin(sender_id, "ATTENTE_SEARCH")
             bot.send_message(
                 sender_id,
                 const.essayer
-                )
+            )
             return True
 
         elif commande == "__ABANDONNER":
@@ -1015,7 +1045,7 @@ class Admin:
                 sender_id,
                 const.abandon
             )
-            bot.send_quick_reply(sender_id,"tachesAdmin")
+            bot.send_quick_reply(sender_id, "tachesAdmin")
             return True
 
     #--------------------QuickReply de reponse OUI pour la creation d'un partenaire-----------------#
@@ -1026,40 +1056,33 @@ class Admin:
                 dataPart.get("mdp"),
                 dataPart.get("fullName")
             )
-            req.set_action_admin(sender_id,None)
-            req.set_tempAdmin(sender_id,None)
-            bot.send_message(sender_id,"Crée avec SUCCÉS")
+            req.set_action_admin(sender_id, None)
+            req.set_tempAdmin(sender_id, None)
+            bot.send_message(sender_id, "Crée avec SUCCÉS")
             return True
-        
+
     #------------------QuickReply pour le partenaire lors d'une creation du produits------------------#
         elif cmd[0] == "__NULL":
-            bot.send_quick_reply(sender_id,"confirmCreateAdmin")
-            req.set_action_admin(sender_id,None)
+            bot.send_quick_reply(sender_id, "confirmCreateAdmin")
+            req.set_action_admin(sender_id, None)
             return True
-        
+
         elif cmd[0] == "__AJOUTPART":
+            bot.send_message(
+                sender_id,
+                "Voici les listes des partenaires disponibles")
             self.listPartenaire(
                 sender_id,
                 self.getPartenaire('AJOUTER'),
                 page=int(cmd[-1]) if cmd[-1].isdigit() else 1,
-                type = "AJOUTER"
+                type="AJOUTER"
             )
             return True
-        
-        elif cmd[0] == "__PARTENAIRE":
-            data = json.loads(req.get_tempAdmin(sender_id))
-            data["id_part"] = cmd[1]
-            req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
-            bot.send_quick_reply(sender_id, "confirmCreateAdminWithPart")
-            req.set_action_admin(sender_id, None)
-            return True
-
 
     def executionAdmin(self, sender_id, commande):
         """
             Methode principal qui traite tous les faits
-            qui se passent et en action 
+            qui se passent et en action
             À chaque fois qu'on poste qelques choses sur Messenger;
             cette methode le gere et le guide à l'endroit où
             le POST va
@@ -1074,9 +1097,9 @@ class Admin:
         """
 
         bot.send_action(sender_id, 'mark_seen')
-        try : 
+        try:
             if self.traitementPstPayloadAdmin(sender_id, commande):
-                return 
+                return
 
             if self.traitementCmdAdmin(sender_id, commande):
                 return
@@ -1087,12 +1110,12 @@ class Admin:
 
         """
             Ici, si les deux methodes ci-dessus ne sont pas
-            verifiés donc il est possible que l'Admin 
-            possede d'une action qui definit la suite 
+            verifiés donc il est possible que l'Admin
+            possede d'une action qui definit la suite
             de sa discussion avec le bot
 
-            Alors on recupère cet action afin de determiner la 
-            de la discussion
+            Alors on recupère cet action afin de determiner la
+            suite de la discussion
         """
         statut = req.get_action_admin(sender_id)[0]
 
@@ -1105,7 +1128,7 @@ class Admin:
             l'action NULL et envoye d'un simple message TEXT
 
             Alors on le fait saluer et proposer l'activité
-            principal!! 
+            principal!!
         """
 
         if self.salutationAdmin(sender_id):

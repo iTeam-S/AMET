@@ -52,7 +52,7 @@ class Partenaire:
     def traitementCmdPart(self, sender_id, commande):
 
         if commande == "__VOIR":
-            # id_part = req.getIdPart(sender_id)
+            print(req.getIdPart(sender_id))
             bot.send_message(sender_id, "Voici donc vos terrains")
             bot.send_template(
                 sender_id,
@@ -161,6 +161,10 @@ class Partenaire:
                 str(
                     date.today().strftime("%d-%m-%Y")))
             req.set_action_part(sender_id, "DATE")
+            return True
+
+        elif listeElementPayload[0] == "__MENU":
+            bot.send_quick_reply(sender_id, "tachesPart")
             return True
 
         elif listeElementPayload[0] == "__DECONNEXION":

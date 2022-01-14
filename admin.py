@@ -902,6 +902,7 @@ class Admin:
                 req.set_action_admin(sender_id, None)
                 req.set_tempAdmin(sender_id, None)
                 bot.send_message(sender_id, const.modifSuccess)
+                bot.send_quick_reply(sender_id, "AutreModification")
                 return True
 
             else:
@@ -913,6 +914,7 @@ class Admin:
                 req.set_action_admin(sender_id, None)
                 req.set_tempAdmin(sender_id, None)
                 bot.send_message(sender_id, const.modifSuccess)
+                bot.send_quick_reply(sender_id, "AutreModification")
                 return True
 
         #----------QuickReply pour la confirmation d'insertion du nouveau produit ------------#

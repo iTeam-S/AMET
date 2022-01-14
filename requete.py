@@ -38,8 +38,10 @@ class Requete:
 
               """
         self.cursor.execute(req)
-        return self.cursor.fetchall()
-
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+        
     @verif_db
     def get_productSearch(self, name):
         req = """
@@ -49,7 +51,9 @@ class Requete:
                 OR nom_prod LIKE LOWER(%s)
         """
         self.cursor.execute(req, (name, name))
-        return self.cursor.fetchone()
+        data = self.cursor.fetchone()
+        self.db.commit()
+        return data
 
     @verif_db
     def get_gallerry(self, id_prod):
@@ -59,7 +63,9 @@ class Requete:
 
               """
         self.cursor.execute(req, (id_prod,))
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def get_detail(self, id_prod):
@@ -69,7 +75,9 @@ class Requete:
 
               """
         self.cursor.execute(req, (id_prod,))
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def verif_utilisateur(self, user_id):
@@ -103,7 +111,9 @@ class Requete:
         '''
         req = 'SELECT action FROM utilisateur WHERE fb_id = %s'
         self.cursor.execute(req, (user_id,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def set_action(self, user_id, action):
@@ -126,7 +136,9 @@ class Requete:
                 WHERE dateAlaTerrain=%s AND id_prod=%s
             '''
         self.cursor.execute(req, (daty, id_prod))
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def heureReserve(self, daty, id_prod):
@@ -137,13 +149,17 @@ class Requete:
                 ORDER BY heureDebutCmd ASC
             """
         self.cursor.execute(req, (daty, id_prod))
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def getIdUser(self, sender_id):
         req = 'SELECT id from utilisateur WHERE fb_id=%s'
         self.cursor.execute(req, (sender_id,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def insertNouveauCommande(
@@ -184,7 +200,9 @@ class Requete:
                 WHERE  dataQrCode=%s AND statut = 'CONFIRMÉ'
             """
         self.cursor.execute(req, (UniqueTime,))
-        return self.cursor.fetchall()
+        data =  self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def set_temp(self, user_id, data):
@@ -202,7 +220,9 @@ class Requete:
         '''
         req = 'SELECT temp FROM utilisateur WHERE fb_id = %s'
         self.cursor.execute(req, (user_id,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def infoCommande(self, id_cmd, UniqueTime):
@@ -219,7 +239,9 @@ class Requete:
                 AND statut = 'CONFIRMÉ'
         """
         self.cursor.execute(req, (id_cmd, UniqueTime))
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def getStatutCmd(self, uniqueTime):
@@ -228,8 +250,9 @@ class Requete:
                 WHERE dataQrcode = %s
         """
         self.cursor.execute(req, (uniqueTime,))
-        return self.cursor.fetchone()[0]
-
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
 #----------------------------REQUETES POUR L'ADMIN----------------------------#
 
@@ -278,7 +301,10 @@ class Requete:
                 AND idLastConnect = fb_id
         """
         self.cursor.execute(reqAdmin)
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
 
     @verif_db
     def getRecipientId(self, uniqueTime):
@@ -290,7 +316,9 @@ class Requete:
                 WHERE dataQrCode = %s
         """
         self.cursor.execute(reqAdmin, (uniqueTime,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def get_action_admin(self, sender_id_admin):
@@ -317,7 +345,9 @@ class Requete:
                     AND mdp=SHA2(%s,256)
                 """
         self.cursor.execute(reqAdmin, (userName, password))
-        return self.cursor.fetchall()
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
 
     @verif_db
     def verifDeconnection(self, userName, password):
@@ -327,7 +357,9 @@ class Requete:
                 AND mdp=SHA2(%s,256)
         """
         self.cursor.execute(reqAdmin, (userName, password))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def senderIdAdmin(self, sender_id, UserNameFb, email):
@@ -357,7 +389,9 @@ class Requete:
         '''
         reqAdmin = 'SELECT temps FROM AutreUtils WHERE fb_id = %s'
         self.cursor.execute(reqAdmin, (user_id,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def deleteGallerry(self, idGal):
@@ -372,7 +406,9 @@ class Requete:
                 WHERE id_prod = %s
             """
         self.cursor.execute(reqAdmin, (id_prod,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def deleteGallerryOneProduct(self, id_prod):
@@ -433,7 +469,9 @@ class Requete:
     def lastInsertId(self):
         reqAdmin = 'SELECT id_prod FROM produits ORDER BY id_prod DESC LIMIT 1'
         self.cursor.execute(reqAdmin)
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def insertGallery(self, contenu, id_prod):
@@ -617,7 +655,9 @@ class Requete:
                 WHERE dataQrCode = %s
         """
         self.cursor.execute(reqPart, (uniqueTime,))
-        return self.cursor.fetchone()[0]
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
     @verif_db
     def infoCommandePart(self, id_cmd, UniqueTime):

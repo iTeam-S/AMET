@@ -1,7 +1,6 @@
 from flask import Flask, request, send_from_directory
 from threading import Thread
 from conf import VERIFY_TOKEN
-# from threading import thread
 import core
 
 

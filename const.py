@@ -179,7 +179,7 @@ TrueCmd = "Votre commande est bien confirmé\n\nAlors 👇👇👇👇"
 ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
 le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
 
-connexion = " il y au un autre Admin qui est encore connécté avec \
+connexion = " il y au un autre personne qui est encore connécté avec \
 ce compte"
 
 messageSearch = "Voici donc le fruit de votre recherche 😊😊😊"

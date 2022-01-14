@@ -185,7 +185,6 @@ class Traitement:
                     print(sender_id)
                     sender_id_admin = req.verifSenderId(sender_id)
                     sender_id_part = req.verifSenderIdPart(sender_id)
-                    # print(sender_id_admin)
 
                     if message['message'].get('quick_reply'):
                         if sender_id_admin:

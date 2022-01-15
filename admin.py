@@ -71,7 +71,6 @@ class Admin:
         listPart = []
 
         if type == "AJOUTER":
-
             for i in range(len(part)):
                 listPart.append({
                     "title": f"{part[i][0]} - {part[i][1]}",
@@ -83,11 +82,9 @@ class Admin:
                             "payload": f"__PARTENER {part[i][0]}"
                         }]
                 })
-            print(listPart)
             return listPart
 
         else:
-
             for j in range(len(part)):
                 listPart.append({
                     "title": f"{part[j][0]} - {part[j][1]}",
@@ -99,7 +96,6 @@ class Admin:
                             "payload": f"__PARTENAIREMODIF {part[j][0]}"
                         }]
                 })
-            print(listPart)
             return listPart
 
     def gallery(self, id_prod):
@@ -172,7 +168,6 @@ class Admin:
         res = elements
 
         if res:
-
             deb_indice = (page - 1) * 10
 
             if len(res) > deb_indice + 10:
@@ -204,7 +199,6 @@ class Admin:
             deb_indice = (page - 1) * 10
 
             if type == "AJOUTER":
-
                 if len(res) > deb_indice + 10:
                     bot.send_template(
                         sender_id, res[deb_indice:deb_indice + 10],
@@ -222,7 +216,6 @@ class Admin:
                         sender_id, res[deb_indice:deb_indice + 10])
 
             else:
-
                 if len(res) > deb_indice + 10:
                     bot.send_template(
                         sender_id, res[deb_indice:deb_indice + 10],
@@ -264,7 +257,6 @@ class Admin:
                 sender_id,
                 json.dumps({"listeElementPayload": payload})
             )
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "proposeModifierAdmin")
             return True
 
@@ -273,7 +265,6 @@ class Admin:
                 sender_id,
                 json.dumps({"listeElementPayload": payload})
             )
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "confirmSuppProduct")
             return True
 
@@ -281,7 +272,6 @@ class Admin:
             data = json.loads(req.get_tempAdmin(sender_id))
             data["supprimmer"] = payload[1]
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "confirmSupprGallerry")
             return True
 
@@ -290,7 +280,6 @@ class Admin:
                 sender_id,
                 json.dumps({"id_cmd": payload[1]})
             )
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "nonConfirm")
             return True
 
@@ -298,20 +287,14 @@ class Admin:
             data = json.loads(req.get_tempAdmin(sender_id))
             data["id_part"] = payload[1]
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "confirmCreateAdminWithPart")
             req.set_action_admin(sender_id, None)
             return True
 
         elif payload[0] == "__PARTENAIREMODIF":
-            print(payload[1])
-            print(json.loads(
-                req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
-
             data = json.loads(req.get_tempAdmin(sender_id))
             data["id_partModif"] = payload[1]
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "confirmModifPart")
             return True
 
@@ -345,7 +328,6 @@ class Admin:
             data = json.loads(req.get_tempAdmin(sender_id))
             data["nom"] = commande
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             req.update_product(
                 json.loads(
                     req.get_tempAdmin(sender_id)).get("listeElementPayload")[1],
@@ -360,12 +342,11 @@ class Admin:
         elif statut == "MODIFIER_DETAILS":
             try:
                 ImageDetails = commande.split('?')[0].split('/')[-1]
-                print(ImageDetails)
                 download_file(commande, f'photo/{ImageDetails}')
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["details"] = ImageDetails
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
+
                 req.update_product(
                     json.loads(
                         req.get_tempAdmin(sender_id)).get("listeElementPayload")[1],
@@ -388,7 +369,7 @@ class Admin:
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["prix"] = prix
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
+
                 req.update_product(
                     json.loads(
                         req.get_tempAdmin(sender_id)).get("listeElementPayload")[1], "prix", json.loads(
@@ -410,7 +391,7 @@ class Admin:
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["couverture"] = couverturephoto
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
+
                 req.update_product(
                     json.loads(
                         req.get_tempAdmin(sender_id)).get("listeElementPayload")[1],
@@ -427,11 +408,53 @@ class Admin:
                 req.set_action_admin(sender_id, "MODIFIER_COUVERTURE")
                 return True
 
+        elif statut == "MODIFIER_HEUREDOUV":
+            if commande.isdigit():
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["heureDouv"] = commande
+                req.set_tempAdmin(sender_id, json.dumps(data))
+
+                req.update_product(
+                    json.loads(
+                        req.get_tempAdmin(sender_id)).get("listeElementPayload")[1],
+                    "heureDouv",
+                    json.loads(
+                        req.get_tempAdmin(sender_id)).get("heureDouv"))
+                bot.send_message(sender_id, const.modifSuccess)
+                req.set_action_admin(sender_id, None)
+                bot.send_quick_reply(sender_id, "AutreModification")
+                return True
+
+            else:
+                bot.send_message(sender_id, const.ErrorTypeHeureDouvEtFerm)
+                req.set_action_admin(sender_id, "MODIFIER_HEUREDOUV")
+                return True
+
+        elif statut == "MODIFIER_HEUREFERM":
+            if commande.isdigit():
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["heureFerm"] = commande
+                req.set_tempAdmin(sender_id, json.dumps(data))
+
+                req.update_product(
+                    json.loads(
+                        req.get_tempAdmin(sender_id)).get("listeElementPayload")[1],
+                    "heureFerm",
+                    json.loads(
+                        req.get_tempAdmin(sender_id)).get("heureFerm"))
+                bot.send_message(sender_id, const.modifSuccess)
+                req.set_action_admin(sender_id, None)
+                bot.send_quick_reply(sender_id, "AutreModification")
+                return True
+
+            else:
+                bot.send_message(sender_id, const.ErrorTypeHeureDouvEtFerm)
+                req.set_action_admin(sender_id, "MODIFIER_HEUREFERM")
+                return True
+
         elif statut == "MODIFIER_GALLERY":
             try:
                 dataUrl = commande
-                print(dataUrl)
-                print(len(dataUrl))
                 if len(dataUrl) < json.loads(
                         req.get_tempAdmin(sender_id)).get("nombreRestant") + 1:
                     listeUrlPhotoGallery = []
@@ -445,10 +468,9 @@ class Admin:
                     data = json.loads(req.get_tempAdmin(sender_id))
                     data["gallery"] = listeUrlPhotoGallery
                     req.set_tempAdmin(sender_id, json.dumps(data))
-                    print(json.loads(req.get_tempAdmin(sender_id)))
+
                     values = json.loads(
                         req.get_tempAdmin(sender_id)).get("gallery")
-                    print(values)
 
                     for j in range(len(values)):
                         req.update_gallerry(
@@ -469,10 +491,8 @@ class Admin:
 
         #--------------------------------CREER NOUVEAU PRODUIT----------------------------------------------------#
         elif statut == "ATTENTE_NOM":
-            print(statut)
             nom = commande
             req.set_tempAdmin(sender_id, json.dumps({"nom": nom}))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_message(sender_id, const.inputDetail)
             req.set_action_admin(sender_id, "ATTENTE_DETAILS")
             return True
@@ -484,7 +504,6 @@ class Admin:
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["details"] = ImageNameDetails
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
                 bot.send_message(sender_id, const.inputPrix)
                 req.set_action_admin(sender_id, "ATTENTE_PRIX")
                 return True
@@ -500,7 +519,6 @@ class Admin:
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["prix"] = prix
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
                 bot.send_message(sender_id, const.inputPdc)
                 req.set_action_admin(sender_id, "ATTENTE_COUVERTURE")
                 return True
@@ -519,9 +537,8 @@ class Admin:
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["pdc"] = ImageNameCouverture
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
-                bot.send_message(sender_id, const.attenteGallerry)
-                req.set_action_admin(sender_id, "ATTENTE_GALLERY")
+                bot.send_message(sender_id, const.attenteHeureDouv)
+                req.set_action_admin(sender_id, "ATTENTE_HEUREDOUV")
                 return True
 
             except BaseException:
@@ -529,10 +546,37 @@ class Admin:
                 req.set_action_admin(sender_id, "ATTENTE_COUVERTURE")
                 return True
 
+        elif statut == "ATTENTE_HEUREDOUV":
+            if commande.isdigit():
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["heureDouv"] = commande
+                req.set_tempAdmin(sender_id, json.dumps(data))
+                bot.send_message(sender_id, const.attenteHeureFerm)
+                req.set_action_admin(sender_id, "ATTENTE_HEUREFERM")
+                return True
+
+            else:
+                bot.send_message(sender_id, const.ErrorTypeHeureDouvEtFerm)
+                req.set_action_admin(sender_id, "ATTENTE_HEUREDOUV")
+                return True
+
+        elif statut == "ATTENTE_HEUREFERM":
+            if commande.isdigit():
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["heureFerm"] = commande
+                req.set_tempAdmin(sender_id, json.dumps(data))
+                bot.send_message(sender_id, const.attenteGallerry)
+                req.set_action_admin(sender_id, "ATTENTE_GALLERY")
+                return True
+
+            else:
+                bot.send_message(sender_id, const.ErrorTypeHeureDouvEtFerm)
+                req.set_action_admin(sender_id, "ATTENTE_HEUREFERM")
+                return True
+
         elif statut == "ATTENTE_GALLERY":
             try:
                 dataUrl = commande
-                print(dataUrl)
                 if len(dataUrl) < 11:
                     listeUrlPhotoGallery = []
                     for i in range(len(dataUrl)):
@@ -549,8 +593,8 @@ class Admin:
                     req.set_tempAdmin(sender_id, json.dumps(data))
                     req.set_action_admin(sender_id, None)
                     bot.send_quick_reply(sender_id, "choixTypePart")
-                    print(json.loads(req.get_tempAdmin(sender_id)))
                     return True
+
                 else:
                     bot.send_message(sender_id, const.erreurNbGallerryModifier)
                     return True
@@ -562,23 +606,18 @@ class Admin:
 
         #--------------------------------CREER UN NOUVEAU PARTENAIRE---------------------#
         elif statut == "ATTENTE_FULLNAME":
-
-            print(statut)
             req.set_tempAdmin(sender_id, json.dumps({"fullName": commande}))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_message(sender_id, const.inputUserMail)
             req.set_action_admin(sender_id, "ATTENTE_USERMAIL")
             return True
 
         elif statut == "ATTENTE_USERMAIL":
-
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-
             if(re.fullmatch(regex, commande)):
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["userMail"] = commande
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                print(json.loads(req.get_tempAdmin(sender_id)))
+
                 bot.send_message(sender_id, const.mdp)
                 req.set_action_admin(sender_id, "ATTENTE_MDP")
                 return True
@@ -592,19 +631,19 @@ class Admin:
             data = json.loads(req.get_tempAdmin(sender_id))
             data["mdp"] = commande
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "trueCreatePart")
             return True
 
         #--------------------------------VERIFIER COMMANDE-------------------------------#
         elif statut == "VERIF_COMMANDE":
             try:
-                try:
-                    dataQrCode = commande.split("_")
-                    informations = list(
-                        req.infoCommande(
-                            dataQrCode[0],
-                            dataQrCode[1])[0])
+                dataQrCode = commande.split("_")
+                informations = list(
+                    req.infoCommande(
+                        dataQrCode[0],
+                        dataQrCode[1])[0])
+
+                if informations:
                     bot.send_message(
                         sender_id, const.infoCommande(
                             informations, bot.get_user_name(
@@ -612,16 +651,10 @@ class Admin:
                     req.set_action_admin(sender_id, None)
                     return True
 
-                except BaseException:
-                    dataQrCode = commande.split("_")
-                    informationsPart = list(
-                        req.infoCommandePart(
-                            dataQrCode[0], dataQrCode[1])[0])
+                else:
                     bot.send_message(
                         sender_id,
-                        const.infocommandePart(
-                            informationsPart
-                        )
+                        const.noExistingCmd
                     )
                     req.set_action_admin(sender_id, None)
                     return True
@@ -645,13 +678,11 @@ class Admin:
                     return True
 
                 else:
-
                     recipientIdQrcode = req.getRecipientId(commande)
                     req.setStatut(commande)
                     bot.send_message(recipientIdQrcode, const.TrueCmd)
                     bot.send_message(recipientIdQrcode, const.givingTicket)
                     dataQrCode = list(req.getElementQrcode(commande)[0])
-                    print(dataQrCode)
                     img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
                     img.save(f"photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
                     bot.send_file_url(
@@ -813,7 +844,6 @@ class Admin:
             data = json.loads(req.get_tempAdmin(sender_id))
             data["nombreRestant"] = nombreRestant
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             return True
 
         #--------------------QuickReply Pour la modificaion d'un produit--------------------#
@@ -835,6 +865,16 @@ class Admin:
         elif commande == "__COUVERTURE":
             bot.send_message(sender_id, const.inputNewPdc)
             req.set_action_admin(sender_id, "MODIFIER_COUVERTURE")
+            return True
+
+        elif commande == "__HEUREDOUV":
+            bot.send_message(sender_id, const.inputNewHeureDouv)
+            req.set_action_admin(sender_id, "MODIFIER_HEUREDOUV")
+            return True
+
+        elif commande == "__HEUREFERM":
+            bot.send_message(sender_id, const.inputNewHeureFerm)
+            req.set_action_admin(sender_id, "MODIFIER_HEUREFERM")
             return True
 
         elif commande == "__GALLERY":
@@ -887,7 +927,6 @@ class Admin:
             data = json.loads(req.get_tempAdmin(sender_id))
             data["id_partModif"] = None
             req.set_tempAdmin(sender_id, json.dumps(data))
-            print(json.loads(req.get_tempAdmin(sender_id)))
             bot.send_quick_reply(sender_id, "confirmModifPart")
             return True
 
@@ -906,7 +945,6 @@ class Admin:
                 return True
 
             else:
-
                 req.updatePartenaire(
                     values.get("listeElementPayload")[1],
                     values.get("id_partModif")
@@ -924,11 +962,12 @@ class Admin:
                 values.get("nom"),
                 values.get("details"),
                 values.get("prix"),
-                values.get("pdc")
+                values.get("pdc"),
+                int(values.get("heureDouv")),
+                int(values.get("heureFerm"))
             )
 
             newIdProd = req.lastInsertId()
-            print(newIdProd)
             for i in range(len(values.get("gallery"))):
                 req.insertGallery(values.get("gallery")[i], newIdProd)
 
@@ -943,11 +982,12 @@ class Admin:
                 values.get("details"),
                 values.get("prix"),
                 values.get("pdc"),
-                values.get("id_part")
+                values.get("id_part"),
+                int(values.get("heureDouv")),
+                int(values.get("heureFerm"))
             )
 
             newIdProd = req.lastInsertId()
-            print(newIdProd)
             for i in range(len(values.get("gallery"))):
                 req.insertGallery(values.get("gallery")[i], newIdProd)
 
@@ -967,7 +1007,6 @@ class Admin:
         elif commande == "__YES":
             id_prod = json.loads(req.get_tempAdmin(
                 sender_id)).get("listeElementPayload")[1]
-            print(id_prod)
             req.deleteGallerryOneProduct(id_prod)
             req.deleteCommandeUsingIdProductDelete(id_prod)
             req.delete_product(id_prod)

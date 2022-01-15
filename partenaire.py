@@ -52,7 +52,6 @@ class Partenaire:
     def traitementCmdPart(self, sender_id, commande):
 
         if commande == "__VOIR":
-            print(req.getIdPart(sender_id))
             bot.send_message(sender_id, "Voici donc vos terrains")
             bot.send_template(
                 sender_id,
@@ -87,14 +86,11 @@ class Partenaire:
             dataAinserer = json.loads(req.get_tempPart(sender_id))
             idUserPart = req.getIdUserPart(sender_id)
             UniqueTime = str(time.time())
-            print(idUserPart)
 
             data = json.loads(req.get_tempPart(sender_id))
             data["uniqueTime"] = UniqueTime
             req.set_tempPart(sender_id, json.dumps(data))
 
-            print(UniqueTime)
-            print(json.loads(req.get_tempPart(sender_id)).get("uniqueTime"))
             req.insertNouveauCommandePart(
                 idUserPart[0],
                 dataAinserer.get("daty"),
@@ -111,22 +107,9 @@ class Partenaire:
             )
 
             bot.send_message(sender_id, const.TrueCmd)
-            bot.send_message(sender_id, const.givingTicket)
-            dataQrCode = list(req.getElementQrcode(
-                json.loads(req.get_tempPart(sender_id)).get("uniqueTime"))[0]
-            )
-            print(dataQrCode)
-            img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
-            img.save(f"photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
-            bot.send_file_url(
-                sender_id,
-                f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
-                "image"
-            )
 
             ListIdAdmin = req.getIdAdmin()
             for i in range(len(ListIdAdmin)):
-                print(ListIdAdmin[i][0])
                 bot.send_message(
                     ListIdAdmin[i][0],
                     const.verifcommandePart(
@@ -154,7 +137,6 @@ class Partenaire:
                 sender_id,
                 json.dumps({"listeElementPayload": listeElementPayload})
             )
-            print(json.loads(req.get_tempPart(sender_id)))
             bot.send_message(
                 sender_id,
                 " De quelle date?\n\nSaisir la date sous forme JJ-MM-AAAA\n\nExemple: " +
@@ -206,12 +188,8 @@ class Partenaire:
                 data["daty"] = dateAlaTerrainFormater
                 req.set_tempPart(sender_id, json.dumps(data))
 
-                print(json.loads(req.get_tempPart(sender_id)))
-
                 indexProduit = data.get("listeElementPayload")[1]
                 daty = json.loads(req.get_tempPart(sender_id)).get("daty")
-
-                print(indexProduit + "\n" + daty)
 
                 """
                     Verifier la date entrée par l'utilisateur
@@ -224,7 +202,6 @@ class Partenaire:
                         s'elle existe alors, on va fetcher tous
                         les heures déjà réservés pour cette date
                     """
-                    print(daty)
                     heureDejaReserve = req.heureReserve(daty, indexProduit)
 
                     listeHeureDebut = []
@@ -249,7 +226,6 @@ class Partenaire:
                     data["listeHeureDebut"] = listeHeureDebut
                     data["listeHeureFin"] = listeHeureFin
                     req.set_tempPart(sender_id, json.dumps(data))
-                    print(json.loads(req.get_tempPart(sender_id)))
 
                     w = 0
                     listeMessage = []
@@ -285,7 +261,10 @@ class Partenaire:
                 Avant tout, faut verifier
                 l'heure entré par les utilisateurs
             """
-            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < 6 or int(verifHeureDeDebut[0]) > 20) \
+            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < int(req.getHeureDouv(
+                json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))
+                    or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
+                        json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
@@ -307,11 +286,9 @@ class Partenaire:
                     indexProduit = json.loads(
                         req.get_tempPart(sender_id)).get("listeElementPayload")[1]
                     daty = json.loads(req.get_tempPart(sender_id)).get("daty")
-                    print(indexProduit + "\n" + daty)
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
-                        print("miditra ato zah zan, Date exist zan lec e!!")
                         a = 0
                         b = 0
                         verifIntervalleDebut = []
@@ -322,10 +299,6 @@ class Partenaire:
                         listeHeureFin = json.loads(
                             req.get_tempPart(sender_id)).get("listeHeureFin")
 
-                        print(listeHeureDebut)
-                        print(listeHeureFin)
-
-                        print("sergio")
                         while a < len(listeHeureDebut):
                             verifIntervalleDebut.append(
                                 listeHeureDebut[a].split("h")[0])
@@ -340,9 +313,6 @@ class Partenaire:
                         data["verifIntervalleDebut"] = verifIntervalleDebut
                         data["verifIntervalleFin"] = verifIntervalleFin
                         req.set_tempPart(sender_id, json.dumps(data))
-                        print(json.loads(req.get_tempPart(sender_id)))
-                        print(verifIntervalleDebut)
-                        print(verifIntervalleFin)
 
                         c = 0
                         while c < len(verifIntervalleDebut):
@@ -359,7 +329,6 @@ class Partenaire:
                                 if int(
                                         verifHeureDeDebut[0]) == int(
                                         verifIntervalleDebut[c]):
-                                    print("ao zan eeeeeeeee")
                                     return True
 
                                 elif int(
@@ -408,7 +377,6 @@ class Partenaire:
                             Ici c'est l'heure où sa date n'a
                             pas encore du commande
                         """
-                        print("tsy ao zah zan , tsy miexist le date lec")
                         data = json.loads(req.get_tempPart(sender_id))
                         data["heureDebut"] = heure_debut
                         req.set_tempPart(sender_id, json.dumps(data))
@@ -417,7 +385,6 @@ class Partenaire:
                         return True
 
                 else:
-                    print(int(verifHeureDeDebut[1]))
                     bot.send_message(sender_id, const.ErrorTranceBegining)
                     return True
 
@@ -433,12 +400,11 @@ class Partenaire:
             listeHeureDebut = json.loads(
                 req.get_tempPart(sender_id)).get("listeHeureDebut")
 
-            print(verifHeureDeDebut)
-            print(verifIntervalleDebut)
-            print(verifIntervalleFin)
-
-            if(not verifHeureDeFin[0].isdigit() or int(verifHeureDeFin[0]) < 6 or int(verifHeureDeFin[0]) > 19) \
-                    or (not verifHeureDeFin[1].isdigit() or int(verifHeureDeFin[1]) > 59):
+            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < int(req.getHeureDouv(
+                json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))
+                    or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
+                        json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
+                    or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
 
@@ -460,7 +426,6 @@ class Partenaire:
                     indexProduit = json.loads(
                         req.get_tempPart(sender_id)).get("listeElementPayload")[1]
                     daty = json.loads(req.get_tempPart(sender_id)).get("daty")
-                    print(indexProduit + "\n" + daty)
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
@@ -610,13 +575,10 @@ class Partenaire:
                                 mitsy satria hifanindry io ora sy fotoana io
                             """
                             listeHeureDebutEtFin = verifIntervalleDebut + verifIntervalleFin
-                            print(listeHeureDebutEtFin)
                             for e in range(
                                     int(verifHeureDeDebut[0]) + 1, int(verifHeureDeFin[0]) + 1):
                                 for f in range(len(listeHeureDebutEtFin)):
                                     if e == int(listeHeureDebutEtFin[f]):
-                                        print(int(listeHeureDebutEtFin[f]))
-                                        print(e)
                                         bot.send_message(
                                             sender_id, const.ErrorThirdInterval)
                                         bot.send_quick_reply(

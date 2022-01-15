@@ -66,14 +66,6 @@ la tranche\n\nVeuillez saisir à nouveau en respectant la marge de trance\n\nMer
 givingTicket = "Voici donc votre QRCODE qui est votre ticket d'entrée le jour où \
 vous serez au terrain\n\n Alors le gardé bien 😊😊😊"
 
-roulesOfHour = "Maintenat, je vous informe pour les reglements de l'heure que vous \
-entrez. Tout d'abord, le minimum du temps du commande est d'une heure(1h). Ensuite l'intervalle \
-du temps du commande est par la trance de 30 minutes ou 1h, c-a-d votre commande est alors \
-1h ou 1h30 ou 2h du temps ou ainsi de suite. Et enfin votre heure de fin et heure de début sont alors exprimées \
-de façon 13h30 pour le debut par example et 15h00 celle de la fin, c-a-d il n'y a que de 30 ou 00 le \
-minute des heures que vous entrez.\n\n Pour terminer, regardez bien les intervalles du temps déjà reservés \
-pour votre bonne choix et surtout le format de l'heure qu'on vous suposse à entrer\n\nMerci 😊😊😊"
-
 cmdOfAnotherDate = "Entrer alors la date en respctant toujours le bon format😊😊😊"
 
 problems = "Et si vous avez de probleme pour l'envoi de cet avance, vous pouvez appelez \
@@ -176,6 +168,7 @@ resoudre ce probleme.\n\nOn vous attend pour l'appel alors\nMerci😊😊😊"
 confirmCmd = "Entrer alors le Data unique à confirmé"
 falseconfirmCmd = "Entrer le Data unique du client pour renvoyer du message"
 TrueCmd = "Votre commande est bien confirmé\n\nAlors 👇👇👇👇"
+TrueCmdPart = "Votre commande est bien confirmé!!\nMerci😊😊😊"
 ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
 le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
 
@@ -195,37 +188,42 @@ inputPartFullName = "Saisir le nom complet de ce partenaire"
 inputUserMail = "Donnez lui de UserMail:"
 mdp = "Donner lui aussi de mot de passe:"
 ErrorInputUserMailPart = "Cet UserMail est invalide\n\nVeuillez saisir à nouveau"
+noExistingCmd = "Ce Data be possède pas de commande dans notre Base,\n \
+Peut être un FAUX DATA"
+attenteHeureDouv = "Entrer l'heure d'ouverture de ce terrain\n\nExample: si l'heure est 06h00 entrer \
+tous simplement 6\n22h00 -->22, etc..."
+attenteHeureFerm = "Entrer l'heure de fermeture de ce terrain\n\nExample: si l'heure est 22h00 entrer \
+tous simplement 22"
+ErrorTypeHeureDouvEtFerm = "Une erreur se produite!!\n\nEntrer plutôt de chiffre comme le consigne indique \
+\n\n Veuillez saisir à nouveau donc"
+inputNewHeureDouv= "Entrer le nouveau heure d'ouverture"
+inputNewHeureFerm = "Entrer le nouveau heure de fermeture" 
 
 # -----------------------------FONCTIONS------------------------------------------------------#
 
+def roulesOfHour(heureDouv,HeureFerme):
+        return f"Maintenat, je vous informe pour les reglements de l'heure que vous \
+entrez. Tout d'abord, le minimum du temps du commande est d'une heure(1h). Ensuite l'intervalle \
+du temps du commande est par la trance de 30 minutes ou 1h, c-a-d votre commande est alors \
+1h ou 1h30 ou 2h du temps ou ainsi de suite. Et enfin votre heure de fin et heure de début sont alors exprimées \
+de façon 13h30 pour le debut par example et 15h00 celle de la fin, c-a-d il n'y a que de 30 ou 00 le \
+minute des heures que vous entrez.\n\n Pour terminer, CE TERRAIN EST DISPONIBLE DE {heureDouv}h00 à {HeureFerme}h00\n \
+Et regardez bien les intervalles du temps déjà reservés pour votre bonne choix et surtout le format de \
+l'heure qu'on vous suposse à entrer\n\nMerci 😊😊😊"
+
 
 def verifReference(nom, terrain, operateur, reference, heure):
-    return f"""
-            Bonjour Admin, {nom} vient de vous envoyer une avance pour une reservation de Terrain \
-            {terrain.upper()} pendant {heure} du temps pour votre numero {operateur} de reference {reference} \
-            \n\nPouvez-vous le vérifier s'il vous plait?? \
-            \n\nEt voici donc son unique Data de commande:
-    """
+    return f"Bonjour Admin, {nom} vient de vous envoyer une avance pour une reservation de Terrain \
+    {terrain.upper()} pendant {heure} du temps pour votre numero {operateur} de reference {reference} \
+        \n\nPouvez-vous le vérifier s'il vous plait?? \
+        \n\nEt voici donc son unique Data de commande:"
 
 
 def infoCommande(listInfo, UserNameFb):
     date_cmd = listInfo[1].strftime('%d-%m-%Y %Hh%M').split(" ")
-    return f"""
-                Ce commande existe et fait par {UserNameFb} le {date_cmd[0]} à {date_cmd[1]}.\
-                \n\nIl est un commande du Terrain {listInfo[5].upper()} \
-                \npour la date {listInfo[2].strftime('%d-%m-%Y')} du {listInfo[3]} à {listInfo[4]}
-        """
-
-
-def infocommandePart(listeInfo):
-    date_cmd = listeInfo[2].strftime('%d-%m-%Y %Hh%M').split(" ")
-    return f"""
-                Ce commande existe et fait par le proprietaire {listeInfo[1].upper()}\
-                pour son Terrain {listeInfo[6]} le {date_cmd[0]} à {date_cmd[1]} pour une \
-                reservation de ce terrain pour la date de {listeInfo[3].strftime('%d-%m-%Y')} \
-                à {listeInfo[4]} au {listeInfo[5]}.
-        """
-
+    return f"Ce commande existe et fait par {UserNameFb} le {date_cmd[0]} à {date_cmd[1]}.\
+        \n\nIl est un commande du Terrain {listInfo[5].upper()} \
+                \npour la date {listInfo[2].strftime('%d-%m-%Y')} du {listInfo[3]} à {listInfo[4]}"
 
 def salutationSimpleUser(UserName):
     return f"""

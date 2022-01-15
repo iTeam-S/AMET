@@ -34,14 +34,14 @@ class Requete:
     def get_produits(self):
         req = """
                 SELECT id_prod, nom_prod, prix,
-                photo_couverture FROM produits
-
+                photo_couverture,heureDouv,heureFerm
+                FROM produits
               """
         self.cursor.execute(req)
         data = self.cursor.fetchall()
         self.db.commit()
         return data
-        
+
     @verif_db
     def get_productSearch(self, name):
         req = """
@@ -200,7 +200,7 @@ class Requete:
                 WHERE  dataQrCode=%s AND statut = 'CONFIRMÉ'
             """
         self.cursor.execute(req, (UniqueTime,))
-        data =  self.cursor.fetchall()
+        data = self.cursor.fetchall()
         self.db.commit()
         return data
 
@@ -254,8 +254,27 @@ class Requete:
         self.db.commit()
         return data
 
-#----------------------------REQUETES POUR L'ADMIN----------------------------#
+    def getHeureDouv(self, id_prod):
+        reqAdmin = """
+                SELECT heureDouv FROM produits
+                WHERE id_prod = %s
+        """
+        self.cursor.execute(reqAdmin, (id_prod,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 
+    def getHeureFerm(self, id_prod):
+        reqAdmin = """
+                SELECT heureFerm FROM produits
+                WHERE id_prod = %s
+        """
+        self.cursor.execute(reqAdmin, (id_prod,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
+
+#----------------------------REQUETES POUR L'ADMIN----------------------------#
 
     @verif_db
     def difference(self):
@@ -304,7 +323,6 @@ class Requete:
         data = self.cursor.fetchall()
         self.db.commit()
         return data
-
 
     @verif_db
     def getRecipientId(self, uniqueTime):
@@ -423,22 +441,51 @@ class Requete:
         self.db.commit()
 
     @verif_db
-    def create_productWithPart(self, name, details, prix, couverture, id_part):
+    def create_productWithPart(
+            self,
+            name,
+            details,
+            prix,
+            couverture,
+            id_part,
+            heureDouv,
+            heureFerm):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part)
-                    VALUES (%s, %s, %s, %s,1,%s)
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part,heureDouv,heureFerm)
+                    VALUES (%s, %s, %s, %s,1,%s,%s,%s)
                 """
         self.cursor.execute(
-            reqAdmin, (name, details, prix, couverture, id_part))
+            reqAdmin,
+            (name,
+             details,
+             prix,
+             couverture,
+             id_part,
+             heureDouv,
+             heureFerm))
         self.db.commit()
 
     @verif_db
-    def create_product(self, name, details, prix, couverture):
+    def create_product(
+            self,
+            name,
+            details,
+            prix,
+            couverture,
+            heureDouv,
+            heureFerm):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ)
-                    VALUES (%s, %s, %s, %s,1)
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,heureDouv,heureFerm)
+                    VALUES (%s, %s, %s, %s,1,%s,%s)
                 """
-        self.cursor.execute(reqAdmin, (name, details, prix, couverture))
+        self.cursor.execute(
+            reqAdmin,
+            (name,
+             details,
+             prix,
+             couverture,
+             heureDouv,
+             heureFerm))
 
     @verif_db
     def update_product(self, id_product, colonne, value_colonne):
@@ -499,7 +546,6 @@ class Requete:
         """
         self.cursor.execute(reqAdmin, (sender_id,))
         self.db.commit()
-
 
 #----------------------------------REQUETES PARTENAIRES------------------------------------------#
 
@@ -656,25 +702,6 @@ class Requete:
         """
         self.cursor.execute(reqPart, (uniqueTime,))
         data = self.cursor.fetchone()[0]
-        self.db.commit()
-        return data
-
-    @verif_db
-    def infoCommandePart(self, id_cmd, UniqueTime):
-        reqPart = """
-                SELECT fb_idPart,FullName,date_cmd,dateAlaTerrain,
-                heureDebutCmd,heureFinCmd,nom_prod
-                FROM partenaire
-                INNER JOIN commande
-                ON partenaire.id_part = commande.id_part
-                INNER JOIN produits
-                ON commande.id_prod = produits.id_prod
-                WHERE id_cmd = %s
-                AND dataQrCode = %s
-                AND statut = 'CONFIRMÉ'
-        """
-        self.cursor.execute(reqPart, (id_cmd, UniqueTime))
-        data = self.cursor.fetchall()
         self.db.commit()
         return data
 

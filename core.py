@@ -33,28 +33,18 @@ class Traitement:
         i = 0
 
         while i < len(photos):
-            produits.append({
-                "title": str(photos[i][0]) + " - Terrain " + photos[i][1],
-                "image_url": URL_SERVER + photos[i][3],
-                "subtitle": "Prix : " + str(photos[i][2]) + " Ar /heures",
-                "buttons": [
-                    {
-                        "type": "postback",
-                        "title": "Voir Gallery",
-                        "payload": "__GALERY" + " " + str(photos[i][0])
-                    },
-                    {
-                        "type": "postback",
-                        "title": "Details",
-                        "payload": "__DETAILS" + " " + str(photos[i][0])
-                    },
-                    {
-                        "type": "postback",
-                        "title": "Disponibilité",
-                        "payload": f"__DISPONIBILITÉ {str(photos[i][0])} {photos[i][1]} {str(photos[i][2])}"
-                    }
-                ]
-            })
+            produits.append({"title": str(photos[i][0]) + " - Terrain " + photos[i][1],
+                             "image_url": URL_SERVER + photos[i][3],
+                             "subtitle": f"PRIX : {photos[i][2]}Ar/heures\nHORAIRES: {photos[i][4]}h00 à {photos[i][5]}h00",
+                             "buttons": [{"type": "postback",
+                                          "title": "Voir Gallery",
+                                          "payload": "__GALERY" + " " + str(photos[i][0])},
+                                         {"type": "postback",
+                                          "title": "Details",
+                                          "payload": "__DETAILS" + " " + str(photos[i][0])},
+                                         {"type": "postback",
+                                          "title": "Disponibilité",
+                                          "payload": f"__DISPONIBILITÉ {str(photos[i][0])} {photos[i][1]} {str(photos[i][2])}"}]})
             i = i + 1
 
         return produits
@@ -148,7 +138,6 @@ class Traitement:
         bot.send_message(sender_id, const.attenteConfirmRef)
         ListIdAdmin = req.getIdAdmin()
         for i in range(len(ListIdAdmin)):
-            print(ListIdAdmin[i][0])
             bot.send_message(
                 ListIdAdmin[i][0],
                 const.verifReference(
@@ -182,7 +171,6 @@ class Traitement:
             for message in messaging:
                 if message.get('message'):
                     sender_id = message['sender']['id']
-                    print(sender_id)
                     sender_id_admin = req.verifSenderId(sender_id)
                     sender_id_part = req.verifSenderIdPart(sender_id)
 
@@ -222,7 +210,6 @@ class Traitement:
                             data = message['message'].get('attachments')
 
                             if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY":
-                                print(data)
                                 admin.executionAdmin(
                                     sender_id,
                                     data
@@ -290,7 +277,6 @@ class Traitement:
             Methode qui traite les faits que l'utilisateur
             doit faire par rapport à son action actuel
         """
-        print(action)
 
         if action == "USERNAME_ADMIN":
             email = commande
@@ -316,7 +302,6 @@ class Traitement:
 
             if verifLogin:
                 verifDeconnection = req.verifDeconnection(email, password)
-                print(verifDeconnection)
 
                 if verifDeconnection:
                     bot.send_message(
@@ -366,7 +351,6 @@ class Traitement:
 
             if verifLogin:
                 verifDeconnection = req.verifDeconnectionPart(email, password)
-                print(verifDeconnection)
 
                 if verifDeconnection:
                     bot.send_message(
@@ -422,12 +406,8 @@ class Traitement:
                 data["daty"] = dateAlaTerrainFormater
                 req.set_temp(sender_id, json.dumps(data))
 
-                print(json.loads(req.get_temp(sender_id)))
-
                 indexProduit = data.get("listeElementPayload")[1]
                 daty = json.loads(req.get_temp(sender_id)).get("daty")
-
-                print(indexProduit + "\n" + daty)
 
                 """
                     Verifier la date entrée par l'utilisateur
@@ -440,7 +420,6 @@ class Traitement:
                         s'elle existe alors, on va fetcher tous
                         les heures déjà réservés pour cette date
                     """
-                    print(daty)
                     heureDejaReserve = req.heureReserve(daty, indexProduit)
 
                     listeHeureDebut = []
@@ -465,7 +444,6 @@ class Traitement:
                     data["listeHeureDebut"] = listeHeureDebut
                     data["listeHeureFin"] = listeHeureFin
                     req.set_temp(sender_id, json.dumps(data))
-                    print(json.loads(req.get_temp(sender_id)))
 
                     w = 0
                     listeMessage = []
@@ -501,7 +479,10 @@ class Traitement:
                 Avant tout, faut verifier
                 l'heure entré par les utilisateurs
             """
-            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < 6 or int(verifHeureDeDebut[0]) > 20) \
+            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < int(req.getHeureDouv(
+                json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))
+                    or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
+                        json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
@@ -523,11 +504,9 @@ class Traitement:
                     indexProduit = json.loads(
                         req.get_temp(sender_id)).get("listeElementPayload")[1]
                     daty = json.loads(req.get_temp(sender_id)).get("daty")
-                    print(indexProduit + "\n" + daty)
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
-                        print("miditra ato zah zan, Date exist zan lec e!!")
                         a = 0
                         b = 0
                         verifIntervalleDebut = []
@@ -537,9 +516,6 @@ class Traitement:
                             req.get_temp(sender_id)).get("listeHeureDebut")
                         listeHeureFin = json.loads(
                             req.get_temp(sender_id)).get("listeHeureFin")
-
-                        print(listeHeureDebut)
-                        print(listeHeureFin)
 
                         while a < len(listeHeureDebut):
                             verifIntervalleDebut.append(
@@ -555,9 +531,6 @@ class Traitement:
                         data["verifIntervalleDebut"] = verifIntervalleDebut
                         data["verifIntervalleFin"] = verifIntervalleFin
                         req.set_temp(sender_id, json.dumps(data))
-                        print(json.loads(req.get_temp(sender_id)))
-                        print(verifIntervalleDebut)
-                        print(verifIntervalleFin)
 
                         c = 0
                         while c < len(verifIntervalleDebut):
@@ -616,7 +589,6 @@ class Traitement:
                             Ici c'est l'heure où sa date n'a
                             pas encore du commande
                         """
-                        print("tsy ao zah zan , tsy miexist le date lec")
                         data = json.loads(req.get_temp(sender_id))
                         data["heureDebut"] = heure_debut
                         req.set_temp(sender_id, json.dumps(data))
@@ -625,7 +597,6 @@ class Traitement:
                         return True
 
                 else:
-                    print(int(verifHeureDeDebut[1]))
                     bot.send_message(sender_id, const.ErrorTranceBegining)
                     return True
 
@@ -641,12 +612,11 @@ class Traitement:
             listeHeureDebut = json.loads(
                 req.get_temp(sender_id)).get("listeHeureDebut")
 
-            print(verifHeureDeDebut)
-            print(verifIntervalleDebut)
-            print(verifIntervalleFin)
-
-            if(not verifHeureDeFin[0].isdigit() or int(verifHeureDeFin[0]) < 6 or int(verifHeureDeFin[0]) > 19) \
-                    or (not verifHeureDeFin[1].isdigit() or int(verifHeureDeFin[1]) > 59):
+            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < int(req.getHeureDouv(
+                json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))
+                    or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
+                        json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
+                    or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
 
@@ -668,7 +638,6 @@ class Traitement:
                     indexProduit = json.loads(
                         req.get_temp(sender_id)).get("listeElementPayload")[1]
                     daty = json.loads(req.get_temp(sender_id)).get("daty")
-                    print(indexProduit + "\n" + daty)
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
@@ -819,13 +788,10 @@ class Traitement:
                                 mitsy satria hifanindry io ora sy fotoana io
                             """
                             listeHeureDebutEtFin = verifIntervalleDebut + verifIntervalleFin
-                            print(listeHeureDebutEtFin)
                             for e in range(
                                     int(verifHeureDeDebut[0]) + 1, int(verifHeureDeFin[0]) + 1):
                                 for f in range(len(listeHeureDebutEtFin)):
                                     if e == int(listeHeureDebutEtFin[f]):
-                                        print(int(listeHeureDebutEtFin[f]))
-                                        print(e)
                                         bot.send_message(
                                             sender_id, const.ErrorThirdInterval)
                                         bot.send_quick_reply(
@@ -1030,7 +996,6 @@ class Traitement:
                     bot.send_message(sender_id, const.messageSearch)
                     bot.send_template(sender_id, data)
                     req.set_action(sender_id, None)
-                    print(result)
                     return True
 
                 else:
@@ -1096,7 +1061,13 @@ class Traitement:
             return True
 
         elif commande == "__CMDDATEACTU":
-            bot.send_message(sender_id, const.roulesOfHour)
+            bot.send_message(
+                sender_id, const.roulesOfHour(
+                    req.getHeureDouv(
+                        json.loads(
+                            req.get_temp(sender_id)).get("listeElementPayload")[1]), req.getHeureFerm(
+                        json.loads(
+                            req.get_temp(sender_id)).get("listeElementPayload")[1])))
             bot.send_message(sender_id, const.inputBeginingHour)
             req.set_action(sender_id, "HEURE_DEBUT")
             return True
@@ -1119,7 +1090,6 @@ class Traitement:
             data["uniqueTime"] = UniqueTime
             req.set_temp(sender_id, json.dumps(data))
 
-            print(UniqueTime)
             req.insertNouveauCommande(
                 idUser,
                 dataAinserer.get("daty"),
@@ -1140,12 +1110,10 @@ class Traitement:
             """
             heure = int(dataAinserer.get("heureFin").split("h")[
                         0]) - int(dataAinserer.get("heureDebut").split("h")[0])
-            print(heure)
 
             if int(dataAinserer.get("heureDebut").split("h")[1]) < int(
                     dataAinserer.get("heureFin").split("h")[1]):
                 intervalle = heure + 0.5
-                print(intervalle)
                 data = json.loads(req.get_temp(sender_id))
                 data["intervalle"] = f"{heure}heure(s) et demi"
                 req.set_temp(sender_id, json.dumps(data))
@@ -1170,7 +1138,6 @@ class Traitement:
 
             elif int(dataAinserer.get("heureDebut").split("h")[1]) > int(dataAinserer.get("heureFin").split("h")[1]):
                 intervalle = (heure - 1) + 0.5
-                print(intervalle)
                 data = json.loads(req.get_temp(sender_id))
                 data["intervalle"] = f"{heure - 1}heure(s) et demi"
                 req.set_temp(sender_id, json.dumps(data))
@@ -1220,7 +1187,6 @@ class Traitement:
             data = json.loads(req.get_temp(sender_id))
             data["operateur"] = "TELMA"
             req.set_temp(sender_id, json.dumps(data))
-            print(json.loads(req.get_temp(sender_id)))
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
@@ -1229,7 +1195,6 @@ class Traitement:
             data = json.loads(req.get_temp(sender_id))
             data["operateur"] = "ORANGE"
             req.set_temp(sender_id, json.dumps(data))
-            print(json.loads(req.get_temp(sender_id)))
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
@@ -1238,7 +1203,6 @@ class Traitement:
             data = json.loads(req.get_temp(sender_id))
             data["operateur"] = "AIRTEL"
             req.set_temp(sender_id, json.dumps(data))
-            print(json.loads(req.get_temp(sender_id)))
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
             return True
@@ -1280,13 +1244,11 @@ class Traitement:
             return True
 
         elif commande == "__AUTRECOMPTE":
-            print("autre compte")
             bot.send_message(sender_id, const.inputUserNameOtherUser)
             req.set_action(sender_id, "USERNAME_ADMIN")
             return True
 
         elif commande == "__AUTRECOMPTEPART":
-            print("autre compte")
             bot.send_message(sender_id, const.inputUserNameOtherUser)
             req.set_action(sender_id, "USERNAME_PART")
             return True
@@ -1323,7 +1285,6 @@ class Traitement:
                 sender_id,
                 json.dumps({"listeElementPayload": listeElementPayload})
             )
-            print(json.loads(req.get_temp(sender_id)))
             bot.send_message(
                 sender_id,
                 " De quelle date?\n\nSaisir la date sous forme JJ-MM-AAAA\n\nExemple: " +

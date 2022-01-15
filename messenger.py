@@ -496,6 +496,16 @@ class Messenger:
                 },
                 {
                     "content_type": "text",
+                    "title": "🕞HEURE D'OUV",
+                    "payload": "__HEUREDOUV",
+                },
+                {
+                    "content_type": "text",
+                    "title": "🕖HEURE DE FERME",
+                    "payload": "__HEUREFERM",
+                },
+                {
+                    "content_type": "text",
                     "title": "🤝PARTENAIRE",
                     "payload": "__MODIFPART",
                 },

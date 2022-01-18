@@ -166,12 +166,17 @@ class Messenger:
 
         elif types == "tachesPart":
 
-            text = "Vous voulez trouver vos terrains, cliquez 👇👇👇"
+            text = "Vous voulez faire qoui maintenat?"
             quick_rep = [
                 {
                     "content_type": "text",
                     "title": "📄VOIR MES TERRAINS",
                     "payload": "__VOIR",
+                },
+                {
+                    "content_type": "text",
+                    "title": "🗒️VERIFIER COMMANDE",
+                    "payload": "__VERIFCMD",
                 }
             ]
 
@@ -209,8 +214,8 @@ class Messenger:
 
         elif types == "annulatioErreurHeureFin":
             text = """
-                Vous pouvez aussi annuler tous les entrées heures pour les mettre à nouveau\
-                \nOu à essayer à nouveau votre heure fin\n\n A votre choix alors?
+                Vous pouvez aussi annuler tous les entrées heures pour les mettre à nouveau \
+                    Ou à essayer à nouveau votre heure fin\n\n A votre choix alors?
             """
             quick_rep = [
                 {

@@ -27,7 +27,7 @@ class Partenaire:
             mesTerrains.append({
                 "title": str(data[i][0]) + " - Terrain " + data[i][1],
                 "image_url": URL_SERVER + data[i][3],
-                "subtitle": "Prix : " + str(data[i][2]) + " Ar /heures",
+                "subtitle": f"PRIX : {data[i][2]}Ar/heures\nHORAIRES: {data[i][4]}h00 à {data[i][5]}h00",
                 "buttons": [
                     {
                         "type": "postback",
@@ -61,8 +61,23 @@ class Partenaire:
             )
             return True
 
+        elif commande == "__VERIFCMD":
+            req.set_action_part(sender_id, "VERIF_COMMANDE")
+            bot.send_message(sender_id, const.inputDataQrCode)
+            return True
+
         elif commande == "__CMDDATEACTU":
-            bot.send_message(sender_id, const.roulesOfHour)
+            bot.send_message(
+                sender_id, 
+                const.roulesOfHour(
+                    req.getHeureDouv(
+                        json.loads(
+                            req.get_tempPart(sender_id)).get("listeElementPayload")[1]),
+                    req.getHeureFerm(
+                        json.loads(
+                            req.get_tempPart(sender_id)).get("listeElementPayload")[1])
+                )
+            )
             bot.send_message(sender_id, const.inputBeginingHour)
             req.set_action_part(sender_id, "HEURE_DEBUT")
             return True
@@ -86,7 +101,6 @@ class Partenaire:
             dataAinserer = json.loads(req.get_tempPart(sender_id))
             idUserPart = req.getIdUserPart(sender_id)
             UniqueTime = str(time.time())
-
             data = json.loads(req.get_tempPart(sender_id))
             data["uniqueTime"] = UniqueTime
             req.set_tempPart(sender_id, json.dumps(data))
@@ -107,20 +121,19 @@ class Partenaire:
             )
 
             bot.send_message(sender_id, const.TrueCmd)
-
-            ListIdAdmin = req.getIdAdmin()
-            for i in range(len(ListIdAdmin)):
-                bot.send_message(
-                    ListIdAdmin[i][0],
-                    const.verifcommandePart(
-                        dataAinserer.get("listeElementPayload")[2],
-                        idUserPart[1],
-                        dataAinserer.get("daty"),
-                        dataAinserer.get("heureDebut"),
-                        dataAinserer.get("heureFin")
-                    )
-                )
-                req.set_action_admin(ListIdAdmin[i][0], None)
+            # ListIdAdmin = req.getIdAdmin()
+            # for i in range(len(ListIdAdmin)):
+            #     bot.send_message(
+            #         ListIdAdmin[i][0],
+            #         const.verifcommandePart(
+            #             dataAinserer.get("listeElementPayload")[2],
+            #             idUserPart[1],
+            #             dataAinserer.get("daty"),
+            #             dataAinserer.get("heureDebut"),
+            #             dataAinserer.get("heureFin")
+            #         )
+            #     )
+            #     req.set_action_part(ListIdAdmin[i][0], None)
 
             req.set_temp(sender_id, None)
             req.set_action(sender_id, None)
@@ -248,7 +261,13 @@ class Partenaire:
                         S'elle n'est pas existe, donc l'utilisateur
                         et libre de saisir son desire heure après
                     """
-                    bot.send_message(sender_id, const.noExistingDate)
+                    bot.send_message(
+                        sender_id,
+                        const.noExistingDate(
+                            req.getHeureDouv(indexProduit),
+                            req.getHeureFerm(indexProduit)
+                        )
+                    )
                     bot.send_quick_reply(sender_id, "proposerCmdPart")
                     req.set_action_part(sender_id, None)
                     return True
@@ -262,9 +281,9 @@ class Partenaire:
                 l'heure entré par les utilisateurs
             """
             if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < int(req.getHeureDouv(
-                json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))
+                json.loads(req.get_tempPart(sender_id)).get("listeElementPayload")[1]))
                     or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
-                        json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
+                        json.loads(req.get_tempPart(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
@@ -301,12 +320,12 @@ class Partenaire:
 
                         while a < len(listeHeureDebut):
                             verifIntervalleDebut.append(
-                                listeHeureDebut[a].split("h")[0])
+                                int(listeHeureDebut[a].split("h")[0]))
                             a = a + 1
 
                         while b < len(listeHeureFin):
                             verifIntervalleFin.append(
-                                listeHeureFin[b].split("h")[0])
+                                int(listeHeureFin[b].split("h")[0]))
                             b = b + 1
 
                         data = json.loads(req.get_tempPart(sender_id))
@@ -314,56 +333,65 @@ class Partenaire:
                         data["verifIntervalleFin"] = verifIntervalleFin
                         req.set_tempPart(sender_id, json.dumps(data))
 
-                        c = 0
-                        while c < len(verifIntervalleDebut):
-                            if int(
-                                    verifIntervalleDebut[c]) <= int(
-                                    verifHeureDeDebut[0]) < int(
-                                    verifIntervalleFin[c]):
-                                bot.send_message(
-                                    sender_id, const.ErrorFirstInterval)
-                                return True
+                        if int(verifHeureDeDebut[0]) in verifIntervalleDebut and \
+                            int(verifHeureDeDebut[0]) in verifIntervalleFin:
+                            bot.send_message(
+                                sender_id,
+                                const.ErrorFirstInterval
+                            )
+                            return True
 
-                            elif int(verifHeureDeDebut[0]) == int(verifIntervalleFin[c]):
-
+                        else:
+                            c = 0
+                            while c < len(verifIntervalleDebut):
                                 if int(
-                                        verifHeureDeDebut[0]) == int(
-                                        verifIntervalleDebut[c]):
-                                    return True
-
-                                elif int(
-                                        verifHeureDeDebut[1]) >= int(
-                                        listeHeureFin[c].split("h")[1]):
-                                    data = json.loads(
-                                        req.get_tempPart(sender_id))
-                                    data["heureDebut"] = heure_debut
-                                    req.set_tempPart(
-                                        sender_id, json.dumps(data))
-
+                                        verifIntervalleDebut[c]) <= int(
+                                        verifHeureDeDebut[0]) < int(
+                                        verifIntervalleFin[c]):
                                     bot.send_message(
-                                        sender_id, const.inputFinalHour)
-                                    req.set_action_part(sender_id, "HEURE_FIN")
+                                        sender_id, const.ErrorFirstInterval)
                                     return True
 
-                                else:
-                                    bot.send_message(
-                                        sender_id, const.ErrorSecondIntervall)
-                                    return True
+                                elif int(verifHeureDeDebut[0]) == int(verifIntervalleFin[c]):
 
-                            elif (int(verifIntervalleDebut[c]) - int(verifHeureDeDebut[0])) == 1:
-                                if int(
-                                        verifHeureDeDebut[1]) > int(
-                                        listeHeureDebut[c].split("h")[1]):
-                                    bot.send_message(
-                                        sender_id, const.Error30Marge)
-                                    return True
+                                    if int(
+                                            verifHeureDeDebut[0]) == int(
+                                            verifIntervalleDebut[c]):
+                                        return True
+
+                                    elif int(
+                                            verifHeureDeDebut[1]) >= int(
+                                            listeHeureFin[c].split("h")[1]):
+                                        data = json.loads(
+                                            req.get_tempPart(sender_id))
+                                        data["heureDebut"] = heure_debut
+                                        req.set_tempPart(
+                                            sender_id, json.dumps(data))
+
+                                        bot.send_message(
+                                            sender_id, const.inputFinalHour)
+                                        req.set_action_part(sender_id, "HEURE_FIN")
+                                        return True
+
+                                    else:
+                                        bot.send_message(
+                                            sender_id, const.ErrorSecondIntervall)
+                                        return True
+
+                                elif (int(verifIntervalleDebut[c]) - int(verifHeureDeDebut[0])) == 1:
+                                    if int(
+                                            verifHeureDeDebut[1]) > int(
+                                            listeHeureDebut[c].split("h")[1]):
+                                        bot.send_message(
+                                            sender_id, const.Error30Marge)
+                                        return True
+
+                                    else:
+                                        pass
 
                                 else:
                                     pass
-
-                            else:
-                                pass
-                            c = c + 1
+                                c = c + 1
 
                         data = json.loads(req.get_tempPart(sender_id))
                         data["heureDebut"] = heure_debut
@@ -400,11 +428,11 @@ class Partenaire:
             listeHeureDebut = json.loads(
                 req.get_tempPart(sender_id)).get("listeHeureDebut")
 
-            if(not verifHeureDeDebut[0].isdigit() or int(verifHeureDeDebut[0]) < int(req.getHeureDouv(
-                json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))
-                    or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
-                        json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
-                    or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
+            if(not verifHeureDeFin[0].isdigit() or int(verifHeureDeFin[0]) < int(req.getHeureDouv(
+                json.loads(req.get_tempPart(sender_id)).get("listeElementPayload")[1]))
+                    or int(verifHeureDeFin[0]) > int(req.getHeureFerm(
+                        json.loads(req.get_tempPart(sender_id)).get("listeElementPayload")[1]))) \
+                    or (not verifHeureDeFin[1].isdigit() or int(verifHeureDeFin[1]) > 59):
                 bot.send_message(sender_id, const.ivalideHourFormat)
                 return True
 
@@ -443,7 +471,9 @@ class Partenaire:
                                     verifIntervalleFin[d]):
                                 bot.send_message(
                                     sender_id, const.ErrorThirdInterval)
-
+                                bot.send_quick_reply(
+                                            sender_id, "annulatioErreurHeureFin")
+                                req.set_action_part(sender_id, None)
                                 return True
 
                             elif int(verifHeureDeFin[0]) == int(verifIntervalleDebut[d]):
@@ -497,8 +527,8 @@ class Partenaire:
                                             " " +
                                             datyAAA +
                                             " du Terrain " +
-                                            json.loads(
-                                                req.get_tempPart(sender_id)).get("listeElementPayload")[3] +
+                                            " ".join(json.loads(
+                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
                                             " de " +
                                             json.loads(
                                                 req.get_tempPart(sender_id)).get("heureDebut") +
@@ -554,8 +584,8 @@ class Partenaire:
                                     " " +
                                     datyAAA +
                                     " du Terrain " +
-                                    json.loads(
-                                        req.get_tempPart(sender_id)).get("listeElementPayload")[2] +
+                                    " ".join(json.loads(
+                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper() +
                                     " de " +
                                     json.loads(
                                         req.get_tempPart(sender_id)).get("heureDebut") +
@@ -607,8 +637,8 @@ class Partenaire:
                                 " " +
                                 datyAAA +
                                 " du Terrain " +
-                                json.loads(
-                                    req.get_tempPart(sender_id)).get("listeElementPayload")[2] +
+                                " ".join(json.loads(
+                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper() +
                                 " de " +
                                 json.loads(
                                     req.get_tempPart(sender_id)).get("heureDebut") +
@@ -657,8 +687,8 @@ class Partenaire:
                                     " " +
                                     datyAAA +
                                     " du Terrain " +
-                                    json.loads(
-                                        req.get_tempPart(sender_id)).get("listeElementPayload")[2] +
+                                    " ".join(json.loads(
+                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
                                     " de " +
                                     json.loads(
                                         req.get_tempPart(sender_id)).get("heureDebut") +
@@ -685,8 +715,8 @@ class Partenaire:
                                 " " +
                                 datyAAA +
                                 " du Terrain " +
-                                json.loads(
-                                    req.get_tempPart(sender_id)).get("listeElementPayload")[2] +
+                                " ".join(json.loads(
+                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper() +
                                 " de " +
                                 json.loads(
                                     req.get_tempPart(sender_id)).get("heureDebut") +
@@ -707,6 +737,36 @@ class Partenaire:
                     bot.send_quick_reply(sender_id, "annulatioErreurHeureFin")
                     req.set_action_part(sender_id, None)
                     return True
+
+
+        elif action == "VERIF_COMMANDE":
+            try:
+                dataQrCode = commande.split("_")
+                informations = req.infoCommande(
+                        dataQrCode[0],
+                        dataQrCode[1])
+
+                if informations:
+                    bot.send_message(
+                        sender_id, const.infoCommande(
+                            informations[0], bot.get_user_name(
+                                informations[0][0]).json().get('name').upper()))
+                    req.set_action_part(sender_id, None)
+                    return True
+
+                else:
+                    bot.send_message(
+                        sender_id,
+                        const.noExistingCmd
+                    )
+                    req.set_action_part(sender_id, None)
+                    return True
+
+            except BaseException:
+                bot.send_message(sender_id, const.ErrorVerifCmd)
+                req.set_action_part(sender_id, "VERIF_COMMANDE")
+                return True
+        
 
     def executionPart(self, sender_id, commande):
         """

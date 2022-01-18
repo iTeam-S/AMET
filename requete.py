@@ -1,3 +1,4 @@
+from traceback import print_stack
 import mysql.connector
 from conf import DATABASE
 
@@ -43,15 +44,16 @@ class Requete:
         return data
 
     @verif_db
-    def get_productSearch(self, name):
+    def get_productSearch(self, query):
         req = """
-                SELECT id_prod, nom_prod, prix,photo_couverture
+                SELECT id_prod, nom_prod, prix,photo_couverture,
+                heureDouv,heureFerm
                 FROM produits
-                WHERE nom_prod LIKE UPPER(%s)
-                OR nom_prod LIKE LOWER(%s)
+                WHERE LOWER(nom_prod) LIKE %s
+                OR SOUNDEX(nom_prod)=SOUNDEX(%s)
         """
-        self.cursor.execute(req, (name, name))
-        data = self.cursor.fetchone()
+        self.cursor.execute(req, (f"%{query.lower()}%", query))
+        data = self.cursor.fetchall()
         self.db.commit()
         return data
 
@@ -254,22 +256,24 @@ class Requete:
         self.db.commit()
         return data
 
+    @verif_db
     def getHeureDouv(self, id_prod):
-        reqAdmin = """
+        req = """
                 SELECT heureDouv FROM produits
                 WHERE id_prod = %s
         """
-        self.cursor.execute(reqAdmin, (id_prod,))
+        self.cursor.execute(req, (id_prod,))
         data = self.cursor.fetchone()[0]
         self.db.commit()
         return data
 
+    @verif_db
     def getHeureFerm(self, id_prod):
-        reqAdmin = """
+        req = """
                 SELECT heureFerm FROM produits
                 WHERE id_prod = %s
         """
-        self.cursor.execute(reqAdmin, (id_prod,))
+        self.cursor.execute(req, (id_prod,))
         data = self.cursor.fetchone()[0]
         self.db.commit()
         return data
@@ -337,7 +341,23 @@ class Requete:
         data = self.cursor.fetchone()[0]
         self.db.commit()
         return data
-
+    
+    @verif_db
+    def getFbIdPartTerrain(self,uniqueTime):
+        reqAdmin = """
+                SELECT lastIdConnect,fullName 
+                FROM partenaire
+                INNER JOIN produits
+                ON partenaire.id_part = produits.id_part
+                INNER JOIN commande
+                ON produits.id_prod = commande.id_prod
+                WHERE dataQrCode = %s
+        """
+        self.cursor.execute(reqAdmin, (uniqueTime,))
+        data = self.cursor.fetchone()
+        self.db.commit()
+        return data
+        
     @verif_db
     def get_action_admin(self, sender_id_admin):
         reqAdmin = 'SELECT actions FROM AutreUtils WHERE fb_id = %s'
@@ -554,10 +574,11 @@ class Requete:
         reqPart = """
                     UPDATE partenaire
                     SET fb_idPart=%s,
+                    lastIdConnect =%s,
                     UserNameFbPart=%s
                     WHERE userMail=%s
                 """
-        self.cursor.execute(reqPart, (sender_id, UserNameFb, email))
+        self.cursor.execute(reqPart, (sender_id, sender_id, UserNameFb, email))
         self.db.commit()
 
     @verif_db
@@ -599,7 +620,8 @@ class Requete:
     def getMesTerrains(self, id_part):
         reqPart = """
                 SELECT id_prod, nom_prod, prix,
-                photo_couverture FROM produits
+                photo_couverture, heureDouv, heureFerm
+                FROM produits
                 WHERE id_part = %s
               """
         self.cursor.execute(reqPart, (id_part,))

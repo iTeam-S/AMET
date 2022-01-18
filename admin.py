@@ -638,16 +638,15 @@ class Admin:
         elif statut == "VERIF_COMMANDE":
             try:
                 dataQrCode = commande.split("_")
-                informations = list(
-                    req.infoCommande(
+                informations = req.infoCommande(
                         dataQrCode[0],
-                        dataQrCode[1])[0])
+                        dataQrCode[1])
 
                 if informations:
                     bot.send_message(
                         sender_id, const.infoCommande(
-                            informations, bot.get_user_name(
-                                informations[0]).json().get('name').upper()))
+                            informations[0], bot.get_user_name(
+                                informations[0][0]).json().get('name').upper()))
                     req.set_action_admin(sender_id, None)
                     return True
 
@@ -679,6 +678,7 @@ class Admin:
 
                 else:
                     recipientIdQrcode = req.getRecipientId(commande)
+                    infoPart = req.getFbIdPartTerrain(commande)
                     req.setStatut(commande)
                     bot.send_message(recipientIdQrcode, const.TrueCmd)
                     bot.send_message(recipientIdQrcode, const.givingTicket)
@@ -689,7 +689,17 @@ class Admin:
                         recipientIdQrcode,
                         f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
                         "image")
+
                     bot.send_message(sender_id, const.ThinkingAdmin)
+
+                    if infoPart:
+                        bot.send_message(
+                            infoPart[0],
+                            const.msgPart(infoPart[1])
+                        )
+                    else:
+                        pass
+
                     req.set_action_admin(sender_id, None)
                     req.set_temp(recipientIdQrcode, None)
                     req.set_action(recipientIdQrcode, None)
@@ -715,18 +725,20 @@ class Admin:
                 result = req.get_productSearch(commande)
 
                 if result:
-                    data = [{"title": str(result[0]) + " - Terrain " + result[1],
-                             "image_url": URL_SERVER + result[3],
-                             "subtitle": "Prix : " + str(result[2]) + " Ar /heures",
+                    resultSearch = []
+                    for i in range(len(result)):
+                        resultSearch.append({"title": str(result[i][0]) + " - Terrain " + result[i][1],
+                             "image_url": URL_SERVER + result[i][3],
+                             "subtitle": "Prix : " + str(result[i][2]) + " Ar /heures",
                              "buttons": [{"type": "postback",
                                           "title": "MODIFIER",
-                                          "payload": "__MODIFIER" + " " + str(result[0])},
+                                          "payload": "__MODIFIER" + " " + str(result[i][0])},
                                          {"type": "postback",
                                           "title": "SUPPRIMER",
-                                          "payload": "__SUPPRIMER" + " " + str(result[0])},
-                                         ]}]
+                                          "payload": "__SUPPRIMER" + " " + str(result[i][0])},
+                                         ]})
                     bot.send_message(sender_id, const.messageSearch)
-                    bot.send_template(sender_id, data)
+                    bot.send_template(sender_id, resultSearch)
                     req.set_action_admin(sender_id, None)
                     return True
 
@@ -836,15 +848,25 @@ class Admin:
             req.set_action_admin(sender_id, "MODIFIER_GALLERY")
             nombreGallerry = req.nombreGallerry(json.loads(
                 req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
-            nombreRestant = 10 - int(nombreGallerry)
-            bot.send_message(
-                sender_id,
-                f"""Pour ce produits, vous n'ajoutez qu'au plus de {nombreRestant} photos
-                \n\nAlors,Envoyez ensemble ici ses {nombreRestant} photos""")
-            data = json.loads(req.get_tempAdmin(sender_id))
-            data["nombreRestant"] = nombreRestant
-            req.set_tempAdmin(sender_id, json.dumps(data))
-            return True
+
+            if int(nombreGallerry) > 9:
+                nombreRestant = 10 - int(nombreGallerry)
+                bot.send_message(
+                    sender_id,
+                    f"""Pour ce produits, vous n'ajoutez qu'au plus de {nombreRestant} photos
+                    \n\nAlors,Envoyez ensemble ici ses {nombreRestant} photos""")
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["nombreRestant"] = nombreRestant
+                req.set_tempAdmin(sender_id, json.dumps(data))
+                return True
+
+            else:
+                bot.send_message(
+                    sender_id,
+                    const.ErrorAddGallerry
+                )
+                req.set_action_admin(sender_id,None)
+                return True
 
         #--------------------QuickReply Pour la modificaion d'un produit--------------------#
         elif commande == "__NOM":

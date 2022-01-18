@@ -29,9 +29,6 @@ Alors veuillez-vous saisir à nouveau et faire le bon choix pour la future date 
 
 produitDispo = "Voici donc les differents terrains disponibles"
 
-noExistingDate = "Pour cette date, il n'y a pas encore des reservations, \
-donc vous êtes libre de choisir vos heures entre 6h00 à 20h00"
-
 ivalideHourFormat = "Votre heure est invalide\nVeuillez saisir à nouveau \
 et suivez le bon format\nMerci😊😊😊"
 
@@ -167,7 +164,7 @@ resoudre ce probleme.\n\nOn vous attend pour l'appel alors\nMerci😊😊😊"
 
 confirmCmd = "Entrer alors le Data unique à confirmé"
 falseconfirmCmd = "Entrer le Data unique du client pour renvoyer du message"
-TrueCmd = "Votre commande est bien confirmé\n\nAlors 👇👇👇👇"
+TrueCmd = "Votre commande est bien confirmé et enregistrée\n\nMerci😊😊😊"
 TrueCmdPart = "Votre commande est bien confirmé!!\nMerci😊😊😊"
 ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
 le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
@@ -188,7 +185,7 @@ inputPartFullName = "Saisir le nom complet de ce partenaire"
 inputUserMail = "Donnez lui de UserMail:"
 mdp = "Donner lui aussi de mot de passe:"
 ErrorInputUserMailPart = "Cet UserMail est invalide\n\nVeuillez saisir à nouveau"
-noExistingCmd = "Ce Data be possède pas de commande dans notre Base,\n \
+noExistingCmd = "Ce Data ne possède pas de commande dans notre Base,\n \
 Peut être un FAUX DATA"
 attenteHeureDouv = "Entrer l'heure d'ouverture de ce terrain\n\nExample: si l'heure est 06h00 entrer \
 tous simplement 6\n22h00 -->22, etc..."
@@ -198,6 +195,8 @@ ErrorTypeHeureDouvEtFerm = "Une erreur se produite!!\n\nEntrer plutôt de chiffr
 \n\n Veuillez saisir à nouveau donc"
 inputNewHeureDouv= "Entrer le nouveau heure d'ouverture"
 inputNewHeureFerm = "Entrer le nouveau heure de fermeture" 
+ErrorAddGallerry = "Le nombre de Gallerry de ce produit atteint le maximun \
+    donc vous ne pouvez pas ajouter!!"
 
 # -----------------------------FONCTIONS------------------------------------------------------#
 
@@ -226,13 +225,11 @@ def infoCommande(listInfo, UserNameFb):
                 \npour la date {listInfo[2].strftime('%d-%m-%Y')} du {listInfo[3]} à {listInfo[4]}"
 
 def salutationSimpleUser(UserName):
-    return f"""
-                Bonjour 👋👋{UserName}👋👋,\n\nJe m'appelle AMETIA \
-                \n Je suis un des employés de notre entreprise qui a \
-                \npour mission de vous service pour votre commande auprès de nous \
-                \n\nEnfaite!! Nous sommes une petite entreprise qui\
-                \nfait une location des terrains de foot scientitiques ici Antananarivo
-        """
+    return f"""Bonjour 👋👋{UserName}👋👋,
+    Je m'appelle AMETIA,Je suis un des employés de notre entreprise qui a \
+        pour mission de vous service pour votre commande auprès de nous 
+    Enfaite!! Nous sommes une petite entreprise qui 
+    fait une location des terrains de foot scientitiques ici Antananarivo"""
 
 
 def TrueConfirm(UniqueTime):
@@ -269,3 +266,13 @@ def verifcommandePart(nomTerrain, name, date, heureDebut, heureFin):
                 une réservation pour son terrain pour la date de {date} au {heureDebut} à {heureFin} \
                 \n\nAlors, veuillez-vous le contacter pour plus d'information\
         """
+
+def msgPart(fullNamePart):
+    return f"Bonjour notre chèr(e) partenaire {fullNamePart}, je vous envoie ce message afin de vous \
+    informer qu'il y a encore une personne qui fait une reservation sur votre terrain aujourd'hui \
+    {date.today().strftime('%d-%m-%Y')}\n\nCe message est surtout de vous tenir au courant afin d'eviter le vol."
+
+
+def noExistingDate(heureDouv, heureFerm):
+    return f"Pour cette date, il n'y a pas encore des reservations, \
+donc vous êtes libre de choisir vos heures entre {heureDouv}h00 à {heureFerm}h00"

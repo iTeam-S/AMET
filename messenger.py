@@ -80,29 +80,34 @@ class Messenger:
         '''
         if types == "proposerAction":
 
-            text = "Qu'est-ce que vous voulez faire ensuite donc?"
+            text = "Que souhaitez-vous faire? 😉"
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "⚽Louer terrain",
+                    "title": "⚽LOUR TERRAIN",
                     "payload": "__LOUER_TERRAIN"
 
                 },
                 {
                     "content_type": "text",
-                    "title": "ℹ️Plus d'information",
+                    "title": "ℹ️PLUS D'INFORMATIONS",
                     "payload": "__INFORMATION"
                 },
                 {
                     "content_type": "text",
-                    "title": "🌐Se connecter",
+                    "title": "🌐SE CONNECTER",
                     "payload": "__SECONNECTER"
+                },
+                {
+                    "content_type": "text",
+                    "title": "👮‍♂PARLER À UN ADMIN",
+                    "payload": "__PARLER"
                 }
             ]
 
         elif types == "AproposTerrain":
 
-            text = "Rechercher du Terrain ou Lister?"
+            text = "Voulez-vous directement rechercher un terrain ou voir la liste de nos terrains partenaires?"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -118,7 +123,7 @@ class Messenger:
 
         elif types == "emptySearch":
 
-            text = "Vous pouvez essayer à nouveau ou abandonner"
+            text = "Vous pouvez essayer à nouveau, voir la liste de nos terrains partenaires, ou abondonner 😊"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -129,6 +134,11 @@ class Messenger:
                     "content_type": "text",
                     "title": "🧎🏻‍♀️ABANDONNER",
                     "payload": "__ABANDONNER"
+                },
+                {
+                    "content_type": "text",
+                    "title": "📄VOIR LA LISTE",
+                    "payload": "__LISTER",
                 }
             ]
 
@@ -166,16 +176,16 @@ class Messenger:
 
         elif types == "tachesPart":
 
-            text = "Vous voulez faire qoui maintenat?"
+            text = "Que souhaitez vous faire ?"
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "📄VOIR MES TERRAINS",
+                    "title": "📄GERER MES DISPONIBILITÉS",
                     "payload": "__VOIR",
                 },
                 {
                     "content_type": "text",
-                    "title": "🗒️VERIFIER COMMANDE",
+                    "title": "🗒️VERIFIER AUTHENTICITÉ",
                     "payload": "__VERIFCMD",
                 }
             ]
@@ -191,14 +201,15 @@ class Messenger:
                 },
                 {
                     "content_type": "text",
-                    "title": "👊REMERCIER",
+                    "title": "👊PARTIR",
                     "payload": "__REMERCIER"
                 }
             ]
 
         elif types == "typeDeConnection":
 
-            text = "Se connecter en tant que?"
+            text = "Se connecter en tant que?\n\nPS : cette interface est réservée \
+aux administrateurs et/ou aux terrains partenaires ⚠"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -213,54 +224,51 @@ class Messenger:
             ]
 
         elif types == "annulatioErreurHeureFin":
-            text = """
-                Vous pouvez aussi annuler tous les entrées heures pour les mettre à nouveau \
-                    Ou à essayer à nouveau votre heure fin\n\n A votre choix alors?
-            """
+            text = "Que voulez-vous faire?"
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "❌ANNULER",
+                    "title": "❌CHANGER HEURE DEBUT",
                     "payload": "__ANNULER"
                 },
                 {
                     "content_type": "text",
-                    "title": "❎ESSAYER A NOUVEAU",
+                    "title": "❎ESSAYER À NOUVEAU",
                     "payload": "__ESSAYER"
                 }
             ]
 
         elif types == "proposerCmd":
-            text = "Faites votre reservation alors"
+            text = "Validez-vous cette date ? 😉"
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "🟩DE CETTE DATE",
+                    "title": "🟩VALIDER CETTE\nDATE",
                     "payload": "__CMDDATEACTU"
                 },
                 {
                     "content_type": "text",
-                    "title": "🟧À UNE AUTRE DATE",
+                    "title": "🟧AUTRE DATE",
                     "payload": "__CMDAUTREDATE"
                 },
                 {
                     "content_type": "text",
-                    "title": "🟫A UN AUTRE PRODUIT",
+                    "title": "🟫AUTRE TERRAIN",
                     "payload": "__PRODUIT"
                 }
             ]
 
         elif types == "proposerCmdPart":
-            text = "Faites votre reservation alors"
+            text = "gerer vos disponibilités alors?"
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "🟩DE CETTE DATE",
+                    "title": "🟩VALIDER CETTE DATE",
                     "payload": "__CMDDATEACTU"
                 },
                 {
                     "content_type": "text",
-                    "title": "🟧À UNE AUTRE DATE",
+                    "title": "🟧VOIR UNE AUTRE DATE",
                     "payload": "__CMDAUTREDATE"
                 }
             ]
@@ -446,7 +454,7 @@ class Messenger:
             ]
 
         elif types == "operateurs":
-            text = "lequel de ces opérateurs que vous envoyez l'avance"
+            text = "Avec quel operateur vous allez payer ?"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -463,14 +471,6 @@ class Messenger:
                     "image_url":
                     "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo."
                     + "svg/1200px-Orange_logo.svg.png"
-                },
-                {
-                    "content_type": "text",
-                    "title": "AIRTEL",
-                    "payload": "__AIRTEL",
-                    "image_url":
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBFXg32wKdcsDg3ws8m8t4Cj"
-                    + "Orr_iXYz3gDJQm59Jf6yKdgo5gkt1ytQvGpbKovRvTqJA&usqp=CAU"
                 }
             ]
 

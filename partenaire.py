@@ -52,7 +52,7 @@ class Partenaire:
     def traitementCmdPart(self, sender_id, commande):
 
         if commande == "__VOIR":
-            bot.send_message(sender_id, "Voici donc vos terrains")
+            bot.send_message(sender_id, "voici la liste de vos terrains")
             bot.send_template(
                 sender_id,
                 self.getMesTerrains(
@@ -120,7 +120,7 @@ class Partenaire:
                 json.loads(req.get_tempPart(sender_id)).get("uniqueTime")
             )
 
-            bot.send_message(sender_id, const.TrueCmd)
+            bot.send_message(sender_id, const.TrueCmdPart)
             # ListIdAdmin = req.getIdAdmin()
             # for i in range(len(ListIdAdmin)):
             #     bot.send_message(
@@ -152,7 +152,7 @@ class Partenaire:
             )
             bot.send_message(
                 sender_id,
-                " De quelle date?\n\nSaisir la date sous forme JJ-MM-AAAA\n\nExemple: " +
+                "Vous souhaitez gérer vos disponibilités pour quelle date?\n\nSaisir la date sous forme JJ-MM-AAAA\n\nExemple: " +
                 str(
                     date.today().strftime("%d-%m-%Y")))
             req.set_action_part(sender_id, "DATE")
@@ -251,7 +251,7 @@ class Partenaire:
                         sender_id,
                         "Pour cette Date; les heures déjà resérvés sont:\n\n" +
                         "\n".join(listeMessage) +
-                        "\n\nDonc vous pouvez choisir vos heures à part cela")
+                        "\n\nVous pouvez continuer en enregistrant une réservation pour cette date, ou gérer vosdisponibilités pour une autre date")
                     bot.send_quick_reply(sender_id, "proposerCmdPart")
                     req.set_action_part(sender_id, None)
                     return True
@@ -263,10 +263,7 @@ class Partenaire:
                     """
                     bot.send_message(
                         sender_id,
-                        const.noExistingDate(
-                            req.getHeureDouv(indexProduit),
-                            req.getHeureFerm(indexProduit)
-                        )
+                        const.noExistingDatePart
                     )
                     bot.send_quick_reply(sender_id, "proposerCmdPart")
                     req.set_action_part(sender_id, None)
@@ -433,7 +430,7 @@ class Partenaire:
                     or int(verifHeureDeFin[0]) > int(req.getHeureFerm(
                         json.loads(req.get_tempPart(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeFin[1].isdigit() or int(verifHeureDeFin[1]) > 59):
-                bot.send_message(sender_id, const.ivalideHourFormat)
+                bot.send_message(sender_id, const.invalideHourFormat)
                 return True
 
             else:
@@ -470,7 +467,7 @@ class Partenaire:
                                     verifHeureDeFin[0]) < int(
                                     verifIntervalleFin[d]):
                                 bot.send_message(
-                                    sender_id, const.ErrorThirdInterval)
+                                    sender_id, const.ErrorFirstInterval)
                                 bot.send_quick_reply(
                                             sender_id, "annulatioErreurHeureFin")
                                 req.set_action_part(sender_id, None)
@@ -523,19 +520,17 @@ class Partenaire:
 
                                         bot.send_message(
                                             sender_id,
-                                            "Votre commande est bien reçu pour la date" +
-                                            " " +
-                                            datyAAA +
-                                            " du Terrain " +
+                                            "Pour résumer, vous souhaitez enregistrer une réservation pour votre Terrain "
+                                            + " " +
                                             " ".join(json.loads(
                                                 req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
-                                            " de " +
+                                            " le " + datyAAA + " de " +
                                             json.loads(
                                                 req.get_tempPart(sender_id)).get("heureDebut") +
                                             " à " +
                                             json.loads(
                                                 req.get_tempPart(sender_id)).get("heureFin") +
-                                            " !!!!")
+                                            "\n\nC'est-bien cela?")
                                         req.set_action_part(sender_id, None)
                                         bot.send_quick_reply(
                                             sender_id, "confirmCmd")
@@ -580,19 +575,17 @@ class Partenaire:
 
                                 bot.send_message(
                                     sender_id,
-                                    "Votre commande est bien reçu pour la date" +
-                                    " " +
-                                    datyAAA +
-                                    " du Terrain " +
+                                    "Pour résumer, vous souhaitez enregistrer une réservation pour votre Terrain "
+                                    + " " +
                                     " ".join(json.loads(
-                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper() +
-                                    " de " +
+                                        req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
+                                    " le " + datyAAA + " de " +
                                     json.loads(
                                         req.get_tempPart(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
                                         req.get_tempPart(sender_id)).get("heureFin") +
-                                    " !!!!")
+                                    "\n\nC'est-bien cela?")
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action_part(sender_id, None)
                                 return True
@@ -610,7 +603,7 @@ class Partenaire:
                                 for f in range(len(listeHeureDebutEtFin)):
                                     if e == int(listeHeureDebutEtFin[f]):
                                         bot.send_message(
-                                            sender_id, const.ErrorThirdInterval)
+                                            sender_id, const.ErrorFirstInterval)
                                         bot.send_quick_reply(
                                             sender_id, "annulatioErreurHeureFin")
                                         req.set_action_part(sender_id, None)
@@ -633,19 +626,17 @@ class Partenaire:
 
                             bot.send_message(
                                 sender_id,
-                                "Votre commande est bien reçu pour la date" +
-                                " " +
-                                datyAAA +
-                                " du Terrain " +
+                                "Pour résumer, vous souhaitez enregistrer une réservation pour votre Terrain "
+                                + " " +
                                 " ".join(json.loads(
-                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper() +
-                                " de " +
+                                    req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
+                                " le " + datyAAA + " de " +
                                 json.loads(
                                     req.get_tempPart(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
                                     req.get_tempPart(sender_id)).get("heureFin") +
-                                " !!!!")
+                                "\n\nC'est-bien cela?")
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action_part(sender_id, None)
                             return True
@@ -683,19 +674,17 @@ class Partenaire:
 
                                 bot.send_message(
                                     sender_id,
-                                    "Votre commande est bien reçu pour la date" +
-                                    " " +
-                                    datyAAA +
-                                    " du Terrain " +
+                                    "Pour résumer, vous souhaitez enregistrer une réservation pour votre Terrain "
+                                    + " " +
                                     " ".join(json.loads(
-                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
-                                    " de " +
+                                        req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
+                                    " le " + datyAAA + " de " +
                                     json.loads(
                                         req.get_tempPart(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
                                         req.get_tempPart(sender_id)).get("heureFin") +
-                                    " !!!!")
+                                    "\n\nC'est-bien cela?")
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action_part(sender_id, None)
                                 return True
@@ -711,19 +700,17 @@ class Partenaire:
 
                             bot.send_message(
                                 sender_id,
-                                "Votre commande est bien reçu pour la date" +
-                                " " +
-                                datyAAA +
-                                " du Terrain " +
+                                "Pour résumer, vous souhaitez enregistrer une réservation pour votre Terrain "
+                                + " " +
                                 " ".join(json.loads(
-                                                req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper() +
-                                " de " +
+                                    req.get_tempPart(sender_id)).get("listeElementPayload")[2:-1]).upper()+
+                                " le " + datyAAA + " de " +
                                 json.loads(
                                     req.get_tempPart(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
                                     req.get_tempPart(sender_id)).get("heureFin") +
-                                " !!!!")
+                                "\n\nC'est-bien cela?")
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action_part(sender_id, None)
                             return True

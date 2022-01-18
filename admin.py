@@ -680,7 +680,6 @@ class Admin:
                     recipientIdQrcode = req.getRecipientId(commande)
                     infoPart = req.getFbIdPartTerrain(commande)
                     req.setStatut(commande)
-                    bot.send_message(recipientIdQrcode, const.TrueCmd)
                     bot.send_message(recipientIdQrcode, const.givingTicket)
                     dataQrCode = list(req.getElementQrcode(commande)[0])
                     img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")

@@ -38,13 +38,13 @@ class Traitement:
                              "image_url": URL_SERVER + photos[i][3],
                              "subtitle": f"PRIX : {photos[i][2]}Ar/heures\nHORAIRES: {photos[i][4]}h00 à {photos[i][5]}h00",
                              "buttons": [{"type": "postback",
-                                          "title": "Voir Gallery",
+                                          "title": "VOIR GALERIES",
                                           "payload": "__GALERY" + " " + str(photos[i][0])},
                                          {"type": "postback",
-                                          "title": "Details",
+                                          "title": "DETAILS",
                                           "payload": "__DETAILS" + " " + str(photos[i][0])},
                                          {"type": "postback",
-                                          "title": "Disponibilité",
+                                          "title": "DISPONIBILITÉS",
                                           "payload": f"__DISPONIBILITÉ {str(photos[i][0])} {photos[i][1]} {str(photos[i][2])}"}]})
             i = i + 1
 
@@ -100,13 +100,13 @@ class Traitement:
                              "image_url": URL_SERVER + listeNomTerrain[y][3],
                              "subtitle": f"PRIX : {listeNomTerrain[y][2]} /heures\nHORAIRES : {listeNomTerrain[y][4]}h00 à {listeNomTerrain[y][5]}h00", 
                              "buttons": [{"type": "postback",
-                                          "title": "Voir Gallery",
+                                          "title": "VOIR GALERIES",
                                           "payload": f"__GALERY {listeNomTerrain[y][0]}"},
                                          {"type": "postback",
-                                          "title": "Details",
+                                          "title": "DETAILS",
                                           "payload": f"__DETAILS {listeNomTerrain[y][0]}"},
                                          {"type": "postback",
-                                          "title": "Disponibilité",
+                                          "title": "DISPONIBILITÉS",
                                           "payload": f"__DISPONIBILITÉ {listeNomTerrain[y][0]} {listeNomTerrain[y][1]} {str(listeNomTerrain[y][2])}"}]})
 
 
@@ -276,7 +276,6 @@ class Traitement:
             avant tout à l'utulisateurs
         """
         try:
-            bot.send_file_url(sender_id, f"{URL_SERVER}bot.jpg", "image")
             bot.send_message(
                 sender_id,
                 const.salutationSimpleUser(
@@ -475,9 +474,9 @@ class Traitement:
 
                     bot.send_message(
                         sender_id,
-                        "Pour cette Date; les heures déjà resérvés sont:\n\n" +
+                        "Pour cette date, les heures déjà réservées sont :\n\n" +
                         "\n".join(listeMessage) +
-                        "\n\nDonc vous pouvez choisir vos heures à part cela")
+                        "\n\nvoulez vous toujours valider cette date")
                     bot.send_quick_reply(sender_id, "proposerCmd")
                     req.set_action(sender_id, None)
                     return True
@@ -489,10 +488,7 @@ class Traitement:
                     """
                     bot.send_message(
                         sender_id,
-                        const.noExistingDate(
-                            req.getHeureDouv(indexProduit),
-                            req.getHeureFerm(indexProduit)
-                        )
+                        const.noExistingDate
                     )
                     bot.send_quick_reply(sender_id, "proposerCmd")
                     req.set_action(sender_id, None)
@@ -501,10 +497,7 @@ class Traitement:
         elif action == "HEURE_DEBUT":
             heure_debut = commande
             verifHeureDeDebut = heure_debut.split("h")
-            print("Heure de debut split ")
-            print(int(verifHeureDeDebut[0]))
-            print(verifHeureDeDebut[1])
-
+        
             """
                 Avant tout, faut verifier
                 l'heure entré par les utilisateurs
@@ -514,7 +507,7 @@ class Traitement:
                     or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
                         json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
-                bot.send_message(sender_id, const.ivalideHourFormat)
+                bot.send_message(sender_id, const.invalideHourFormat)
                 return True
 
             else:
@@ -523,9 +516,7 @@ class Traitement:
                     cohérent avec les marge
                 """
                 if (int(verifHeureDeDebut[1]) == 0) or (
-                        int(verifHeureDeDebut[1]) == 30):
-
-                    print("miditra ato @30 aho")
+                    int(verifHeureDeDebut[1]) == 30):
 
                     """
                         Ici, si c'est l'heure que sa date a déjà du commande
@@ -539,7 +530,6 @@ class Traitement:
                     exist = req.date_dispo(daty, indexProduit)
 
                     if exist:
-                        print("ato @exist zah zao")
                         a = 0
                         b = 0
                         verifIntervalleDebut = []
@@ -565,11 +555,7 @@ class Traitement:
                         data["verifIntervalleFin"] = verifIntervalleFin
                         req.set_temp(sender_id, json.dumps(data))
 
-                        print(verifIntervalleDebut)
-                        print(verifIntervalleFin)
-
                         if int(verifHeureDeDebut[0]) in verifIntervalleDebut and int(verifHeureDeDebut[0]) in verifIntervalleFin:
-                            print("tafiditra ato @test mis intervalle de fin s intervall de debut")
                             bot.send_message(
                                 sender_id,
                                 const.ErrorFirstInterval
@@ -661,7 +647,7 @@ class Traitement:
                     or int(verifHeureDeFin[0]) > int(req.getHeureFerm(
                         json.loads(req.get_temp(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeFin[1].isdigit() or int(verifHeureDeFin[1]) > 59):
-                bot.send_message(sender_id, const.ivalideHourFormat)
+                bot.send_message(sender_id, const.invalideHourFormat)
                 return True
 
             else:
@@ -698,7 +684,7 @@ class Traitement:
                                     verifHeureDeFin[0]) < int(
                                     verifIntervalleFin[d]):
                                 bot.send_message(
-                                    sender_id, const.ErrorThirdInterval)
+                                    sender_id, const.ErrorFirstInterval)
                                 bot.send_quick_reply(
                                     sender_id,
                                     "annulatioErreurHeureFin"
@@ -754,19 +740,17 @@ class Traitement:
 
                                         bot.send_message(
                                             sender_id,
-                                            "Votre commande est bien reçu pour la date" +
+                                            "Pour résumer : \nVous voulez réserver le terrain" +
                                             " " +
-                                            datyAAA +
-                                            " du Terrain " +
                                             " ".join(json.loads(
                                                 req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper() +
-                                            " de " +
+                                            " le " + datyAAA + " de " +
                                             json.loads(
                                                 req.get_temp(sender_id)).get("heureDebut") +
                                             " à " +
                                             json.loads(
                                                 req.get_temp(sender_id)).get("heureFin") +
-                                            " !!!!")
+                                            " \n\n Est-ce bien cela?")
                                         req.set_action(sender_id, None)
                                         bot.send_quick_reply(
                                             sender_id, "confirmCmd")
@@ -812,19 +796,17 @@ class Traitement:
 
                                 bot.send_message(
                                     sender_id,
-                                    "Votre commande est bien reçu pour la date" +
+                                    "Pour résumer : \nVous voulez réserver le terrain" +
                                     " " +
-                                    datyAAA +
-                                    " du Terrain " +
                                     " ".join(json.loads(
-                                                req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper() +
-                                    " de " +
+                                        req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper() +
+                                    " le " + datyAAA + " de " +
                                     json.loads(
                                         req.get_temp(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
                                         req.get_temp(sender_id)).get("heureFin") +
-                                    " !!!!")
+                                    " \n\n Est-ce bien cela?")
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action(sender_id, None)
                                 return True
@@ -842,7 +824,7 @@ class Traitement:
                                 for f in range(len(listeHeureDebutEtFin)):
                                     if e == int(listeHeureDebutEtFin[f]):
                                         bot.send_message(
-                                            sender_id, const.ErrorThirdInterval)
+                                            sender_id, const.ErrorFirstInterval)
                                         bot.send_quick_reply(
                                             sender_id, "annulatioErreurHeureFin")
                                         req.set_action(sender_id, None)
@@ -865,19 +847,17 @@ class Traitement:
 
                             bot.send_message(
                                 sender_id,
-                                "Votre commande est bien reçu pour la date" +
+                                "Pour résumer : \nVous voulez réserver le terrain" +
                                 " " +
-                                datyAAA +
-                                " du Terrain " +
                                 " ".join(json.loads(
-                                                req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper()+
-                                " de " +
+                                    req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper() +
+                                " le " + datyAAA + " de " +
                                 json.loads(
                                     req.get_temp(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
                                     req.get_temp(sender_id)).get("heureFin") +
-                                " !!!!")
+                                " \n\n Est-ce bien cela?")
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action(sender_id, None)
                             return True
@@ -915,19 +895,17 @@ class Traitement:
 
                                 bot.send_message(
                                     sender_id,
-                                    "Votre commande est bien reçu pour la date" +
+                                    "Pour résumer : \nVous voulez réserver le terrain" +
                                     " " +
-                                    datyAAA +
-                                    " du Terrain " +
                                     " ".join(json.loads(
-                                                req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper()+
-                                    " de " +
+                                        req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper() +
+                                    " le " + datyAAA + " de " +
                                     json.loads(
                                         req.get_temp(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
                                         req.get_temp(sender_id)).get("heureFin") +
-                                    " !!!!")
+                                    " \n\n Est-ce bien cela?")
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action(sender_id, None)
                                 return True
@@ -943,19 +921,17 @@ class Traitement:
 
                             bot.send_message(
                                 sender_id,
-                                "Votre commande est bien reçu pour la date" +
+                                "Pour résumer : \nVous voulez réserver le terrain" +
                                 " " +
-                                datyAAA +
-                                " du Terrain " +
                                 " ".join(json.loads(
-                                                req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper()+
-                                " de " +
+                                    req.get_temp(sender_id)).get("listeElementPayload")[2:-1]).upper() +
+                                " le " + datyAAA + " de " +
                                 json.loads(
                                     req.get_temp(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
                                     req.get_temp(sender_id)).get("heureFin") +
-                                " !!!!")
+                                " \n\n Est-ce bien cela?")
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action(sender_id, None)
                             return True
@@ -996,24 +972,6 @@ class Traitement:
                     self.refTrue(
                         sender_id,
                         "ORANGE",
-                        commande
-                    )
-                    return True
-
-                else:
-                    bot.send_message(
-                        sender_id,
-                        const.ErrorInputRef
-                    )
-                    return True
-
-            elif operateur == "AIRTEL":
-                regex = r'\b[A-Z0-9]+\.[0-9|A-Z0-9]+\.[A-Z0-9]{2,}\b'
-
-                if(re.fullmatch(regex, commande)):
-                    self.refTrue(
-                        sender_id,
-                        "AIRTEL",
                         commande
                     )
                     return True
@@ -1067,7 +1025,14 @@ class Traitement:
             bot.send_quick_reply(sender_id, "continuation")
             req.set_action(sender_id, None)
             return True
-
+        
+        elif commande == "__PARLER":
+            bot.send_message(
+                sender_id,
+                const.parler
+            )
+            return True
+            
         elif cmd[0] == "__LISTER":
             bot.send_message(sender_id, const.produitDispo)
             self.liste_prooduits(
@@ -1152,7 +1117,7 @@ class Traitement:
                 data["intervalle"] = f"{heure}heure(s) et demi"
                 req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((intervalle * prix) / 2)
+                avance = int((5000 * heure))
                 bot.send_message(
                     sender_id,
                     const.informations(avance)
@@ -1162,9 +1127,6 @@ class Traitement:
                 bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
                 bot.send_file_url(
                     sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id, "Exemple réference pour AIRTEL")
-                bot.send_file_url(
-                    sender_id, f"{URL_SERVER}airtel.jpg", "image")
                 bot.send_message(sender_id, const.problems)
                 bot.send_quick_reply(sender_id, "operateurs")
                 req.set_action(sender_id, None)
@@ -1176,7 +1138,7 @@ class Traitement:
                 data["intervalle"] = f"{heure - 1}heure(s) et demi"
                 req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((intervalle * prix) / 2)
+                avance = int((5000 * heure))
                 bot.send_message(
                     sender_id,
                     const.informations(avance)
@@ -1186,9 +1148,6 @@ class Traitement:
                 bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
                 bot.send_file_url(
                     sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id, "Exemple réference pour AIRTEL")
-                bot.send_file_url(
-                    sender_id, f"{URL_SERVER}airtel.jpg", "image")
                 bot.send_message(sender_id, const.problems)
                 bot.send_quick_reply(sender_id, "operateurs")
                 req.set_action(sender_id, None)
@@ -1199,7 +1158,7 @@ class Traitement:
                 data["intervalle"] = f"{heure}heure(s)"
                 req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((heure * prix) / 2)
+                avance = int((5000 * heure))
                 bot.send_message(
                     sender_id,
                     const.informations(avance)
@@ -1209,9 +1168,6 @@ class Traitement:
                 bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
                 bot.send_file_url(
                     sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id, "Exemple réference pour AIRTEL")
-                bot.send_file_url(
-                    sender_id, f"{URL_SERVER}airtel.jpg", "image")
                 bot.send_message(sender_id, const.problems)
                 bot.send_quick_reply(sender_id, "operateurs")
                 req.set_action(sender_id, None)
@@ -1228,14 +1184,6 @@ class Traitement:
         elif commande == "__ORANGE":
             data = json.loads(req.get_temp(sender_id))
             data["operateur"] = "ORANGE"
-            req.set_temp(sender_id, json.dumps(data))
-            bot.send_message(sender_id, const.inputReference)
-            req.set_action(sender_id, "ATTENTE_REFERENCE")
-            return True
-
-        elif commande == "__AIRTEL":
-            data = json.loads(req.get_temp(sender_id))
-            data["operateur"] = "AIRTEL"
             req.set_temp(sender_id, json.dumps(data))
             bot.send_message(sender_id, const.inputReference)
             req.set_action(sender_id, "ATTENTE_REFERENCE")
@@ -1321,9 +1269,9 @@ class Traitement:
             )
             bot.send_message(
                 sender_id,
-                " De quelle date?\n\nSaisir la date sous forme JJ-MM-AAAA\n\nExemple: " +
-                str(
-                    date.today().strftime("%d-%m-%Y")))
+                f""" De quelle date souhaitez-vous louer ce terrain\n\n(Saisir la date sous forme JJ-MM-AAAA)
+                \nExemple:{str(date.today().strftime("%d-%m-%Y"))}"""
+            )
             req.set_action(sender_id, "DATE")
             return True
 

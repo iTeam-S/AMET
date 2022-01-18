@@ -1,6 +1,6 @@
--- MariaDB dump 10.19  Distrib 10.6.5-MariaDB, for Linux (x86_64)
+-- MySQL dump 10.19  Distrib 10.3.31-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: iteam-s.mg    Database: AMET
+-- Host: localhost    Database: AMET
 -- ------------------------------------------------------
 -- Server version	10.3.31-MariaDB-0ubuntu0.20.04.1
 
@@ -16,23 +16,17 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `AMET`
---
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `AMET` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
-
-USE `AMET`;
-
---
 -- Table structure for table `AutreUtils`
 --
 
+DROP TABLE IF EXISTS `AutreUtils`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `AutreUtils` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fb_id` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `userMail` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mdp` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `types` enum('ADMIN','PART') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `actions` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `temps` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `idLastConnect` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -46,6 +40,9 @@ CREATE TABLE `AutreUtils` (
 -- Table structure for table `categories`
 --
 
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `categories` (
   `id_categ` int(11) NOT NULL AUTO_INCREMENT,
   `type_categ` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -53,36 +50,41 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-
 --
 -- Table structure for table `commande`
 --
 
-
+DROP TABLE IF EXISTS `commande`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `commande` (
   `id_cmd` int(11) NOT NULL AUTO_INCREMENT,
   `id` int(11) DEFAULT NULL,
+  `id_part` int(11) DEFAULT NULL,
   `date_cmd` datetime NOT NULL,
   `dateAlaTerrain` date DEFAULT NULL,
   `heureDebutCmd` time DEFAULT NULL,
   `heureFinCmd` time DEFAULT NULL,
   `id_prod` int(11) DEFAULT NULL,
   `statut` enum('CONFIRMÉ','NON CONFIRMÉ') COLLATE utf8mb4_unicode_ci DEFAULT 'NON CONFIRMÉ',
-  `delaisStatus` timestamp NULL DEFAULT NULL,
   `refMobilMoney` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `dataQrCode` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id_cmd`),
   KEY `commande_utilisateur_FK` (`id`),
   KEY `commande_produits0_FK` (`id_prod`),
+  KEY `id_part` (`id_part`),
   CONSTRAINT `commande_produits0_FK` FOREIGN KEY (`id_prod`) REFERENCES `produits` (`id_prod`),
   CONSTRAINT `commande_utilisateur_FK` FOREIGN KEY (`id`) REFERENCES `utilisateur` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `galeries`
 --
 
+DROP TABLE IF EXISTS `galeries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `galeries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `contenu` text COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -90,14 +92,38 @@ CREATE TABLE `galeries` (
   PRIMARY KEY (`id`),
   KEY `galeries_produits_FK` (`id_prod`),
   CONSTRAINT `galeries_produits_FK` FOREIGN KEY (`id_prod`) REFERENCES `produits` (`id_prod`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `partenaire`
+--
+
+DROP TABLE IF EXISTS `partenaire`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `partenaire` (
+  `id_part` int(11) NOT NULL AUTO_INCREMENT,
+  `dateAction` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `fb_idPart` varchar(250) DEFAULT NULL,
+  `UserMail` varchar(250) DEFAULT NULL,
+  `mdpPart` varchar(250) DEFAULT NULL,
+  `FullName` varchar(250) DEFAULT NULL,
+  `UserNameFbPart` varchar(250) DEFAULT NULL,
+  `actions` varchar(50) DEFAULT NULL,
+  `temp` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `lastIdConnect` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id_part`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `produits`
 --
 
+DROP TABLE IF EXISTS `produits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `produits` (
   `id_prod` int(11) NOT NULL AUTO_INCREMENT,
   `nom_prod` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -107,10 +133,13 @@ CREATE TABLE `produits` (
   `photo_couverture` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `id_categ` int(11) NOT NULL,
   `date_create` datetime DEFAULT current_timestamp(),
+  `id_part` int(11) DEFAULT NULL,
+  `heureDouv` int(11) DEFAULT 6,
+  `heureFerm` int(11) DEFAULT 20,
   PRIMARY KEY (`id_prod`),
-  KEY `produits_categories_FK` (`id_categ`),
+  KEY `produits_categories_FK` (`id_categ`) USING BTREE,
   CONSTRAINT `produits_categories_FK` FOREIGN KEY (`id_categ`) REFERENCES `categories` (`id_categ`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,11 +161,13 @@ CREATE TABLE `statistiques` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
-
 --
 -- Table structure for table `utilisateur`
 --
 
+DROP TABLE IF EXISTS `utilisateur`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `utilisateur` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `fb_id` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -148,9 +179,8 @@ CREATE TABLE `utilisateur` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `fb_id` (`fb_id`),
   KEY `date_action` (`date_action`)
-) ENGINE=InnoDB AUTO_INCREMENT=4551 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5876 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -170,60 +200,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Dumping events for database 'AMET'
---
-/*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
-/*!50106 DROP EVENT IF EXISTS `RUN_VERIF_ACTION_TIME` */;
-DELIMITER ;;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
-/*!50003 SET character_set_client  = utf8mb4 */ ;;
-/*!50003 SET character_set_results = utf8mb4 */ ;;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
-/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
-/*!50003 SET time_zone             = 'SYSTEM' */ ;;
-/*!50106 CREATE*/ /*!50117 DEFINER=`gaetan`@`%`*/ /*!50106 EVENT `RUN_VERIF_ACTION_TIME` ON SCHEDULE EVERY 5 MINUTE STARTS '2021-12-18 21:22:33' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
-  CALL VERIF_ACTION_TIME(1800);
-END */ ;;
-/*!50003 SET time_zone             = @saved_time_zone */ ;;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;;
-/*!50003 SET character_set_results = @saved_cs_results */ ;;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;;
-DELIMITER ;
-/*!50106 SET TIME_ZONE= @save_time_zone */ ;
-
---
--- Dumping routines for database 'AMET'
---
-/*!50003 DROP PROCEDURE IF EXISTS `VERIF_ACTION_TIME` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`gaetan`@`%` PROCEDURE `VERIF_ACTION_TIME`(
-	IN `delai` INT
-)
-BEGIN
-
-UPDATE utilisateur SET action = CASE WHEN TIME_TO_SEC(TIMEDIFF(NOW(), date_action)) > delai THEN NULL ELSE action END ;
-
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -234,4 +210,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-12-22 22:34:06
+-- Dump completed on 2022-01-18 12:29:43

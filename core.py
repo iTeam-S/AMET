@@ -38,7 +38,7 @@ class Traitement:
                              "image_url": URL_SERVER + photos[i][3],
                              "subtitle": f"PRIX : {photos[i][2]}Ar/heures\nHORAIRES: {photos[i][4]}h00 à {photos[i][5]}h00",
                              "buttons": [{"type": "postback",
-                                          "title": "VOIR GALERIES",
+                                          "title": "VOIR GALERIE",
                                           "payload": "__GALERY" + " " + str(photos[i][0])},
                                          {"type": "postback",
                                           "title": "DETAILS",
@@ -89,8 +89,25 @@ class Traitement:
             else:
                 bot.send_template(sender_id, res[deb_indice:deb_indice + 10])
         else:
-            bot.send_message(sender_id, "produits")
+            bot.send_message(sender_id, "pas de produit pour le moment")
 
+    def sendPhotoInfo(self,sender_id):
+        data = req.getInformation()
+        listePhotoInfo = []
+        for i in range(len(data)):
+            listePhotoInfo.append({
+                "title": f"🖼️Information {i+1}🖼️",
+                "image_url": URL_SERVER + data[i][1],
+                "buttons": [
+                    {
+                        "type": "postback",
+                        "title": "voir image",
+                        "payload": f"__voirimage {URL_SERVER}{data[i][1]}"
+                    }
+                ]
+            })
+
+        bot.send_template(sender_id,listePhotoInfo)
         
     def search(self,sender_id,listeNomTerrain):
         
@@ -100,7 +117,7 @@ class Traitement:
                              "image_url": URL_SERVER + listeNomTerrain[y][3],
                              "subtitle": f"PRIX : {listeNomTerrain[y][2]} /heures\nHORAIRES : {listeNomTerrain[y][4]}h00 à {listeNomTerrain[y][5]}h00", 
                              "buttons": [{"type": "postback",
-                                          "title": "VOIR GALERIES",
+                                          "title": "VOIR GALERIE",
                                           "payload": f"__GALERY {listeNomTerrain[y][0]}"},
                                          {"type": "postback",
                                           "title": "DETAILS",
@@ -127,7 +144,7 @@ class Traitement:
 
         while j < len(all_gallery):
             listeGallery.append({
-                "title": "image 😊😊😊",
+                "title": f"🖼️image {j+1}🖼️",
                 "image_url": URL_SERVER + all_gallery[j][0],
                 "buttons": [
                     {
@@ -230,7 +247,8 @@ class Traitement:
                                 list(sender_id_admin)[0])[0]
                             data = message['message'].get('attachments')
 
-                            if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY":
+                            if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY" \
+                                or action_admin == "MODIFIER_INFO":
                                 admin.executionAdmin(
                                     sender_id,
                                     data
@@ -378,7 +396,7 @@ class Traitement:
                         const.connexion
                     )
                     req.set_action(sender_id, None)
-                    bot.send_quick_reply(sender_id, "reconnexion")
+                    bot.send_quick_reply(sender_id, "reconnexionPart")
                     return True
 
                 else:
@@ -749,8 +767,8 @@ class Traitement:
                                                 req.get_temp(sender_id)).get("heureDebut") +
                                             " à " +
                                             json.loads(
-                                                req.get_temp(sender_id)).get("heureFin") +
-                                            " \n\n Est-ce bien cela?")
+                                                req.get_temp(sender_id)).get("heureFin")
+                                        )
                                         req.set_action(sender_id, None)
                                         bot.send_quick_reply(
                                             sender_id, "confirmCmd")
@@ -805,8 +823,8 @@ class Traitement:
                                         req.get_temp(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
-                                        req.get_temp(sender_id)).get("heureFin") +
-                                    " \n\n Est-ce bien cela?")
+                                        req.get_temp(sender_id)).get("heureFin") 
+                                )
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action(sender_id, None)
                                 return True
@@ -856,8 +874,8 @@ class Traitement:
                                     req.get_temp(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
-                                    req.get_temp(sender_id)).get("heureFin") +
-                                " \n\n Est-ce bien cela?")
+                                    req.get_temp(sender_id)).get("heureFin") 
+                            )
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action(sender_id, None)
                             return True
@@ -904,8 +922,8 @@ class Traitement:
                                         req.get_temp(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
-                                        req.get_temp(sender_id)).get("heureFin") +
-                                    " \n\n Est-ce bien cela?")
+                                        req.get_temp(sender_id)).get("heureFin")
+                                )
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action(sender_id, None)
                                 return True
@@ -930,8 +948,8 @@ class Traitement:
                                     req.get_temp(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
-                                    req.get_temp(sender_id)).get("heureFin") +
-                                " \n\n Est-ce bien cela?")
+                                    req.get_temp(sender_id)).get("heureFin")
+                            )
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action(sender_id, None)
                             return True
@@ -1021,7 +1039,7 @@ class Traitement:
             return True
 
         elif commande == "__INFORMATION":
-            bot.send_message(sender_id, const.pageInfo)
+            self.sendPhotoInfo(sender_id)
             bot.send_quick_reply(sender_id, "continuation")
             req.set_action(sender_id, None)
             return True
@@ -1122,12 +1140,11 @@ class Traitement:
                     sender_id,
                     const.informations(avance)
                 )
-                bot.send_message(sender_id, "Exemple réference pour TELMA")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
                 bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-                bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
                 bot.send_file_url(
                     sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id, const.problems)
                 bot.send_quick_reply(sender_id, "operateurs")
                 req.set_action(sender_id, None)
                 return True
@@ -1143,12 +1160,11 @@ class Traitement:
                     sender_id,
                     const.informations(avance)
                 )
-                bot.send_message(sender_id, "Exemple réference pour TELMA")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
                 bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-                bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
                 bot.send_file_url(
                     sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id, const.problems)
                 bot.send_quick_reply(sender_id, "operateurs")
                 req.set_action(sender_id, None)
                 return True
@@ -1163,12 +1179,11 @@ class Traitement:
                     sender_id,
                     const.informations(avance)
                 )
-                bot.send_message(sender_id, "Exemple réference pour TELMA")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
                 bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-                bot.send_message(sender_id, "Exemple Reference pour le ORANGE")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
                 bot.send_file_url(
                     sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_message(sender_id, const.problems)
                 bot.send_quick_reply(sender_id, "operateurs")
                 req.set_action(sender_id, None)
                 return True
@@ -1238,7 +1253,7 @@ class Traitement:
         elif commande == "__ABANDONNER":
             bot.send_message(
                 sender_id,
-                const.abandon
+                const.abandonLogin
             )
             bot.send_quick_reply(sender_id, "proposerAction")
             return True
@@ -1269,7 +1284,7 @@ class Traitement:
             )
             bot.send_message(
                 sender_id,
-                f""" De quelle date souhaitez-vous louer ce terrain\n\n(Saisir la date sous forme JJ-MM-AAAA)
+                f""" Pour quelle date souhaitez-vous louer ce terrain?\n\n(Saisir la date sous forme JJ-MM-AAAA)
                 \nExemple:{str(date.today().strftime("%d-%m-%Y"))}"""
             )
             req.set_action(sender_id, "DATE")

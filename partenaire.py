@@ -141,6 +141,13 @@ class Partenaire:
             req.set_tempPart(sender_id, None)
             return True
 
+        elif commande == "__NON":
+            bot.send_message(
+                sender_id,
+                const.nonCmdPart
+            )
+            return True
+
     def traitementPstPayloadPart(self, sender_id, commande):
 
         listeElementPayload = commande.split(" ")
@@ -250,8 +257,8 @@ class Partenaire:
                     bot.send_message(
                         sender_id,
                         "Pour cette Date; les heures déjà resérvés sont:\n\n" +
-                        "\n".join(listeMessage) +
-                        "\n\nVous pouvez continuer en enregistrant une réservation pour cette date, ou gérer vosdisponibilités pour une autre date")
+                        "\n".join(listeMessage)
+                    )
                     bot.send_quick_reply(sender_id, "proposerCmdPart")
                     req.set_action_part(sender_id, None)
                     return True
@@ -282,7 +289,7 @@ class Partenaire:
                     or int(verifHeureDeDebut[0]) > int(req.getHeureFerm(
                         json.loads(req.get_tempPart(sender_id)).get("listeElementPayload")[1]))) \
                     or (not verifHeureDeDebut[1].isdigit() or int(verifHeureDeDebut[1]) > 59):
-                bot.send_message(sender_id, const.ivalideHourFormat)
+                bot.send_message(sender_id, const.invalideHourFormat)
                 return True
 
             else:
@@ -529,8 +536,8 @@ class Partenaire:
                                                 req.get_tempPart(sender_id)).get("heureDebut") +
                                             " à " +
                                             json.loads(
-                                                req.get_tempPart(sender_id)).get("heureFin") +
-                                            "\n\nC'est-bien cela?")
+                                                req.get_tempPart(sender_id)).get("heureFin")
+                                        )
                                         req.set_action_part(sender_id, None)
                                         bot.send_quick_reply(
                                             sender_id, "confirmCmd")
@@ -584,8 +591,8 @@ class Partenaire:
                                         req.get_tempPart(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
-                                        req.get_tempPart(sender_id)).get("heureFin") +
-                                    "\n\nC'est-bien cela?")
+                                        req.get_tempPart(sender_id)).get("heureFin")
+                                )
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action_part(sender_id, None)
                                 return True
@@ -635,8 +642,8 @@ class Partenaire:
                                     req.get_tempPart(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
-                                    req.get_tempPart(sender_id)).get("heureFin") +
-                                "\n\nC'est-bien cela?")
+                                    req.get_tempPart(sender_id)).get("heureFin")
+                            )
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action_part(sender_id, None)
                             return True
@@ -683,8 +690,8 @@ class Partenaire:
                                         req.get_tempPart(sender_id)).get("heureDebut") +
                                     " à " +
                                     json.loads(
-                                        req.get_tempPart(sender_id)).get("heureFin") +
-                                    "\n\nC'est-bien cela?")
+                                        req.get_tempPart(sender_id)).get("heureFin")
+                                )
                                 bot.send_quick_reply(sender_id, "confirmCmd")
                                 req.set_action_part(sender_id, None)
                                 return True
@@ -709,8 +716,8 @@ class Partenaire:
                                     req.get_tempPart(sender_id)).get("heureDebut") +
                                 " à " +
                                 json.loads(
-                                    req.get_tempPart(sender_id)).get("heureFin") +
-                                "\n\nC'est-bien cela?")
+                                    req.get_tempPart(sender_id)).get("heureFin")
+                            )
                             bot.send_quick_reply(sender_id, "confirmCmd")
                             req.set_action_part(sender_id, None)
                             return True

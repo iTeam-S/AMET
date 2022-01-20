@@ -1,6 +1,7 @@
 import messenger
 from conf import ACCESS_TOKEN, URL_SERVER
 from utils import download_file
+from PIL import Image
 import requete
 import const
 import json
@@ -238,6 +239,45 @@ class Admin:
                 "Pas de Partenaire disponible pour le moments")
             return True
 
+    def generateQrcode(self,data):
+        qr = qrcode.QRCode(
+            version=2,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=20,
+            border=4,
+        )
+        # Ajout du donnée
+        qr.add_data(f"{data[0]}_{data[1]}")
+        qr.make(fit=True)
+
+        # CREATION AN LE QR CODE
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        # ouverture le sary combinena @le Qrcode
+        img1 = Image.open('photo/amet_template.png')
+        img1.paste(img, (1650,1300))
+        #  sauvegarde de l'image
+        img1.save(f"photo/{data[0]}_{data[1]}.png")
+
+        return f"{data[0]}_{data[1]}.png"
+
+    def supprPhotoInfo(self,sender_id):
+        data = req.getInformation()
+        listePhotoInfo = []
+        for i in range(len(data)):
+            listePhotoInfo.append({
+                "title": f"🖼️Information {i+1}🖼️",
+                "image_url": URL_SERVER + data[i][1],
+                "buttons": [
+                    {
+                        "type": "postback",
+                        "title": "SUPPRIMER",
+                        "payload": f"__SUPPRIMAGEINFO {data[i][0]}"
+                    }
+                ]
+            })
+
+        bot.send_template(sender_id,listePhotoInfo)
     #--------------------------------------------FIN OPTIONS------------------------------------------------------------#
 
     def salutationAdmin(self, sender_id):
@@ -315,6 +355,12 @@ class Admin:
             req.set_action_admin(sender_id, None)
             req.set_tempAdmin(sender_id, None)
             bot.send_quick_reply(sender_id, "tachesAdmin")
+            return True
+
+        elif payload[0] == "__SUPPRIMAGEINFO":
+            print(int(payload[-1]))
+            req.supprImageInfo(payload[-1])
+            bot.send_message(sender_id,"Supprimée avec succée✅✅")
             return True
 
     def traitementActionAdmin(self, sender_id, commande, statut):
@@ -480,6 +526,7 @@ class Admin:
                     req.set_action_admin(sender_id, None)
                     bot.send_quick_reply(sender_id, "AutreModification")
                     return True
+                    
                 else:
                     bot.send_message(sender_id, const.erreurNbGallerryModifier)
                     return True
@@ -487,6 +534,43 @@ class Admin:
             except BaseException:
                 bot.send_message(sender_id, const.ErrorTypeGallery)
                 req.set_action_admin(sender_id, "MODIFIER_GALLERY")
+                return True
+
+        
+        elif statut == "MODIFIER_INFO":
+            try:
+                dataUrl = commande
+                if len(dataUrl) < json.loads(
+                        req.get_tempAdmin(sender_id)).get("nombreRestantInfo") + 1:
+                    listeUrlPhotoInfo = []
+                    for i in range(len(dataUrl)):
+                        listeUrlPhotoInfo.append(
+                            dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]
+                        )
+                        download_file(
+                            dataUrl[i]["payload"]["url"],
+                            f'photo/{dataUrl[i]["payload"]["url"].split("?")[0].split("/")[-1]}'
+                        )
+                    data = json.loads(req.get_tempAdmin(sender_id))
+                    data["photoInfo"] = listeUrlPhotoInfo
+                    req.set_tempAdmin(sender_id, json.dumps(data))
+
+                    values = json.loads(
+                        req.get_tempAdmin(sender_id)).get("photoInfo")
+
+                    for j in range(len(values)):
+                        req.update_information(values[j])
+                    bot.send_message(sender_id,"Ajoutées avec succéés✅✅")
+                    req.set_action_admin(sender_id, None)
+                    return True
+
+                else:
+                    bot.send_message(sender_id, const.erreurNbphotoInfoInsere)
+                    return True
+
+            except BaseException:
+                bot.send_message(sender_id, const.ErrorTypeImageInfo)
+                req.set_action_admin(sender_id, "MODIFIER_INFO")
                 return True
 
         #--------------------------------CREER NOUVEAU PRODUIT----------------------------------------------------#
@@ -681,14 +765,10 @@ class Admin:
                     infoPart = req.getFbIdPartTerrain(commande)
                     req.setStatut(commande)
                     bot.send_message(recipientIdQrcode, const.givingTicket)
-                    dataQrCode = list(req.getElementQrcode(commande)[0])
-                    img = qrcode.make(f"{dataQrCode[0]}_{dataQrCode[1]}")
-                    img.save(f"photo/{dataQrCode[0]}_{dataQrCode[1]}.png")
                     bot.send_file_url(
                         recipientIdQrcode,
-                        f"{URL_SERVER}{dataQrCode[0]}_{dataQrCode[1]}.png",
+                        f"{URL_SERVER}{self.generateQrcode(list(req.getElementQrcode(commande)[0]))}",
                         "image")
-
                     bot.send_message(sender_id, const.ThinkingAdmin)
 
                     if infoPart:
@@ -782,7 +862,17 @@ class Admin:
             return True
 
         elif commande == "__READ":
-            bot.send_quick_reply(sender_id, "AproposTerrain")
+            bot.send_quick_reply(sender_id, "modification")
+            return True
+
+        elif commande == "__PRODUITSMODIF":
+            bot.send_quick_reply(sender_id,"AproposTerrain")
+            return True
+
+        elif commande == "__MODIFINFO":
+            bot.send_message(sender_id,const.modifInfo)
+            self.supprPhotoInfo(sender_id)
+            bot.send_quick_reply(sender_id,"ajouterInfo")
             return True
 
         elif commande == "__VERIFCOMMANDE":
@@ -848,12 +938,12 @@ class Admin:
             nombreGallerry = req.nombreGallerry(json.loads(
                 req.get_tempAdmin(sender_id)).get("listeElementPayload")[1])
 
-            if int(nombreGallerry) > 9:
+            if int(nombreGallerry) < 10:
                 nombreRestant = 10 - int(nombreGallerry)
                 bot.send_message(
                     sender_id,
                     f"""Pour ce produits, vous n'ajoutez qu'au plus de {nombreRestant} photos
-                    \n\nAlors,Envoyez ensemble ici ses {nombreRestant} photos""")
+                    \nAlors,Envoyez ensemble ici ses {nombreRestant} photos""")
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["nombreRestant"] = nombreRestant
                 req.set_tempAdmin(sender_id, json.dumps(data))
@@ -866,6 +956,34 @@ class Admin:
                 )
                 req.set_action_admin(sender_id,None)
                 return True
+        
+        #--------------------AJOUTER  NOUVELLE PHOTO D'INFORMATION---------------------------#
+        elif commande == "__AJOUTERINFO":
+            req.set_action_admin(sender_id,"MODIFIER_INFO")
+            nombreImageInfo = req.countImageInfo()
+            print(nombreImageInfo)
+            
+            if int(nombreImageInfo) < 10:
+                nombreRestantInfo = 10 - int(nombreImageInfo)
+                bot.send_message(
+                    sender_id,
+                    f"""Vous n'ajoutez qu'au plus de {nombreRestantInfo} photos
+                    \nAlors,Envoyez ensemble ici ses {nombreRestantInfo} photos""")
+                req.set_tempAdmin(
+                    sender_id,
+                    json.dumps({"nombreRestantInfo" : nombreRestantInfo})
+                )
+                return True
+
+            else:
+                bot.send_message(
+                    sender_id,
+                    const.ErrorAddPhotoInfo
+                )
+                req.set_action_admin(sender_id,None)
+                return True
+            
+
 
         #--------------------QuickReply Pour la modificaion d'un produit--------------------#
         elif commande == "__NOM":

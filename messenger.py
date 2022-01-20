@@ -84,7 +84,7 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "⚽LOUR TERRAIN",
+                    "title": "⚽LOUER TERRAIN",
                     "payload": "__LOUER_TERRAIN"
 
                 },
@@ -116,7 +116,7 @@ class Messenger:
                 },
                 {
                     "content_type": "text",
-                    "title": "📄LISTER",
+                    "title": "📄VOIR LA LISTE",
                     "payload": "__LISTER",
                 }
             ]
@@ -144,7 +144,7 @@ class Messenger:
 
         elif types == "reconnexion":
 
-            text = "Essayer de connecter à un autre compte ou abandonner"
+            text = "Vous pouvez soit vous connecter à un autre compte soit abandonner"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -160,7 +160,7 @@ class Messenger:
 
         elif types == "reconnexionPart":
 
-            text = "Essayer de connecter à un autre compte ou abandonner"
+            text = "Vous pouvez soit vous connecter à un autre compte soit abandonner"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -180,7 +180,7 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "📄GERER MES DISPONIBILITÉS",
+                    "title": "📄GERER DISPONIBILITÉS",
                     "payload": "__VOIR",
                 },
                 {
@@ -192,7 +192,7 @@ class Messenger:
 
         elif types == "continuation":
 
-            text = "Maintenant,Vous pouvez continuer en louant du terrain ou nous remercier?"
+            text = "Vous pouvez continuer en louant un terrain ou terminer la conversation ☺️"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -238,6 +238,21 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
                 }
             ]
 
+        elif types == "modification":
+            text = "Que voulez-vous modifier?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "🪟PRODUITS",
+                    "payload": "__PRODUITSMODIF"
+                },
+                {
+                    "content_type": "text",
+                    "title": "🗒INFORMATION",
+                    "payload": "__MODIFINFO"
+                }
+            ]
+
         elif types == "proposerCmd":
             text = "Validez-vous cette date ? 😉"
             quick_rep = [
@@ -259,7 +274,8 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
             ]
 
         elif types == "proposerCmdPart":
-            text = "gerer vos disponibilités alors?"
+            text = "Vous pouvez continuer en enregistrant une réservation pour cette date,\
+ou gérer vos disponibilités pour une autre date"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -283,7 +299,7 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
                 },
                 {
                     "content_type": "text",
-                    "title": "🟡LIRE",
+                    "title": "🟡MODIFIER",
                     "payload": "__READ"
                 },
                 {
@@ -304,7 +320,7 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
             ]
 
         elif types == "confirmCmd":
-            text = "Maintenant; Veuillez-vous confirmer vraiment votre commande?"
+            text = "Est-ce bien cela?"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -561,6 +577,17 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
                     "payload": "__AJOUTER"
                 }
             ]
+
+        elif types == "ajouterInfo":
+            text = "Cliquez ici 👇👇 pour ajoutez à nouveau"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "➕AJOUTER",
+                    "payload": "__AJOUTERINFO"
+                }
+            ]
+    
 
         elif types == "proposeModifAgain":
             text = "Modification de ce même produit ou autre?"

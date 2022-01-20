@@ -94,9 +94,9 @@ salutationAdmin = "Salut Admin,Ravi de vous acceuillir 😊😊😊"
 ErrorFormatUserMail = "Votre nom d'utilisateur est invalide\nVeuillez verifier son format\nMerci😊😊😊"
 ErrorLoginAdmin = "Votre nom d'utilisateur et/ou votre mot de passe est invalide!\nveuillez réessayer"
 
-thankingInfo = "Merci de votre visite et à bientôt ! ✌ \n\n\tYou sent"
+thankingInfo = "Merci de votre visite et à bientôt ! ✌✌✌✌"
 
-modifSuccess = "Modifié avec SUCCÉS"
+modifSuccess = "Modifié avec SUCCÉS✅✅"
 
 ErrorInsertPrix = "Ce prix est ivalide,Veuillez saisir à nouveau \
 \nEt verifier bien quand il s'agit de chiffre!!!"
@@ -136,8 +136,8 @@ Envoyez plutôt du photo"
 ErrorTypeGallery = "Vos photos pour les Galeries sont invalide\n\n \
 Envoyez plutôt du photo"
 
-successAddProduct = " Produit ajouté avec succès"
-successDelete = "Supprimé avec SUCCES"
+successAddProduct = " Produit ajouté avec succès✅✅"
+successDelete = "Supprimé avec succé✅✅"
 
 ErrorInputImageUser = "Evoyez plutôt du text pour continuer 😊😊😊"
 
@@ -168,8 +168,7 @@ TrueCmdPart = "Reservation enregistrée!"
 ThinkingAdmin = "Merci Admin pour la confirmation de ce commande\n\n \
 le Ticket en QrCode de ce client est bien arrivé à sa dispostion"
 
-connexion = " il y au un autre personne qui est encore connécté avec \
-ce compte"
+connexion = "Une autre personne est encore connectée sur ce compte"
 
 messageSearch = "voici le resultat correspondant à votre recherche 😊😊😊"
 
@@ -194,7 +193,7 @@ ErrorTypeHeureDouvEtFerm = "Une erreur se produite!!\n\nEntrer plutôt de chiffr
 inputNewHeureDouv= "Entrer le nouveau heure d'ouverture"
 inputNewHeureFerm = "Entrer le nouveau heure de fermeture" 
 ErrorAddGallerry = "Le nombre de Gallerry de ce produit atteint le maximun \
-    donc vous ne pouvez pas ajouter!!"
+donc vous ne pouvez pas ajouter!!\n\nEssayer de supprimer les inutules afin de pouvoir ajouter"
 
 parler = f"""Pour parler directement à l'administrateur de la page, \
 veuilliez lui envoyer un message sur le compte rattaché \
@@ -205,9 +204,19 @@ Vous pouvez aussi l'appeller au:
 ou envoyer un mail à {env.get("MAIL_AKSISK")}"""
 
 noExistingDate = "Toutes les heures sont encore libres pour cette date"
-noExistingDatePart = "Pour cette date, il n'y a pas encore de réservation.\
-\n\nVous pouvez continuer en enregistrant une réservation pour cette date, ou gérer vos \
-disponibilités pour une autre date"
+noExistingDatePart = "Pour cette date, il n'y a pas encore de réservation."
+
+nonCmdPart = "Nous vous invitons à refaire votre gestion de disponibilités \
+donc en revenant au menu principal\n\nMerci"
+
+abandonLogin = "Tentative de connection en tant que partenaire annulé ❌"
+modifInfo = "Voici images de l'information disponible"
+
+ErrorAddPhotoInfo = "Le nombre de la photo d'information atteint le maximun \
+donc vous ne pouvez pas ajouter!!\n\nEssayer de supprimer les inutules afin de pouvoir ajouter"
+
+erreurNbphotoInfoInsere = "Le nombre des photos que vous avez posté est depassé ce qu'on vous demande"
+ErrorTypeImageInfo = "Une erreur s'est produite\nVeuillez poster plutôt des images"
 
 # -----------------------------FONCTIONS------------------------------------------------------#
 
@@ -252,7 +261,7 @@ Voici nos numéros :\n\
 Telma : {env.get("NUM_TELMA")} (tsirihasina) \nOrange : {env.get("NUM_ORANGE")} (tsirihasina)\
 \n\nAprès le paiement, envoyez-nous le numéro de réference !\
 \n\nPS : Après un délai de 30 min sans paiement, votre réservation sera automatiquement annulée.\
-1h30 = 1h = 5.000 Ar. 2h30 = 2h = 10.000 Ar ect... pour cet avance"""
+\n\nPour l'avance(1h30 = 1h = 5.000 Ar. 2h30 = 2h = 10.000 Ar ect...)"""
 
 def verifcommandePart(nomTerrain, name, date, heureDebut, heureFin):
     return f"""

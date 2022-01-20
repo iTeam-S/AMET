@@ -278,6 +278,31 @@ class Requete:
         self.db.commit()
         return data
 
+    @verif_db
+    def getInformation(self):
+        req = """
+                SELECT *
+                FROM informations
+        """
+        self.cursor.execute(req)
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+    
+    @verif_db
+    def supprImageInfo(self,id):
+        req = "DELETE FROM informations WHERE id = %s"
+        self.cursor.execute(req,(id,))
+        self.db.commit()
+
+    @verif_db
+    def countImageInfo(self):
+        req = "SELECT COUNT(*) FROM informations"
+        self.cursor.execute(req)
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
+
 #----------------------------REQUETES POUR L'ADMIN----------------------------#
 
     @verif_db
@@ -565,6 +590,15 @@ class Requete:
                 WHERE idLastConnect = %s
         """
         self.cursor.execute(reqAdmin, (sender_id,))
+        self.db.commit()
+    
+    @verif_db
+    def update_information(self,contenuInfo):
+        reqAdmin = """
+                    INSERT INTO informations(contenuInfo)
+                    VALUES(%s)
+        """
+        self.cursor.execute(reqAdmin,(contenuInfo,))
         self.db.commit()
 
 #----------------------------------REQUETES PARTENAIRES------------------------------------------#

@@ -254,7 +254,7 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
             ]
 
         elif types == "proposerCmd":
-            text = "Validez-vous cette date ? 😉"
+            text = "Voulez vous toujours valider cette date?😉"
             quick_rep = [
                 {
                     "content_type": "text",

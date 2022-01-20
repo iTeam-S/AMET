@@ -159,7 +159,7 @@ attenteConfirmRef = "Veuillez patienter un insant, nous procédons à la verific
 inputDataQrCode = "Veuillez entrer le data du QrCode"
 ErrorVerifCmd = "Une erreur s'est produite,Veuillez saisir à nouveau!!"
 falseReference = f"Il semble que nous n'avons reçu aucun paiement avec le numéro de \
-référence que vous avezenvoyé.\n\nVeuillez appeler le {env.get('NUM_URGENT_REF')} pour résoudre ce problème.\
+référence que vous avez envoyé.\n\nVeuillez appeler le {env.get('NUM_URGENT_REF')} pour résoudre ce problème.\
 \n\nMerci "
 
 confirmCmd = "Entrer alors le Data unique à confirmé"
@@ -196,7 +196,7 @@ ErrorAddGallerry = "Le nombre de Gallerry de ce produit atteint le maximun \
 donc vous ne pouvez pas ajouter!!\n\nEssayer de supprimer les inutules afin de pouvoir ajouter"
 
 parler = f"""Pour parler directement à l'administrateur de la page, \
-veuilliez lui envoyer un message sur le compte rattaché \
+veuillez lui envoyer un message sur le compte rattaché \
 à ce lien : {env.get("LIEN")}
 Vous pouvez aussi l'appeller au:
     {env.get('NUM_TELMA')}
@@ -240,6 +240,9 @@ def infoCommande(listInfo, UserNameFb):
     \n\n⚠ Valable pour le terrain {listInfo[5].upper()} \
     pour la date du {listInfo[2].strftime('%d-%m-%Y')} de {listInfo[3]} à {listInfo[4]}"
 
+def arriveTerrain(listeInfo,UserNameFb):
+    return f"La réservation de {UserNameFb} au  terrain {listeInfo[5].upper()} de {listeInfo[3]} à {listeInfo[4]} a été checké ✅"
+
 def salutationSimpleUser(UserName):
     return f"""Bonjour 👋👋{UserName}👋👋,
 Bienvenue sur la messagerie automatisée d’Aksisk ! ✊⚽"""
@@ -270,8 +273,8 @@ def verifcommandePart(nomTerrain, name, date, heureDebut, heureFin):
                 \n\nAlors, veuillez-vous le contacter pour plus d'information\
         """
 
-def msgPart(fullNamePart):
-    return f"Bonjour notre chèr(e) partenaire {fullNamePart}, je vous envoie ce message afin de vous \
-    informer qu'il y a encore une personne qui fait une reservation sur votre terrain aujourd'hui \
-    {date.today().strftime('%d-%m-%Y')}\n\nCe message est surtout de vous tenir au courant afin d'eviter le vol."
+def msgPart(fullNameUser,daty,heureDebut,heureFin):
+    return f"Une réservation au nom de {fullNameUser} à été faite aujourd’hui \
+pour le {daty} de {heureDebut} à {heureFin} Merci ! 🤝 ☺️!"
+
 

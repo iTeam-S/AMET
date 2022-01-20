@@ -31,7 +31,7 @@ class Partenaire:
                 "buttons": [
                     {
                         "type": "postback",
-                        "title": "Disponibilité",
+                        "title": "DISPONIBILITÉS",
                         "payload": f"__DISPONIBILITÉ {str(data[i][0])} {data[i][1]} {str(data[i][2])}"
                     }
                 ]
@@ -745,6 +745,16 @@ class Partenaire:
                         sender_id, const.infoCommande(
                             informations[0], bot.get_user_name(
                                 informations[0][0]).json().get('name').upper()))
+
+                    ListIdAdmin = req.getIdAdmin()
+                    for i in range(len(ListIdAdmin)):
+                        bot.send_message(
+                            ListIdAdmin[i][0],
+                            const.arriveTerrain(
+                                informations[0],
+                                bot.get_user_name(informations[0][0]).json().get('name').upper()
+                            )
+                        )
                     req.set_action_part(sender_id, None)
                     return True
 

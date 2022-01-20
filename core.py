@@ -255,6 +255,7 @@ class Traitement:
                                 )
 
                             else:
+                                print(data[0]['payload']["url"])
                                 admin.executionAdmin(
                                     sender_id,
                                     data[0]['payload']["url"]
@@ -493,8 +494,8 @@ class Traitement:
                     bot.send_message(
                         sender_id,
                         "Pour cette date, les heures déjà réservées sont :\n\n" +
-                        "\n".join(listeMessage) +
-                        "\n\nvoulez vous toujours valider cette date")
+                        "\n".join(listeMessage)
+                    )
                     bot.send_quick_reply(sender_id, "proposerCmd")
                     req.set_action(sender_id, None)
                     return True

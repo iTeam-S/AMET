@@ -85,13 +85,14 @@ class Requete:
     def verif_utilisateur(self, user_id):
         '''
             Fonction d'insertion du nouveau utilisateur
-            et mise à jour de la date de dernière utilisation.
+            et/ou mise à jour de la date de dernière utilisation.
         '''
         # Insertion dans la base si non present
-        req = 'INSERT IGNORE INTO utilisateur(fb_id,date_mp)  VALUES (%s,NOW())'
-        self.cursor.execute(req, (user_id,))
-        # Mise à jour de la date de dernière utilisation
-        req = 'UPDATE utilisateur SET date_mp=NOW() WHERE fb_id = %s'
+        # Mise à jour du last_use si déja présent
+        req = '''
+            INSERT INTO bot_utilisateur(user_id) VALUES (%s)
+            ON DUPLICATE KEY UPDATE last_use = NOW()
+        '''
         self.cursor.execute(req, (user_id,))
         self.db.commit()
 

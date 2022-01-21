@@ -90,8 +90,8 @@ class Requete:
         # Insertion dans la base si non present
         # Mise à jour du last_use si déja présent
         req = '''
-            INSERT INTO bot_utilisateur(user_id) VALUES (%s)
-            ON DUPLICATE KEY UPDATE last_use = NOW()
+            INSERT INTO utilisateur(fb_id, date_mp) VALUES (%s, NOW())
+            ON DUPLICATE KEY UPDATE date_mp = NOW()
         '''
         self.cursor.execute(req, (user_id,))
         self.db.commit()

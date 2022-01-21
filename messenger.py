@@ -273,6 +273,45 @@ aux administrateurs et/ou aux terrains partenaires ⚠"
                 }
             ]
 
+        elif types == "proposerCmdError30marge":
+            text = "Veuillez entrer une heure différente de ceux mentionnées précédemment et \
+qui ne risque pas d’interférer avec ces dernières.\n\nSi aucune heure ne vous convient,\
+vous pouvez toujours choisir une autre date… ou un autre terrain ?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "🟩AUTRE HEURE",
+                    "payload": "__AUTRE_HEURE"
+                },
+                {
+                    "content_type": "text",
+                    "title": "🟧AUTRE DATE",
+                    "payload": "__CMDAUTREDATE"
+                },
+                {
+                    "content_type": "text",
+                    "title": "🟫AUTRE TERRAIN",
+                    "payload": "__PRODUIT"
+                }
+            ]
+
+        elif types == "proposerCmdError30margePart":
+            text = "Veuillez entrer une heure différente de ceux mentionnées précédemment et \
+qui ne risque pas d’interférer avec ces dernières.\n\nSi aucune heure ne vous convient,\
+vous pouvez toujours choisir une autre date…"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "🟩AUTRE HEURE",
+                    "payload": "__AUTRE_HEURE"
+                },
+                {
+                    "content_type": "text",
+                    "title": "🟧AUTRE DATE",
+                    "payload": "__CMDAUTREDATE"
+                }
+            ]
+
         elif types == "proposerCmdPart":
             text = "Vous pouvez continuer en enregistrant une réservation pour cette date,\
 ou gérer vos disponibilités pour une autre date"

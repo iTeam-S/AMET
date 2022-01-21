@@ -50,7 +50,6 @@ inputFinalHour = "Et à quelle heure souhaitez-vous finir?\n(Saisir l'heure au f
 
 inputNewBeginingHour = "Veuillez saisir à nouveau votre heure de début donc \n(Toujours au format HHhMM)\n\nexemple : 14h30 ou 15h00 etc.."
 inputNewFinalHour = "Veuillez saisir à nouveau votre heure de fin donc \n(Toujours au format HHhMM)\n\nexemple : 16h00 ou 18h30 etc.."
-
 ErrorTranceBegining = "votre heure de début est invalide ! Veuillez saisir une heure pile ou passée de 30 minutes. \
 \nExemple : 7h00 ou 7h30 / 14h00 ou 14h30 etc..."
 
@@ -79,12 +78,6 @@ ou envoyer directement un message au compte facebook suivant : {env.get('LIEN')}
 
 receivedHourBegining = "Votre heure de debut est bien reçu!!!\n\nVous pouvez annuler au cas où  \
 vous en avez besoin et continuer si c'est pas le cas!!!"
-
-Error30Marge = "Votre heure de début n'est pas mal mais selon notre marge(1h minimum du commande) \
-votre choix d'heure de début est alors invalide parce que ca va risqué toujours tombé dans les \
-intervalles des temps qui existent votre heure de fin\n\n \
-Donc on vous suppose de re-ecriver votre heure de debut et choisir la bonne en respectant toujour \
-le format et d'eviter aussi l'erreur des intervalles de temps\n\nMerci 😊😊😊"
 
 inputUserNameOtherUser = "Veuillez entrer votre nom d'utilisateur :"
 inputPassWordOtherUser = "Veuillez entrer votre mot de passe: "
@@ -174,9 +167,6 @@ messageSearch = "voici le resultat correspondant à votre recherche 😊😊😊
 
 deconnectionCore = "Vous ne pouvez pas vous deconnecter en tant que client. \
 Par mesure de sécurité, Nous vous redirigons vers le menu principal"
-
-attenteConfirmPart = "Veuillez patienter dans quelques minutes pour que \
-l'admin reçoit votre commande"
 
 inputPartFullName = "Saisir le nom complet de ce partenaire"
 inputUserMail = "Donnez lui de UserMail:"
@@ -278,3 +268,7 @@ def msgPart(fullNameUser,daty,heureDebut,heureFin):
 pour le {daty} de {heureDebut} à {heureFin} Merci ! 🤝 ☺️!"
 
 
+def Error30Marge(heureDebut,HeureFin):
+    return f"Théoriquement l’heure de début que vous avez saisi est correct… \
+malheureusement une autre personne a réservé entre {heureDebut} à {HeureFin}.\
+\nOr, pour rappel: la durée minimum pour une réservation est d’une heure (1h)"

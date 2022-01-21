@@ -616,7 +616,14 @@ class Traitement:
                                             verifHeureDeDebut[1]) > int(
                                             listeHeureDebut[c].split("h")[1]):
                                         bot.send_message(
-                                            sender_id, const.Error30Marge)
+                                            sender_id, 
+                                            const.Error30Marge(
+                                                listeHeureDebut[c],
+                                                listeHeureFin[c]
+                                            )
+                                        )
+                                        bot.send_quick_reply(sender_id,"proposerCmdError30marge")
+                                        req.set_action(sender_id,None)
                                         return True
 
                                     else:
@@ -1257,6 +1264,11 @@ class Traitement:
                 const.abandonLogin
             )
             bot.send_quick_reply(sender_id, "proposerAction")
+            return True
+        
+        elif commande == "__AUTRE_HEURE":
+            req.set_action(sender_id,"HEURE_DEBUT")
+            bot.send_message(sender_id,const.inputBeginingHour)
             return True
 
     def traitement_pstPayload(self, sender_id, pst_payload):

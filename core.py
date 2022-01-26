@@ -34,7 +34,7 @@ class Traitement:
         i = 0
 
         while i < len(photos):
-            produits.append({"title": str(photos[i][0]) + " - Terrain " + photos[i][1],
+            produits.append({"title": str(i+1) + " - Terrain " + photos[i][1],
                              "image_url": URL_SERVER + photos[i][3],
                              "subtitle": f"PRIX : {photos[i][2]}Ar/heures\nHORAIRES: {photos[i][4]}h00 à {photos[i][5]}h00",
                              "buttons": [{"type": "postback",
@@ -113,7 +113,7 @@ class Traitement:
         
         resultSearch = []
         for y in range(len(listeNomTerrain)):
-            resultSearch.append({"title":f"{listeNomTerrain[y][0]} - Terrain {listeNomTerrain[y][1]}",
+            resultSearch.append({"title":f"{y+1} - Terrain {listeNomTerrain[y][1]}",
                              "image_url": URL_SERVER + listeNomTerrain[y][3],
                              "subtitle": f"PRIX : {listeNomTerrain[y][2]} /heures\nHORAIRES : {listeNomTerrain[y][4]}h00 à {listeNomTerrain[y][5]}h00", 
                              "buttons": [{"type": "postback",

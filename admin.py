@@ -27,7 +27,7 @@ class Admin:
         i = 0
         while i < len(data):
             produits.append({
-                "title": str(data[i][0]) + " - Terrain " + data[i][1],
+                "title": str(i+1) + " - Terrain " + data[i][1],
                 "image_url": URL_SERVER + data[i][3],
                 "subtitle": "Prix : " + str(data[i][2]) + " Ar/heures",
                 "buttons": [
@@ -106,7 +106,7 @@ class Admin:
 
         while j < len(all_gallery):
             listeGallery.append({
-                "title": "image 😊😊😊",
+                "title": f"🖼️ image {j+1} 🖼️",
                 "image_url": URL_SERVER + all_gallery[j][0],
                 "buttons": [
                     {

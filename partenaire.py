@@ -25,7 +25,7 @@ class Partenaire:
 
         while i < len(data):
             mesTerrains.append({
-                "title": str(data[i][0]) + " - Terrain " + data[i][1],
+                "title": str(i+1) + " - Terrain " + data[i][1],
                 "image_url": URL_SERVER + data[i][3],
                 "subtitle": f"PRIX : {data[i][2]}Ar/heures\nHORAIRES: {data[i][4]}h00 à {data[i][5]}h00",
                 "buttons": [

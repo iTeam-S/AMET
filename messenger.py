@@ -1,27 +1,10 @@
 import requests
 
-
 class Messenger:
     def __init__(self, access_token):
         self.token = access_token
         self.url = "https://graph.facebook.com/v8.0/me"
-
-    def get_user_name(self, sender_id):
-        """
-            Cette fonction sert à getter l'UserName
-            sur FACEBOOK d'un utilisateur à partir de
-            son id
-        """
-        res = requests.get(
-            f"https://graph.facebook.com/{sender_id}?fields=name&access_token={self.token}"
-        )
-
-        if res:
-            return res
-
-        else:
-            return "QUELQU'UN"
-
+    
     def send_message(self, dest_id, message):
         self.send_action(dest_id, 'typing_on')
         """
@@ -37,7 +20,7 @@ class Messenger:
             }
         }
 
-        header = {'content-type': 'application/json; charset=utf-8'}
+        header = {'content-type' : 'application/json; charset=utf-8'}
         params = {"access_token": self.token}
 
         res = requests.post(

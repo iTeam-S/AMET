@@ -304,6 +304,26 @@ class Requete:
         self.db.commit()
         return data
 
+    @verif_db
+    def insert_nom_user(self,sender_id,nom_user):
+        req = """
+                UPDATE utilisateur 
+                SET nom_user = %s
+                WHERE fb_id = %s
+        """
+        self.cursor.execute(req,(nom_user,sender_id))
+        self.db.commit()
+
+    def get_user_name(self,sender_id):
+        req = """
+                SELECT nom_user
+                FROM utilisateur 
+                WHERE fb_id = %s
+        """
+        self.cursor.execute(req,(sender_id,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
 #----------------------------REQUETES POUR L'ADMIN----------------------------#
 
     @verif_db
@@ -426,15 +446,15 @@ class Requete:
         return data
 
     @verif_db
-    def senderIdAdmin(self, sender_id, UserNameFb, email):
+    def senderIdAdmin(self, sender_id, email):
         reqAdmin = """
-                    UPDATE AutreUtils
-                    SET fb_id=%s , idLastConnect = %s,
-                    nameUserLastConnect=%s
-                    WHERE userMail=%s
-                """
+                UPDATE AutreUtils
+                SET fb_id=%s,
+                idLastConnect=%s 
+                WHERE userMail=%s
+        """
         self.cursor.execute(
-            reqAdmin, (sender_id, sender_id, UserNameFb, email))
+            reqAdmin, (sender_id,sender_id,email))
         self.db.commit()
 
     @verif_db
@@ -605,15 +625,14 @@ class Requete:
 #----------------------------------REQUETES PARTENAIRES------------------------------------------#
 
     @verif_db
-    def senderIdPart(self, sender_id, UserNameFb, email):
+    def senderIdPart(self, sender_id,email):
         reqPart = """
                     UPDATE partenaire
                     SET fb_idPart=%s,
-                    lastIdConnect =%s,
-                    UserNameFbPart=%s
+                    lastIdConnect =%s
                     WHERE userMail=%s
                 """
-        self.cursor.execute(reqPart, (sender_id, sender_id, UserNameFb, email))
+        self.cursor.execute(reqPart, (sender_id, sender_id,email))
         self.db.commit()
 
     @verif_db

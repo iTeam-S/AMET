@@ -729,8 +729,8 @@ class Admin:
                 if informations:
                     bot.send_message(
                         sender_id, const.infoCommande(
-                            informations[0], bot.get_user_name(
-                                informations[0][0]).json().get('name').upper()))
+                            informations[0], req.get_user_name(
+                                informations[0][0]).upper()))
                     req.set_action_admin(sender_id, None)    
                     return True
 
@@ -775,7 +775,7 @@ class Admin:
                         bot.send_message(
                             infoPart[0],
                             const.msgPart(
-                                bot.get_user_name(recipientIdQrcode).json().get('name').upper(),
+                                req.get_user_name(recipientIdQrcode).upper(),
                                 json.loads(req.get_temp(recipientIdQrcode)).get("daty"),
                                 json.loads(req.get_temp(recipientIdQrcode)).get("heureDebut"),
                                 json.loads(req.get_temp(recipientIdQrcode)).get("heureFin")

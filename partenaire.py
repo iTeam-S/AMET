@@ -755,8 +755,8 @@ class Partenaire:
                 if informations:
                     bot.send_message(
                         sender_id, const.infoCommande(
-                            informations[0], bot.get_user_name(
-                                informations[0][0]).json().get('name').upper()))
+                            informations[0], req.get_user_name(
+                                informations[0][0]).upper()))
 
                     ListIdAdmin = req.getIdAdmin()
                     for i in range(len(ListIdAdmin)):
@@ -764,7 +764,7 @@ class Partenaire:
                             ListIdAdmin[i][0],
                             const.arriveTerrain(
                                 informations[0],
-                                bot.get_user_name(informations[0][0]).json().get('name').upper()
+                                req.get_user_name(informations[0][0]).upper()
                             )
                         )
                     req.set_action_part(sender_id, None)

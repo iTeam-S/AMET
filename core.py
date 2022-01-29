@@ -175,11 +175,12 @@ class Traitement:
         """
         bot.send_message(sender_id, const.attenteConfirmRef)
         ListIdAdmin = req.getIdAdmin()
+        print(ListIdAdmin)
         for i in range(len(ListIdAdmin)):
             bot.send_message(
                 ListIdAdmin[i][0],
                 const.verifReference(
-                    bot.get_user_name(sender_id).json().get('name').upper(),
+                    req.get_user_name(sender_id),
                     " ".join(json.loads(
                         req.get_temp(sender_id)).get("listeElementPayload")[2:-1]),
                     nomOperateur,
@@ -294,22 +295,12 @@ class Traitement:
             Saluer et presenter qui nous sommes
             avant tout à l'utulisateurs
         """
-        try:
-            bot.send_message(
-                sender_id,
-                const.salutationSimpleUser(
-                    bot.get_user_name(sender_id).json().get('name').upper()
-                )
-            )
-            bot.send_quick_reply(sender_id, "proposerAction")
-            return True
-
-        except BaseException:
-            bot.send_message(
-                sender_id,
-                const.salutationUser
-            )
-            return True
+        bot.send_message(
+            sender_id,
+            const.salutationUser
+        )
+        bot.send_quick_reply(sender_id, "proposerAction")
+        return True
 
     def traitement_action(self, sender_id, commande, action):
         """
@@ -352,8 +343,7 @@ class Traitement:
                     return True
 
                 else:
-                    req.senderIdAdmin(sender_id, bot.get_user_name(
-                        sender_id).json().get('name').upper(), email)
+                    req.senderIdAdmin(sender_id,email)
                     req.set_action(sender_id, None)
                     req.set_temp(sender_id, None)
                     bot.send_message(sender_id, const.salutationAdmin)
@@ -401,8 +391,7 @@ class Traitement:
                     return True
 
                 else:
-                    req.senderIdPart(sender_id, bot.get_user_name(
-                        sender_id).json().get('name').upper(), email)
+                    req.senderIdPart(sender_id,email)
                     req.set_action(sender_id, None)
                     req.set_temp(sender_id, None)
                     bot.send_message(sender_id, const.salutationPart)
@@ -972,6 +961,100 @@ class Traitement:
                     req.set_action(sender_id, None)
                     return True
 
+        elif action == "ATTENTE_NOM_USER":
+            #Insertion de nom dans la base de donnée
+            req.insert_nom_user(sender_id,commande.strip())
+
+            #------------------------------------------------#
+            dataAinserer = json.loads(req.get_temp(sender_id))
+            idUser = req.getIdUser(sender_id)
+            UniqueTime = str(time.time())
+
+            data = json.loads(req.get_temp(sender_id))
+            data["uniqueTime"] = UniqueTime
+            req.set_temp(sender_id, json.dumps(data))
+
+            req.insertNouveauCommande(
+                idUser,
+                dataAinserer.get("daty"),
+                dataAinserer.get("heureDebut").split("h")[0] +
+                ":" +
+                dataAinserer.get("heureDebut").split("h")[1] +
+                ":00",
+                dataAinserer.get("heureFin").split("h")[0] +
+                ":" +
+                dataAinserer.get("heureFin").split("h")[1] +
+                ":00",
+                dataAinserer.get("listeElementPayload")[1],
+                json.loads(req.get_temp(sender_id)).get("uniqueTime"))
+
+            """
+                Get d'intervalle de temps du commande pour
+                le but de payer deja 50% pour l'avance
+            """
+            heure = int(dataAinserer.get("heureFin").split("h")[
+                        0]) - int(dataAinserer.get("heureDebut").split("h")[0])
+
+            if int(dataAinserer.get("heureDebut").split("h")[1]) < int(
+                    dataAinserer.get("heureFin").split("h")[1]):
+                intervalle = heure + 0.5
+                data = json.loads(req.get_temp(sender_id))
+                data["intervalle"] = f"{heure}heure(s) et demi"
+                req.set_temp(sender_id, json.dumps(data))
+                prix = int(dataAinserer.get("listeElementPayload")[-1])
+                avance = int((5000 * heure))
+                bot.send_message(
+                    sender_id,
+                    const.informations(avance)
+                )
+                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
+                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_quick_reply(sender_id, "operateurs")
+                req.set_action(sender_id, None)
+                return True
+
+            elif int(dataAinserer.get("heureDebut").split("h")[1]) > int(dataAinserer.get("heureFin").split("h")[1]):
+                intervalle = (heure - 1) + 0.5
+                data = json.loads(req.get_temp(sender_id))
+                data["intervalle"] = f"{heure - 1}heure(s) et demi"
+                req.set_temp(sender_id, json.dumps(data))
+                prix = int(dataAinserer.get("listeElementPayload")[-1])
+                avance = int((5000 * heure))
+                bot.send_message(
+                    sender_id,
+                    const.informations(avance)
+                )
+                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
+                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_quick_reply(sender_id, "operateurs")
+                req.set_action(sender_id, None)
+                return True
+
+            else:
+                data = json.loads(req.get_temp(sender_id))
+                data["intervalle"] = f"{heure}heure(s)"
+                req.set_temp(sender_id, json.dumps(data))
+                prix = int(dataAinserer.get("listeElementPayload")[-1])
+                avance = int((5000 * heure))
+                bot.send_message(
+                    sender_id,
+                    const.informations(avance)
+                )
+                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
+                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
+                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
+                bot.send_file_url(
+                    sender_id, f"{URL_SERVER}orange.jpg", "image")
+                bot.send_quick_reply(sender_id, "operateurs")
+                req.set_action(sender_id, None)
+                return True
+
         elif action == "ATTENTE_REFERENCE":
             operateur = json.loads(req.get_temp(sender_id)).get("operateur")
 
@@ -1107,94 +1190,10 @@ class Traitement:
             return True
 
         elif commande == "__OUI":
-            dataAinserer = json.loads(req.get_temp(sender_id))
-            idUser = req.getIdUser(sender_id)
-            UniqueTime = str(time.time())
-
-            data = json.loads(req.get_temp(sender_id))
-            data["uniqueTime"] = UniqueTime
-            req.set_temp(sender_id, json.dumps(data))
-
-            req.insertNouveauCommande(
-                idUser,
-                dataAinserer.get("daty"),
-                dataAinserer.get("heureDebut").split("h")[0] +
-                ":" +
-                dataAinserer.get("heureDebut").split("h")[1] +
-                ":00",
-                dataAinserer.get("heureFin").split("h")[0] +
-                ":" +
-                dataAinserer.get("heureFin").split("h")[1] +
-                ":00",
-                dataAinserer.get("listeElementPayload")[1],
-                json.loads(req.get_temp(sender_id)).get("uniqueTime"))
-
-            """
-                Get d'intervalle de temps du commande pour
-                le but de payer deja 50% pour l'avance
-            """
-            heure = int(dataAinserer.get("heureFin").split("h")[
-                        0]) - int(dataAinserer.get("heureDebut").split("h")[0])
-
-            if int(dataAinserer.get("heureDebut").split("h")[1]) < int(
-                    dataAinserer.get("heureFin").split("h")[1]):
-                intervalle = heure + 0.5
-                data = json.loads(req.get_temp(sender_id))
-                data["intervalle"] = f"{heure}heure(s) et demi"
-                req.set_temp(sender_id, json.dumps(data))
-                prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((5000 * heure))
-                bot.send_message(
-                    sender_id,
-                    const.informations(avance)
-                )
-                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
-                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
-                bot.send_file_url(
-                    sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_quick_reply(sender_id, "operateurs")
-                req.set_action(sender_id, None)
-                return True
-
-            elif int(dataAinserer.get("heureDebut").split("h")[1]) > int(dataAinserer.get("heureFin").split("h")[1]):
-                intervalle = (heure - 1) + 0.5
-                data = json.loads(req.get_temp(sender_id))
-                data["intervalle"] = f"{heure - 1}heure(s) et demi"
-                req.set_temp(sender_id, json.dumps(data))
-                prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((5000 * heure))
-                bot.send_message(
-                    sender_id,
-                    const.informations(avance)
-                )
-                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
-                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
-                bot.send_file_url(
-                    sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_quick_reply(sender_id, "operateurs")
-                req.set_action(sender_id, None)
-                return True
-
-            else:
-                data = json.loads(req.get_temp(sender_id))
-                data["intervalle"] = f"{heure}heure(s)"
-                req.set_temp(sender_id, json.dumps(data))
-                prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((5000 * heure))
-                bot.send_message(
-                    sender_id,
-                    const.informations(avance)
-                )
-                bot.send_message(sender_id, "Exemple de numéro de réference pour TELMA")
-                bot.send_file_url(sender_id, f"{URL_SERVER}telma.jpg", "image")
-                bot.send_message(sender_id, "Exemple de numéro de réference pour ORANGE")
-                bot.send_file_url(
-                    sender_id, f"{URL_SERVER}orange.jpg", "image")
-                bot.send_quick_reply(sender_id, "operateurs")
-                req.set_action(sender_id, None)
-                return True
+            req.set_action(sender_id,"ATTENTE_NOM_USER")
+            bot.send_message(sender_id,const.attente_nom_user)
+            return True
+            
 
         elif commande == "__TELMA":
             data = json.loads(req.get_temp(sender_id))

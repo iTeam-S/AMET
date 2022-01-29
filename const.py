@@ -7,8 +7,7 @@ load_dotenv()
 
 
 #-----------------------SIMPLE VARIABLE----------------------------------------------------------------#
-salutationUser = "Bonjour 👋👋👋👋,\n\nNous sommes une petite entreprise qui\
-                \nfait une location des terrains scientitiques ici Antananarivo"
+salutationUser = "Bonjour 👋👋👋👋,\nBienvenue sur la messagerie automatisée d’Aksisk ! ✊⚽"
 salutationPart = "Bonjour chèr partenaire ! Bienvenue sur la messagerie automatisée d'Aksisk !\
 \n\nIci, vous pouvez gérer les disponibilités de votre/vos terrain(s) et verifier \
 l'authenticité des QrCode des clients."
@@ -166,7 +165,7 @@ connexion = "Une autre personne est encore connectée sur ce compte"
 messageSearch = "voici le resultat correspondant à votre recherche 😊😊😊"
 
 deconnectionCore = "Vous ne pouvez pas vous deconnecter en tant que client. \
-Par mesure de sécurité, Nous vous redirigons vers le menu principal"
+Par mesure de sécurité, Nous vous redirigeons vers le menu principal"
 
 inputPartFullName = "Saisir le nom complet de ce partenaire"
 inputUserMail = "Donnez lui de UserMail:"
@@ -208,6 +207,8 @@ donc vous ne pouvez pas ajouter!!\n\nEssayer de supprimer les inutules afin de p
 erreurNbphotoInfoInsere = "Le nombre des photos que vous avez posté est depassé ce qu'on vous demande"
 ErrorTypeImageInfo = "Une erreur s'est produite\nVeuillez poster plutôt des images"
 
+attente_nom_user = "Veuillez entrer votre nom + prenom"
+
 # -----------------------------FONCTIONS------------------------------------------------------#
 
 def roulesOfHour(heureDouv,HeureFerme):
@@ -218,7 +219,7 @@ rajouter +30min, +1h , +1h30, +2h , +2h30 et ainsi de suite.\
 \n\nPS : Ce terrain est ouvert de ({heureDouv}h00 à {HeureFerme}h00)"""
 
 def verifReference(nom, terrain, operateur, reference, heure):
-    return f"Bonjour Admin, {nom} vient de vous envoyer une avance pour une reservation de Terrain \
+    return f"Bonjour Admin, {nom.upper()} vient de vous envoyer une avance pour une reservation de Terrain \
     {terrain.upper()} pendant {heure} du temps pour votre numero {operateur} de reference {reference} \
         \n\nPouvez-vous le vérifier s'il vous plait?? \
         \n\nEt voici donc son unique Data de commande:"

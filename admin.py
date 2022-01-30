@@ -899,6 +899,13 @@ class Admin:
             req.set_action_admin(sender_id, "FALSECONFIRM_CMD")
             return True
 
+        elif commande == "__OUI_PRESENCE":
+            req.set_action_admin(sender_id,None)
+            bot.send_message(
+                sender_id,
+                "OK! Merci\n👊👊👊👊👊👊"
+            )
+
         elif cmd[0] == "__NOCONFIRM":
             bot.send_message(
                 sender_id,

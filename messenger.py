@@ -93,7 +93,7 @@ class Messenger:
             quick_rep = [
                 {
                     "content_type": "text",
-                    "title": "😊OUI😊",
+                    "title": "😊PRESENT😊",
                     "payload": "__OUI_PRESENCE"
                 }
             ]

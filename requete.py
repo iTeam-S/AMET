@@ -822,3 +822,19 @@ class Requete:
         """
         self.cursor.execute(reqPart, (fb_idPart,))
         self.db.commit()
+
+    @verif_db
+    def getlisteIdadmin(self):
+        reqAutre = """
+            SELECT u.fb_id FROM AutreUtils a JOIN
+            utilisateur u ON a.fb_id = u.fb_id 
+            WHERE TIMESTAMPDIFF(hour, date_mp, NOW()) > 20
+        """
+        self.cursor.execute(reqAutre)
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
+
+#-------------------REQUETES DE LA SCRIPT 24H-----------------------------------------#
+    

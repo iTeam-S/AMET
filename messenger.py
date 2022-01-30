@@ -3,7 +3,7 @@ import requests
 class Messenger:
     def __init__(self, access_token):
         self.token = access_token
-        self.url = "https://graph.facebook.com/v8.0/me"
+        self.url = "https://graph.facebook.com/v12.0/me"
     
     def send_message(self, dest_id, message):
         self.send_action(dest_id, 'typing_on')
@@ -87,6 +87,17 @@ class Messenger:
                     "payload": "__PARLER"
                 }
             ]
+
+        elif types == "presence_admin":
+            text = "Est-ce que vous êtes présent Admin"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "😊OUI😊",
+                    "payload": "__OUI_PRESENCE"
+                }
+            ]
+
 
         elif types == "AproposTerrain":
 

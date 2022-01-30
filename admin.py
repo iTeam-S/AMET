@@ -1280,6 +1280,7 @@ class Admin:
             le bot execute l'un de ces methodes la-dessous
             (Ex: post QuickReply,PostPayload,textesimple,attachments,...)
         """
+        req.verif_utilisateur(sender_id)
 
         bot.send_action(sender_id, 'mark_seen')
         try:

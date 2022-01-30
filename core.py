@@ -15,6 +15,11 @@ bot = messenger.Messenger(ACCESS_TOKEN)
 req = requete.Requete()
 part = partenaire.Partenaire()
 
+# ouvrir fichier en mode append
+def file_log(txt):
+    with open('log.txt', 'a') as f:
+        f.write(datetime.today().__str__() + ' - ' + txt + "\n")
+
 
 class Traitement:
     def __init__(self):
@@ -214,6 +219,7 @@ class Traitement:
                     sender_id_part = req.verifSenderIdPart(sender_id)
 
                     if message['message'].get('quick_reply'):
+                        file_log(message['message']['quick_reply'].get('payload'))
                         if sender_id_admin:
                             admin.executionAdmin(
                                 sender_id, message['message']['quick_reply'].get('payload'))
@@ -225,6 +231,8 @@ class Traitement:
                                 sender_id, message['message']['quick_reply'].get('payload'))
 
                     elif message['message'].get('text'):
+                        file_log(message['message'].get('text'))
+
                         if sender_id_admin:
                             admin.executionAdmin(
                                 sender_id,
@@ -242,12 +250,11 @@ class Traitement:
                             )
 
                     elif message['message'].get('attachments'):
-
                         if sender_id_admin:
                             action_admin = req.get_action_admin(
                                 list(sender_id_admin)[0])[0]
                             data = message['message'].get('attachments')
-
+                            file_log(data)
                             if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY" \
                                 or action_admin == "MODIFIER_INFO":
                                 admin.executionAdmin(
@@ -271,7 +278,7 @@ class Traitement:
                     sender_id = message['sender']['id']
                     sender_id_admin = req.verifSenderId(sender_id)
                     sender_id_part = req.verifSenderIdPart(sender_id)
-
+                    file_log(message['postback']['payload'])
                     if sender_id_admin:
                         recipient_idAdmin = message['sender']['id']
                         pst_payload = message['postback']['payload']

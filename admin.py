@@ -905,6 +905,7 @@ class Admin:
                 sender_id,
                 "OK! Merci\n👊👊👊👊👊👊"
             )
+            return True 
 
         elif cmd[0] == "__NOCONFIRM":
             bot.send_message(

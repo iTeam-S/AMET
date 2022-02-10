@@ -835,6 +835,20 @@ class Requete:
         self.db.commit()
         return data
 
+    def getlisteIdPart(self):
+        reqAutre = """
+            SELECT lastIdConnect FROM partenaire 
+            INNER JOIN utilisateur 
+            ON partenaire.lastIdConnect = utilisateur.fb_id 
+            WHERE TIMESTAMPDIFF(hour, date_mp, NOW()) > 20
+        """
+        self.cursor.execute(reqAutre)
+        data = self.cursor.fetchall()
+        self.db.commit()
+        return data
+
+    
+
 
 #-------------------REQUETES DE LA SCRIPT 24H-----------------------------------------#
     

@@ -12,7 +12,19 @@ def update_admin(liste_admin):
             "presence_admin"
         )
 
+def update_part(liste_part):
+    for user in liste_part:
+        bot.send_quick_reply(
+            user[0],
+            "presence_part"
+        )
+
 if __name__ == "__main__":
     update_admin(
         req.getlisteIdadmin()
+    )
+
+    print(req.getlisteIdPart())
+    update_part(
+        req.getlisteIdPart()
     )

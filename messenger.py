@@ -89,7 +89,7 @@ class Messenger:
             ]
 
         elif types == "presence_admin":
-            text = "Est-ce que vous êtes présent Admin"
+            text = "Est-ce que vous êtes présent Admin?"
             quick_rep = [
                 {
                     "content_type": "text",
@@ -97,7 +97,16 @@ class Messenger:
                     "payload": "__OUI_PRESENCE"
                 }
             ]
-
+        
+        elif types == "presence_part":
+            text = "Êtes-vous bien connecté?"
+            quick_rep = [
+                {
+                    "content_type": "text",
+                    "title": "OUI",
+                    "payload": "__OUI_PRESENCE"
+                }
+            ]
 
         elif types == "AproposTerrain":
 

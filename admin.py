@@ -29,7 +29,7 @@ class Admin:
             produits.append({
                 "title": str(i+1) + " - Terrain " + data[i][1],
                 "image_url": URL_SERVER + data[i][3],
-                "subtitle": "Prix : " + str(data[i][2]) + " Ar/heures",
+                "subtitle": "Prix : " + str(data[i][2]) + " Ar/heure",
                 "buttons": [
                     {
                         "type": "postback",

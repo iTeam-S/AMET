@@ -27,7 +27,7 @@ class Partenaire:
             mesTerrains.append({
                 "title": str(i+1) + " - Terrain " + data[i][1],
                 "image_url": URL_SERVER + data[i][3],
-                "subtitle": f"PRIX : {data[i][2]}Ar/heures\nHORAIRES: {data[i][4]}h00 à {data[i][5]}h00",
+                "subtitle": f"PRIX : {data[i][2]}Ar/heure\nHORAIRES: {data[i][4]}h00 à {data[i][5]}h00",
                 "buttons": [
                     {
                         "type": "postback",
@@ -152,6 +152,13 @@ class Partenaire:
             req.set_action_part(sender_id,"HEURE_DEBUT")
             bot.send_message(sender_id,const.inputBeginingHour)
             return True
+        
+        elif commande == "__OUI_PRESENCE":
+            bot.send_message(
+                sender_id,
+                "Merci et Bonne continuation!!!"
+            )
+            return
 
     def traitementPstPayloadPart(self, sender_id, commande):
 

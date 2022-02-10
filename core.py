@@ -41,7 +41,7 @@ class Traitement:
         while i < len(photos):
             produits.append({"title": str(i+1) + " - Terrain " + photos[i][1],
                              "image_url": URL_SERVER + photos[i][3],
-                             "subtitle": f"PRIX : {photos[i][2]}Ar/heures\nHORAIRES: {photos[i][4]}h00 à {photos[i][5]}h00",
+                             "subtitle": f"PRIX : {photos[i][2]}Ar/heure\nHORAIRES: {photos[i][4]}h00 à {photos[i][5]}h00",
                              "buttons": [{"type": "postback",
                                           "title": "VOIR GALERIE",
                                           "payload": "__GALERY" + " " + str(photos[i][0])},
@@ -120,7 +120,7 @@ class Traitement:
         for y in range(len(listeNomTerrain)):
             resultSearch.append({"title":f"{y+1} - Terrain {listeNomTerrain[y][1]}",
                              "image_url": URL_SERVER + listeNomTerrain[y][3],
-                             "subtitle": f"PRIX : {listeNomTerrain[y][2]} /heures\nHORAIRES : {listeNomTerrain[y][4]}h00 à {listeNomTerrain[y][5]}h00", 
+                             "subtitle": f"PRIX : {listeNomTerrain[y][2]} /heure\nHORAIRES : {listeNomTerrain[y][4]}h00 à {listeNomTerrain[y][5]}h00", 
                              "buttons": [{"type": "postback",
                                           "title": "VOIR GALERIE",
                                           "payload": f"__GALERY {listeNomTerrain[y][0]}"},
@@ -254,16 +254,16 @@ class Traitement:
                             action_admin = req.get_action_admin(
                                 list(sender_id_admin)[0])[0]
                             data = message['message'].get('attachments')
-                            file_log(data)
                             if action_admin == "MODIFIER_GALLERY" or action_admin == "ATTENTE_GALLERY" \
                                 or action_admin == "MODIFIER_INFO":
+                                file_log("liste_image" + "_" + action_admin)
                                 admin.executionAdmin(
                                     sender_id,
                                     data
                                 )
 
                             else:
-                                print(data[0]['payload']["url"])
+                                file_log("image")
                                 admin.executionAdmin(
                                     sender_id,
                                     data[0]['payload']["url"]

@@ -1,10 +1,13 @@
 import requests
+from retry import retry 
 
 class Messenger:
     def __init__(self, access_token):
         self.token = access_token
         self.url = "https://graph.facebook.com/v12.0/me"
-    
+
+
+    @retry(requests.exceptions.ConnectionError, tries=3, delay=3)
     def send_message(self, dest_id, message):
         self.send_action(dest_id, 'typing_on')
         """
@@ -32,6 +35,7 @@ class Messenger:
         self.send_action(dest_id, 'typing_off')
         return res
 
+    @retry(requests.exceptions.ConnectionError, tries=3, delay=3)
     def send_action(self, dest_id, action):
         """
             Cette fonction sert à simuler un action sur les messages.
@@ -57,6 +61,7 @@ class Messenger:
             params=params
         )
 
+    @retry(requests.exceptions.ConnectionError, tries=3, delay=3)
     def send_quick_reply(self, dest_id, types):
         '''
             Envoie des quick reply messenger
@@ -683,6 +688,7 @@ ou gérer vos disponibilités pour une autre date"
             params=params
         )
 
+    @retry(requests.exceptions.ConnectionError, tries=3, delay=3)
     def send_template(self, destId, elements, **kwargs):
         '''
             Envoi des produits sous forme templates
@@ -717,6 +723,7 @@ ou gérer vos disponibilités pour une autre date"
             headers=header, params=params
         )
 
+    @retry(requests.exceptions.ConnectionError, tries=3, delay=3)
     def send_file_url(self, destId, url, filetype='file'):
         '''
             Envoyé piece jointe par lien.

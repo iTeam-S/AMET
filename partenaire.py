@@ -810,6 +810,8 @@ class Partenaire:
 
         bot.send_action(sender_id, 'mark_seen')
 
+        req.verif_utilisateur(sender_id)
+
         if self.traitementPstPayloadPart(sender_id, commande):
             return
 

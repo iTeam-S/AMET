@@ -581,6 +581,11 @@ ou gérer vos disponibilités pour une autre date"
                     "content_type": "text",
                     "title": "📷GALLERY",
                     "payload": "__GALLERY",
+                },
+                {
+                    "content_type": "text",
+                    "title": "💲AVANCE",
+                    "payload": "__AVANCE",
                 }
 
             ]

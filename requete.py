@@ -314,6 +314,7 @@ class Requete:
         self.cursor.execute(req,(nom_user,sender_id))
         self.db.commit()
 
+    @verif_db
     def get_user_name(self,sender_id):
         req = """
                 SELECT nom_user
@@ -321,6 +322,18 @@ class Requete:
                 WHERE fb_id = %s
         """
         self.cursor.execute(req,(sender_id,))
+        data = self.cursor.fetchone()[0]
+        self.db.commit()
+        return data
+    
+    @verif_db
+    def get_avance(self,id_prod):
+        req = """
+                SELECT avance 
+                FROM produits
+                WHERE id_prod = %s
+        """
+        self.cursor.execute(req,(id_prod,))
         data = self.cursor.fetchone()[0]
         self.db.commit()
         return data
@@ -515,10 +528,11 @@ class Requete:
             couverture,
             id_part,
             heureDouv,
-            heureFerm):
+            heureFerm,
+            avance):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part,heureDouv,heureFerm)
-                    VALUES (%s, %s, %s, %s,1,%s,%s,%s)
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,id_part,heureDouv,heureFerm,avance)
+                    VALUES (%s, %s, %s, %s,1,%s,%s,%s,%s)
                 """
         self.cursor.execute(
             reqAdmin,
@@ -528,7 +542,8 @@ class Requete:
              couverture,
              id_part,
              heureDouv,
-             heureFerm))
+             heureFerm,
+             avance))
         self.db.commit()
 
     @verif_db
@@ -539,10 +554,11 @@ class Requete:
             prix,
             couverture,
             heureDouv,
-            heureFerm):
+            heureFerm,
+            avance):
         reqAdmin = """
-                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,heureDouv,heureFerm)
-                    VALUES (%s, %s, %s, %s,1,%s,%s)
+                    INSERT INTO produits(nom_prod, details, prix, photo_couverture,id_categ,heureDouv,heureFerm,avance)
+                    VALUES (%s, %s, %s, %s,1,%s,%s,%s)
                 """
         self.cursor.execute(
             reqAdmin,
@@ -551,7 +567,8 @@ class Requete:
              prix,
              couverture,
              heureDouv,
-             heureFerm))
+             heureFerm,
+             avance))
 
     @verif_db
     def update_product(self, id_product, colonne, value_colonne):

@@ -428,6 +428,25 @@ class Admin:
                 bot.send_message(sender_id, const.ErrorInsertPrix)
                 return True
 
+        elif statut == "MODIFIER_AVANCE":
+            avance = commande
+            if avance.isdigit():
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["avance"] = avance
+                req.set_tempAdmin(sender_id, json.dumps(data))
+
+                req.update_product(
+                    json.loads(
+                        req.get_tempAdmin(sender_id)).get("listeElementPayload")[1], "avance", json.loads(
+                        req.get_tempAdmin(sender_id)).get("avance"))
+                bot.send_message(sender_id, const.modifSuccess)
+                req.set_action_admin(sender_id, None)
+                bot.send_quick_reply(sender_id, "AutreModification")
+                return True
+            else:
+                bot.send_message(sender_id, const.ErrorInsertPrix)
+                return True
+
         elif statut == "MODIFIER_COUVERTURE":
             try:
                 couverturephotoList = commande.split(
@@ -649,14 +668,29 @@ class Admin:
                 data = json.loads(req.get_tempAdmin(sender_id))
                 data["heureFerm"] = commande
                 req.set_tempAdmin(sender_id, json.dumps(data))
-                bot.send_message(sender_id, const.attenteGallerry)
-                req.set_action_admin(sender_id, "ATTENTE_GALLERY")
+                bot.send_message(sender_id, const.attenteAvance)
+                req.set_action_admin(sender_id, "ATTENTE_AVANCE")
                 return True
 
             else:
                 bot.send_message(sender_id, const.ErrorTypeHeureDouvEtFerm)
                 req.set_action_admin(sender_id, "ATTENTE_HEUREFERM")
                 return True
+
+        elif statut == "ATTENTE_AVANCE":
+            if commande.isdigit():
+                avance = commande
+                data = json.loads(req.get_tempAdmin(sender_id))
+                data["avance"] = avance
+                req.set_tempAdmin(sender_id, json.dumps(data))
+                bot.send_message(sender_id, const.attenteGallerry)
+                req.set_action_admin(sender_id, "ATTENTE_GALLERY")
+                return True
+            else:
+                bot.send_message(sender_id, const.incorrectPrix)
+                req.set_action_admin(sender_id, "ATTENTE_AVANCE")
+                return True
+
 
         elif statut == "ATTENTE_GALLERY":
             try:
@@ -1039,6 +1073,11 @@ class Admin:
             # envoi un quick reply pour ajouter à nouveau
             bot.send_quick_reply(sender_id, "ajouterAnouveau")
             return True
+        
+        elif commande == "__AVANCE":
+            bot.send_message(sender_id, const.inputNewAvance)
+            req.set_action_admin(sender_id, "MODIFIER_AVANCE")
+            return True
 
         elif commande == "__MODIFPART":
             # Afficher d'abord le partenaire de ce produit
@@ -1116,7 +1155,8 @@ class Admin:
                 values.get("prix"),
                 values.get("pdc"),
                 int(values.get("heureDouv")),
-                int(values.get("heureFerm"))
+                int(values.get("heureFerm")),
+                int(values.get("avance"))
             )
 
             newIdProd = req.lastInsertId()
@@ -1136,7 +1176,8 @@ class Admin:
                 values.get("pdc"),
                 values.get("id_part"),
                 int(values.get("heureDouv")),
-                int(values.get("heureFerm"))
+                int(values.get("heureFerm")),
+                int(values.get("avance"))
             )
 
             newIdProd = req.lastInsertId()

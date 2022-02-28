@@ -1009,7 +1009,7 @@ class Traitement:
                 data["intervalle"] = f"{heure}heure(s) et demi"
                 req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((5000 * heure))
+                avance = int((req.get_avance(data.get("listeElementPayload")[1])) * heure)
                 bot.send_message(
                     sender_id,
                     const.informations(avance)
@@ -1029,7 +1029,7 @@ class Traitement:
                 data["intervalle"] = f"{heure - 1}heure(s) et demi"
                 req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((5000 * heure))
+                avance = int((req.get_avance(data.get("listeElementPayload")[1])) * heure)
                 bot.send_message(
                     sender_id,
                     const.informations(avance)
@@ -1048,7 +1048,7 @@ class Traitement:
                 data["intervalle"] = f"{heure}heure(s)"
                 req.set_temp(sender_id, json.dumps(data))
                 prix = int(dataAinserer.get("listeElementPayload")[-1])
-                avance = int((5000 * heure))
+                avance = int((req.get_avance(data.get("listeElementPayload")[1])) * heure)
                 bot.send_message(
                     sender_id,
                     const.informations(avance)

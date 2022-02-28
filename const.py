@@ -209,6 +209,10 @@ ErrorTypeImageInfo = "Une erreur s'est produite\nVeuillez poster plutôt des ima
 
 attente_nom_user = "Veuillez entrer votre nom + prenom"
 
+inputNewAvance = "Entrer alors le nouveau prix d'avance:"
+
+attenteAvance = "Entrer le prix d'avance par heure de ce produit:"
+
 # -----------------------------FONCTIONS------------------------------------------------------#
 
 def roulesOfHour(heureDouv,HeureFerme):
@@ -254,14 +258,13 @@ une avance de {avance}Ar + frais de retrait. Le reste sera à payer une fois sur
 Voici nos numéros :\n\
 Telma : {env.get("NUM_TELMA")} (tsirihasina) \nOrange : {env.get("NUM_ORANGE")} (tsirihasina)\
 \n\nAprès le paiement, envoyez-nous le numéro de réference !\
-\n\nPS : Après un délai de 30 min sans paiement, votre réservation sera automatiquement annulée.\
-\n\nPour l'avance(1h30 = 1h = 5.000 Ar. 2h30 = 2h = 10.000 Ar ect...)"""
+\n\nPS : Après un délai de 30 min sans paiement, votre réservation sera automatiquement annulée."""
 
 def verifcommandePart(nomTerrain, name, date, heureDebut, heureFin):
     return f"""
                 Bonjour Admin, Le propriétaire du terrain {nomTerrain} qui est {name.upper()} vient de faire \
                 une réservation pour son terrain pour la date de {date} au {heureDebut} à {heureFin} \
-                \n\nAlors, veuillez-vous le contacter pour plus d'information\
+                \n\nAlors, veuillez-vous le contacter pour plus d'information
         """
 
 def msgPart(fullNameUser,daty,heureDebut,heureFin):
